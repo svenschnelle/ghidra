@@ -125,25 +125,28 @@ define register offset=0x6000 size=$(ADDRSIZE) [
 define register offset=0x7000 size=1 [nullifyCond nullifyNextCond branchCond branchExecuted]; 
 define register offset=0x7100 size=$(REGSIZE) [branchIndDest nullifyCondResult];
 
-define register offset=0x7200 size=16 contextreg;
-define context contextreg
+define register offset=0x7200 size=20 contextreg;
+define register offset=0x7220 size=20 contextreg2;
 
- # transient context 
- phase       = (0,2) noflow
- temp1		 = (3,3)
-  
+define context contextreg
+ # transient context
+ phase		=(0,2) noflow
+ temp1		= (3,3)
+
  # stored context
  nullifyEnable = (4,4) noflow
  branchCouldBeNullified = (5,5) noflow
- branchEnable  = (6,6) noflow
- branchType    = (7,9) noflow
- branchIsReturn  = (10,10) noflow # used for returns
- padding = (10,31) noflow
- branchImmDest = (32,63) noflow
- temp32 = (64,95) noflow
+ branchEnable	= (6,6) noflow
+ branchType	= (7,9) noflow
+ branchIsReturn	= (10,10) noflow # used for returns
+ padding	= (10,31) noflow
+ branchImmDestL	= (32,63) noflow
+ branchImmDestH	= (64,95) noflow
+ temp32L	= (96,127) noflow
+ temp32H	= (128,159) noflow
 ;
 
-@define COMMON  "phase=1 " 
+@define COMMON  "phase=1 "
 
 # Instruction fields
 
@@ -480,7 +483,7 @@ attach names [ fusedfmt ] [
 # Need to reset branchCond = 0 before build instruction because the insruction does not reset it,
 # and if branchcond is not reset, then it persists to subsequent instructions.
 
-immediateDest: is branchImmDest { export *:$(ADDRSIZE) branchImmDest; }
+immediateDest: is branchImmDestH & branchImmDestL { tmp:8 = (branchImmDestH << 32) | branchImmDestL; export *:$(ADDRSIZE) tmp; }
 
 # previous instruction was a branch, but this instruction was not nullified
 # but branch instruction could have been nullified
@@ -1334,10 +1337,14 @@ branchTarget2W: target is w & w2less2 & w2_2
 			(w2_2 << 10) |
 			w2less2
 		);
-		temp32 = branchImmDest;
-		branchImmDest = target;
-		globalset(inst_next, branchImmDest);
-		branchImmDest = temp32;
+		temp32H = branchImmDestH;
+		temp32L = branchImmDestL;
+		branchImmDestL = target & 0xffffffff;
+		branchImmDestH = target >> 32;
+		globalset(inst_next, branchImmDestL);
+		globalset(inst_next, branchImmDestH);
+		branchImmDestL = temp32L;
+		branchImmDestH = temp32H;
 	]
 	{ export *:$(ADDRSIZE) target; }
 
@@ -1363,10 +1370,14 @@ branchTarget3W: target				is w & w1 & w2less2 & w2_2
 			(w2_2 << 10) |
 			w2less2
 		);
-		temp32 = branchImmDest;
-		branchImmDest = target;
-		globalset(inst_next, branchImmDest);
-		branchImmDest = temp32;
+		temp32H = branchImmDestH;
+		temp32L = branchImmDestL;
+		branchImmDestL = target & 0xffffffff;
+		branchImmDestH = target >> 32;
+		globalset(inst_next, branchImmDestL);
+		globalset(inst_next, branchImmDestH);
+		branchImmDestL = temp32L;
+		branchImmDestH = temp32H;
 	]
 	{ export *:$(ADDRSIZE) target; }
 
@@ -1379,10 +1390,14 @@ branchTarget4W: target is w & w1 & w2less2 & w2_2 & w3
 			w2less2 |
 			(w3 << 16)
 		);
-		temp32 = branchImmDest;
-		branchImmDest = target;
-		globalset(inst_next, branchImmDest);
-		branchImmDest = temp32;
+		temp32H = branchImmDestH;
+		temp32L = branchImmDestL;
+		branchImmDestL = target & 0xffffffff;
+		branchImmDestH = target >> 32;
+		globalset(inst_next, branchImmDestL);
+		globalset(inst_next, branchImmDestH);
+		branchImmDestL = temp32L;
+		branchImmDestH = temp32H;
 	]
 	{ export *:$(ADDRSIZE) target; }
 
@@ -1459,12 +1474,12 @@ lse21: off				is im21less0 & bit0 & im21_1_12 & im21_12_14 & im21_14_16 & im21_1
 #
 #lse11: immed				is im11 & bit0
 lse11: immed				is im11less0 & bit0
-	[ immed	= ((-1*bit0) << 10) | im11less0; temp32 = immed; ]
-#	[ immed = (bit0 * 0xFFFFFFFFFFFFFC00) | ( (im11 >> 1) & 0x3FF ); temp32 = immed; ]
+	[ immed	= ((-1*bit0) << 10) | im11less0; temp32L = immed; ]
+#	[ immed = (bit0 * 0xFFFFFFFFFFFFFC00) | ( (im11 >> 1) & 0x3FF ); temp32L = immed; ]
 	{ temp:$(ADDRSIZE) = immed; export temp; }
 
 lse10a: immed				is im10a & bit0
-	[ immed	= ((-1*bit0) << 13) | (im10a << 3); temp32 = immed; ]
+	[ immed	= ((-1*bit0) << 13) | (im10a << 3); temp32L = immed; ]
 	{ temp:$(ADDRSIZE) = immed; export temp; }
 
 OFF_BASE_14: lse14^SRRB	is lse14 & SRRB & SPCBASE { temp:$(ADDRSIZE) = SPCBASE + sext(lse14); export temp; }
@@ -1610,33 +1625,33 @@ RegAddCondI: 		is c = 7 & highlse5 & R2 { val:$(REGSIZE) = sext(highlse5:1); tmp
 
 RegAddCondI11: is c = 0 { export 0:1; } # never
 
-RegAddCondI11: is temp32 & c = 1 & lse11 & R2 {
-                                val:8 = sext(temp32:2); tmp_R2:8 = sext(R2);
+RegAddCondI11: is temp32L & c = 1 & lse11 & R2 {
+                                val:8 = sext(temp32L:2); tmp_R2:8 = sext(R2);
 				tmp:1 = (val == -tmp_R2) ; export tmp; } # equal
 
-RegAddCondI11: is temp32 & c = 2 & lse11 & R2 {
-                                val:8 = sext(temp32:2); tmp_R2:8 = sext(R2);
+RegAddCondI11: is temp32L & c = 2 & lse11 & R2 {
+                                val:8 = sext(temp32L:2); tmp_R2:8 = sext(R2);
 				tmp:1 = (val s< -tmp_R2) ; export tmp; } # signed less than negative of R2
 
-RegAddCondI11: is temp32 & c = 3 & lse11 & R2 {
-				val:8 = sext(temp32:2); tmp_R2:8 = sext(R2);
+RegAddCondI11: is temp32L & c = 3 & lse11 & R2 {
+				val:8 = sext(temp32L:2); tmp_R2:8 = sext(R2);
 				tmp:1 = (val s<= -tmp_R2) ; export tmp; } # signed less than or equal to R2
 
-RegAddCondI11: is temp32 & c = 4 & lse11 & R2 {
-				val:$(REGSIZE) = sext(temp32:2);
+RegAddCondI11: is temp32L & c = 4 & lse11 & R2 {
+				val:$(REGSIZE) = sext(temp32L:2);
 				tmp:1 = ! carry(val,R2) ; export tmp; } # unsigned sum does not overflow
 
-RegAddCondI11: is temp32 & c = 5 & lse11 & R2 {
+RegAddCondI11: is temp32L & c = 5 & lse11 & R2 {
 				# Don't need 64-bit arithmetic here
-				val:$(REGSIZE) = sext(temp32:2);
+				val:$(REGSIZE) = sext(temp32L:2);
 				tmp:1 = (val + R2) == 0 ; export tmp; } # sum is zero or no overflow (why two definitions??)
 
-RegAddCondI11: is temp32 & c = 6 & lse11 & R2 {
-				val:$(REGSIZE) = sext(temp32:2);
+RegAddCondI11: is temp32L & c = 6 & lse11 & R2 {
+				val:$(REGSIZE) = sext(temp32L:2);
 				tmp:1 = scarry(val,R2); export tmp; } # signed sum overflows
 
-RegAddCondI11: is temp32 & c = 7 & lse11 & R2 {
-				val:8 = sext(temp32:2); tmp_R2:8 = sext(R2);
+RegAddCondI11: is temp32L & c = 7 & lse11 & R2 {
+				val:8 = sext(temp32L:2); tmp_R2:8 = sext(R2);
 				tmp:1 = ((val+tmp_R2) & 0x1) == 0x1 ; export tmp; } # sum is odd
 
 AddCondI11:		is RegAddCondI11 & fv=0 { export RegAddCondI11; }
