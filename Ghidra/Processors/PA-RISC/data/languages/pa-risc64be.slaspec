@@ -1,0 +1,10 @@
+# SLA specification file for PA-RISC 32 bit big endian
+
+@define ENDIAN "big"
+@define BITS "64"
+@define REGSIZE "8"
+@define ADDRSIZE "8"
+@define PARISC64 "1"
+@include "pa-risc.sinc"
+@include "pa-riscInstructions.sinc"
+
