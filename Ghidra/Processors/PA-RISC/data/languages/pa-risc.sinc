@@ -180,13 +180,17 @@ define token instr(32)
     s			= (14,15)
     srbit0		= (14,14)
     im13		= (13,25) signed
+    BBCondSym		= (13,15)
     SEDCondSym		= (13,15)
+    SEDCondSymW		= (13,15)
     RegUnitCondSym	= (13,15)
     InvUnitCondSym	= (13,15)
     RegLogicCondSym 	= (13,15)
     InvLogicCondSym 	= (13,15)
     RegAddCondSym	= (13,15)
+    RegAddCondSymW	= (13,15)
     InvAddCondSym	= (13,15)
+    InvAddCondSymW	= (13,15)
     RegCSCondSym = (13,15)
     RegCSCondSymW = (13,15)
     InvCSCondSym = (13,15)
@@ -254,6 +258,7 @@ define token instr(32)
     fusedfmt		= (5,5)
     bit5		= (5,5)
     m			= (5,5)
+    d			= (5,5)
     spn			= (5,5)
     im10a		= (4,14)
     m3			= (3,3)
@@ -351,8 +356,16 @@ attach names [ ldcwcc ] [
 ];
 
 # Table 5-7
+attach names [ BBCondSym ] [
+	"" "" ",&lt;" ",*&lt;" "" "" ",&gt;=" ",*&gt;="
+];
+
 attach names [ SEDCondSym ] [
 	"" ",=" ",&lt;" ",OD" ",TR" ",&lt;&gt;" ",&gt;=" ",EV"
+];
+
+attach names [ SEDCondSymW ] [
+	"" ",*=" ",*&lt;" ",*OD" ",*TR" ",*&lt;&gt;" ",*&gt;=" ",*EV"
 ];
 
 attach names [ RegUnitCondSym ] [
@@ -376,8 +389,16 @@ attach names [ RegAddCondSym ] [
 	"" ",=" ",&lt;" ",&lt;=" ",NUV" ",ZNV" ",SV" ",OD"
 ];
 
+attach names [ RegAddCondSymW ] [
+	"" ",*=" ",*&lt;" ",*&lt;=" ",*NUV" ",*ZNV" ",*SV" ",*OD"
+];
+
 attach names [ InvAddCondSym ] [
 	"" ",&lt;&gt;" ",&gt;=" ",&gt;" ",UV" ",VNZ" ",NSV" ",EV"
+];
+
+attach names [ InvAddCondSymW ] [
+	"" ",*&lt;&gt;" ",*&gt;=" ",*&gt;" ",*UV" ",*VNZ" ",*NSV" ",*EV"
 ];
 
 attach names [ RegCSCondSym ] [
@@ -1505,9 +1526,14 @@ ExtrCondNullify:	is ExtrCond [ nullifyEnable = 1; globalset(inst_next, nullifyEn
 # a subset of the SED conditions used for bit tests
 BVBCond:				is c=2 & R1 { tmp:1 = ((R1 >> (31-sar)) & 0x1) == 1 ; export tmp; } # target bit is one
 BVBCond:				is c=6 & R1 { tmp:1 = ((R1 >> (31-sar)) & 0x1) == 0 ; export tmp; } # target bit is zero
+BVBCond:				is c=3 & R1 { tmp:1 = ((R1 >> (63-sar)) & 0x1) == 1 ; export tmp; } # target bit is one
+BVBCond:				is c=7 & R1 { tmp:1 = ((R1 >> (63-sar)) & 0x1) == 0 ; export tmp; } # target bit is zero
 
 BBCond:					is c=2 & R1 & bboffset { tmp:1 = ((R1 >> (31-bboffset)) & 0x1) == 1 ; export tmp; } # target bit is one
 BBCond:					is c=6 & R1 & bboffset { tmp:1 = ((R1 >> (31-bboffset)) & 0x1) == 0 ; export tmp; } # target bit is zero
+BBCond:					is c=3 & R1 & bboffset { tmp:1 = ((R1 >> (63-bboffset)) & 0x1) == 1 ; export tmp; } # target bit is one
+BBCond:					is c=7 & R1 & bboffset { tmp:1 = ((R1 >> (63-bboffset)) & 0x1) == 0 ; export tmp; } # target bit is zero
+
 
 #
 # unit conditions for checking byte ranges within a word
@@ -1535,13 +1561,21 @@ UnitCondSym: InvUnitCondSym	is InvUnitCondSym & fv=1 { }
 ##### The Add Conditions from table 5-4 on page 5-5
 #
 RegAddCond: 		is c = 0 { export 0:1; } # never
-RegAddCond: 		is c = 1 & R1 & R2 { tmp:1 = (R1 == R2) ; export tmp; } # equal
-RegAddCond: 		is c = 2 & R1 & R2 { tmp:1 = (R1 s< -R2) ; export tmp; } # signed less than negative of R2 
-RegAddCond: 		is c = 3 & R1 & R2 { tmp:1 = (R1 s<= R2) ; export tmp; } # signed less than or equal to R2
-RegAddCond: 		is c = 4 & R1 & R2 { tmp:1 = ! carry(R1,R2) ; export tmp; } # unsigned sum does not overflow
-RegAddCond: 		is c = 5 & R1 & R2 { tmp:1 = (R1 + R2) == 0 ; export tmp; } # sum is zero or no overflow (why two definitions??)
-RegAddCond: 		is c = 6 & R1 & R2 { tmp:1 = scarry(R1,R2); export tmp; } # signed sum overflows
-RegAddCond: 		is c = 7 & R1 & R2 { tmp:1 = ((R1+R2) & 0x1) == 0x1 ; export tmp; } # sum is odd
+RegAddCond: 		is c = 1 & d = 0 & R1 & R2 { tmp:1 = (R1:4 == R2:4) ; export tmp; } # equal
+RegAddCond: 		is c = 2 & d = 0 & R1 & R2 { tmp:1 = (R1:4 s< -R2:4) ; export tmp; } # signed less than negative of R2 
+RegAddCond: 		is c = 3 & d = 0 & R1 & R2 { tmp:1 = (R1:4 s<= R2:4) ; export tmp; } # signed less than or equal to R2
+RegAddCond: 		is c = 4 & d = 0 & R1 & R2 { tmp:1 = ! carry(R1:4,R2:4) ; export tmp; } # unsigned sum does not overflow
+RegAddCond: 		is c = 5 & d = 0 & R1 & R2 { tmp:1 = (R1:4 + R2:4) == 0 ; export tmp; } # sum is zero or no overflow (why two definitions??)
+RegAddCond: 		is c = 6 & d = 0 & R1 & R2 { tmp:1 = scarry(R1:4,R2:4); export tmp; } # signed sum overflows
+RegAddCond: 		is c = 7 & d = 0 & R1 & R2 { tmp:1 = ((R1:4+R2:4) & 0x1) == 0x1 ; export tmp; } # sum is odd
+RegAddCond: 		is c = 1 & d = 1 & R1 & R2 { tmp:1 = (R1 == R2) ; export tmp; } # equal
+RegAddCond: 		is c = 2 & d = 1 & R1 & R2 { tmp:1 = (R1 s< -R2) ; export tmp; } # signed less than negative of R2 
+RegAddCond: 		is c = 3 & d = 1 & R1 & R2 { tmp:1 = (R1 s<= R2) ; export tmp; } # signed less than or equal to R2
+RegAddCond: 		is c = 4 & d = 1 & R1 & R2 { tmp:1 = ! carry(R1,R2) ; export tmp; } # unsigned sum does not overflow
+RegAddCond: 		is c = 5 & d = 1 & R1 & R2 { tmp:1 = (R1 + R2) == 0 ; export tmp; } # sum is zero or no overflow (why two definitions??)
+RegAddCond: 		is c = 6 & d = 1 & R1 & R2 { tmp:1 = scarry(R1,R2); export tmp; } # signed sum overflows
+RegAddCond: 		is c = 7 & d = 1 & R1 & R2 { tmp:1 = ((R1+R2) & 0x1) == 0x1 ; export tmp; } # sum is odd
+
 
 AddCond:			is RegAddCond & fv=0 { export RegAddCond; }
 AddCond:			is RegAddCond & fv=1 { tmp:1 = ! RegAddCond; export tmp; }
@@ -1552,8 +1586,10 @@ AddCondNullify:	is AddCond [ nullifyEnable=1; globalset(inst_next, nullifyEnable
 	nullifyNextCond = AddCond;
 }
 
-AddCondSym: RegAddCondSym	is RegAddCondSym & fv=0 { }
-AddCondSym: InvAddCondSym	is InvAddCondSym & fv=1 { }
+AddCondSym: RegAddCondSym	is RegAddCondSym & fv=0 & d=0 { }
+AddCondSym: InvAddCondSym	is InvAddCondSym & fv=1 & d=0 { }
+AddCondSym: RegAddCondSymW	is RegAddCondSymW & fv=0 & d=1 { }
+AddCondSym: InvAddCondSymW	is InvAddCondSymW & fv=1 & d=1 { }
 
 RegAddCondI: 		is c = 0 { export 0:1; } # never
 RegAddCondI: 		is c = 1 & highlse5 & R2 { val:$(REGSIZE) = sext(highlse5:1); tmp:1 = (val == -R2) ; export tmp; } # equal to negated
@@ -1616,13 +1652,23 @@ AddCondI11Nullify:	is AddCondI11 [ nullifyEnable=1; globalset(inst_next, nullify
 #### Compare / Subtract Instructions
 #
 RegCSCond: 		is c=0 & R1 & R2 { export 0:1; }  # never
-RegCSCond: 		is c=1 & R1 & R2 { tmp:1 = (R1 == R2) ; export tmp; } # equal
-RegCSCond: 		is c=2 & R1 & R2 { tmp:1 = (R1 s< R2) ; export tmp; } # signed less than
-RegCSCond: 		is c=3 & R1 & R2 { tmp:1 = (R1 s<= R2) ; export tmp; } # signed less than equal
-RegCSCond: 		is c=4 & R1 & R2 { tmp:1 = (R1 < R2) ; export tmp; } # unsigned less than 
-RegCSCond: 		is c=5 & R1 & R2 { tmp:1 = (R1 <= R2) ; export tmp; } # unsigned less than equal
-RegCSCond: 		is c=6 & R1 & R2 { tmp:1 = sborrow(R1,R2) ; export tmp; } # signed minus overflows (borrows)
-RegCSCond: 		is c=7 & R1 & R2 { tmp:1 = ((R1 - R2) & 0x1) == 1 ; export tmp; } # odd
+RegCSCond: 		is c=1 & R1 & R2 { tmp:1 = (R1:4 == R2:4) ; export tmp; } # equal
+RegCSCond: 		is c=2 & R1 & R2 { tmp:1 = (R1:4 s< R2:4) ; export tmp; } # signed less than
+RegCSCond: 		is c=3 & R1 & R2 { tmp:1 = (R1:4 s<= R2:4) ; export tmp; } # signed less than equal
+RegCSCond: 		is c=4 & R1 & R2 { tmp:1 = (R1:4 < R2:4) ; export tmp; } # unsigned less than 
+RegCSCond: 		is c=5 & R1 & R2 { tmp:1 = (R1:4 <= R2:4) ; export tmp; } # unsigned less than equal
+RegCSCond: 		is c=6 & R1 & R2 { tmp:1 = sborrow(R1:4,R2:4) ; export tmp; } # signed minus overflows (borrows)
+RegCSCond: 		is c=7 & R1 & R2 { tmp:1 = ((R1:4 - R2:4) & 0x1) == 1 ; export tmp; } # odd
+
+RegCSCondW: 		is c=0 & R1 & R2 { export 0:1; }  # never
+RegCSCondW: 		is c=1 & R1 & R2 { tmp:1 = (R1 == R2) ; export tmp; } # equal
+RegCSCondW: 		is c=2 & R1 & R2 { tmp:1 = (R1 s< R2) ; export tmp; } # signed less than
+RegCSCondW: 		is c=3 & R1 & R2 { tmp:1 = (R1 s<= R2) ; export tmp; } # signed less than equal
+RegCSCondW: 		is c=4 & R1 & R2 { tmp:1 = (R1 < R2) ; export tmp; } # unsigned less than 
+RegCSCondW: 		is c=5 & R1 & R2 { tmp:1 = (R1 <= R2) ; export tmp; } # unsigned less than equal
+RegCSCondW: 		is c=6 & R1 & R2 { tmp:1 = sborrow(R1,R2) ; export tmp; } # signed minus overflows (borrows)
+RegCSCondW: 		is c=7 & R1 & R2 { tmp:1 = ((R1 - R2) & 0x1) == 1 ; export tmp; } # odd
+
 
 CSCond: 	is fv=0 & RegCSCond { export RegCSCond; }
 CSCond: 	is fv=1 & RegCSCond { tmp:1 = ! RegCSCond; export tmp; }
