@@ -9,6 +9,12 @@ with : phase=1 {
 ############################
 # Load and Store and Address Generation Instructions
 ############################
+
+:LDD OFF_BASE_10a,R1dst		is opfam=0x14 & OFF_BASE_10a & R1dst {
+	addr:$(ADDRSIZE) = OFF_BASE_10a;
+    R1dst =  *[ram]:8 addr ;
+ } 
+
 :LDW OFF_BASE_14,R1dst		is opfam=0x12 & OFF_BASE_14 & R1dst {
 	addr:$(ADDRSIZE) = OFF_BASE_14;
     R1dst =  zext(*[ram]:4 addr) ;
@@ -23,6 +29,11 @@ with : phase=1 {
 	addr:$(ADDRSIZE) = OFF_BASE_14;
     R1dst = zext(*[ram]:1 addr) ;
 } 
+
+:STD R1,OFF_BASE_10a		is opfam=0x1c & OFF_BASE_10a & R1 {
+	addr:$(ADDRSIZE) = OFF_BASE_10a;
+	*[ram]:8 addr = R1; 
+ } 
 
 :STW R1,OFF_BASE_14		is opfam=0x1A & OFF_BASE_14 & R1 {
 	addr:$(ADDRSIZE) = OFF_BASE_14;
@@ -63,6 +74,12 @@ with : phase=1 {
 	address:$(ADDRSIZE) = indexedWordAccessCmplt;  
     RT =  zext(*[ram]:4 address) ;
  }
+
+# LDDX
+:LDD^indexedWordAccessCmplt^loadCC RX^SRRB,RT is opfam=0x03 & subop=3 & zero=0 & indexedWordAccessCmplt & loadCC & RX & RT & SRRB {
+	address:$(ADDRSIZE) = indexedWordAccessCmplt;  
+    RT =  zext(*[ram]:$(REGSIZE) address) ;
+ }
  
  #LDHX
 :LDH^indexedHalfwordAccessCmplt^loadCC RX^SRRB,RT is opfam=0x03 & subop=1 & zero=0 & indexedHalfwordAccessCmplt & loadCC & RX & SRRB & RT {
@@ -94,6 +111,12 @@ with : phase=1 {
     RT =  zext(*[ram]:4 addr) ;
 }
 
+# LDDS
+:LDD^shortDispCmplt^loadCC highlse5^SRRB,RT			is opfam=0x03 & subop=3 & one=1 & shortDispCmplt & loadCC & highlse5 & SRRB & RT {
+	addr:$(ADDRSIZE) = shortDispCmplt;
+    RT =  zext(*[ram]:$(REGSIZE) addr) ;
+}
+
 # LDHS
 :LDH^shortDispCmplt^loadCC highlse5^SRRB,RT			is opfam=0x03 & subop=1 & one=1 & shortDispCmplt & loadCC & highlse5 & SRRB & RT {
 	addr:$(ADDRSIZE) = shortDispCmplt;
@@ -108,6 +131,12 @@ with : phase=1 {
 
 #STWS
 :STW^storeShortDispCmplt^storeCC RR,lse5^SRRB				is opfam=0x03 & subop=0xA & one=1 & storeShortDispCmplt & storeCC & lse5 & SRRB & RR {
+	addr:$(ADDRSIZE) = storeShortDispCmplt;
+	*[ram]:4 addr = RR:4; 
+}
+
+#STDS
+:STD^storeShortDispCmplt^storeCC RR,lse5^SRRB				is opfam=0x03 & subop=0xB & one=1 & storeShortDispCmplt & storeCC & lse5 & SRRB & RR {
 	addr:$(ADDRSIZE) = storeShortDispCmplt;
 	*[ram]:4 addr = RR:4; 
 }
@@ -238,6 +267,29 @@ with : phase=1 {
 	call branchTarget3W;
 }
 
+# non-nullifying unconditional immediate call (22 bit version)
+:B^",L"^nullifyForBranch branchTarget4W,rp 			is opfam=0x3A & c=0x5 & rp & nullifyForBranch & n=0 & branchTarget4W & $(COMMON) 
+	[
+	  branchEnable = 1;
+	  globalset(inst_next, branchEnable);
+	  branchType = 1; # unconditional imm call
+	  globalset(inst_next, branchType);
+	  branchCouldBeNullified = nullifyEnable;
+	  globalset(inst_next, branchCouldBeNullified);
+	]
+{
+	rp = inst_start+8;
+	branchExecuted = 1;
+}
+
+# nullifying unconditional immediate call
+# special case that doesn't need the deferral mechanism 
+:B^",L"^nullifySymForBranch branchTarget4W,rp						is opfam=0x3A & c=0x5 & rp & nullifySymForBranch & n=1 & branchTarget4W & $(COMMON) 
+{
+	rp = inst_start+8;
+	call branchTarget4W;
+}
+
 ################################################################################
 # unconditional immediate branches
 # since PA-RISC doesn't have a straight branch without link, it uses branch and link into the R0 register.
@@ -353,6 +405,8 @@ with : phase=1 {
 	nullifyNextCond = ( ! branchCond && (displacement2W s< 0)) || ( branchCond && (displacement2W s>= 0) );
 }
 
+
+
 :CMPIBF^RegCSCondSym^nullifyForBranch highlse5,R2,branchTarget2W	is opfam=0x23 & highlse5 & R2 & nullifyForBranch & branchTarget2W & RegCSCondSym & RegCSCondI & n=0 & $(COMMON)
  	[ branchEnable = 1;
 	  globalset(inst_next, branchEnable);
@@ -376,6 +430,34 @@ with : phase=1 {
 	]
 {
 	branchCond = !RegCSCondI;
+	branchExecuted = 1;
+	nullifyNextCond = ( ! branchCond && (displacement2W s< 0)) || ( branchCond && (displacement2W s>= 0) );
+}
+
+# 64 bit versions
+:CMPIBT^RegCSCondSymW^nullifyForBranch highlse5,R2,branchTarget2W	is opfam=0x3b & highlse5 & R2 & nullifyForBranch & branchTarget2W & RegCSCondSymW & RegCSCondIW & n=0 & $(COMMON)
+ 	[ branchEnable = 1;
+	  globalset(inst_next, branchEnable);
+	  branchType = 2; # conditional imm branch
+	  globalset(inst_next, branchType);
+	  branchCouldBeNullified = nullifyEnable;
+	  globalset(inst_next, branchCouldBeNullified);
+	]
+{
+	branchCond = RegCSCondIW;
+	branchExecuted = 1;
+}
+
+:CMPIBT^RegCSCondSymW^nullifyForBranch highlse5,R2,branchTarget2W	is opfam=0x3b & highlse5 & R2 & nullifyForBranch & branchTarget2W & displacement2W & RegCSCondSymW & RegCSCondIW & n=1 & $(COMMON)
+ 	[ branchEnable = 1;
+	  globalset(inst_next, branchEnable);
+	  branchType = 2; # conditional imm branch
+	  globalset(inst_next, branchType);
+	  branchCouldBeNullified = nullifyEnable;
+	  globalset(inst_next, branchCouldBeNullified);
+	]
+{
+	branchCond = RegCSCondIW;
 	branchExecuted = 1;
 	nullifyNextCond = ( ! branchCond && (displacement2W s< 0)) || ( branchCond && (displacement2W s>= 0) );
 }
@@ -1122,23 +1204,49 @@ define pcodeop trap;
 	R1dst = 0;
 }
 
+:CMPICLR^CSCondSymW lse11,R2,R1dst	is opfam=0x24 & bit11=1 & lse11 & R2 & R1dst & CSCondI11Nullify & CSCondSymW
+{
+	R1dst = 0;
+}
+
 :SHRPW^SEDCondSym R1,R2,SAR,RT		is opfam=0x34 & subop1012=0 & bits59=0 & R1 & R2 & RT & ShiftCondNullify & SEDCondSym & SAR {
-	left:8 = zext( (R1 & 0x7FFFFFFF) ) << 32;
-	concat:8 = left | zext(R2);
+	left:$(REGSIZE) = zext( (R1 & 0x7FFFFFFF) ) << 32;
+	concat:$(REGSIZE) = left | zext(R2);
 	concat = concat >> SAR;
-	nullifyCondResult=concat:$(REGSIZE);
-	RT = concat:4;
+	nullifyCondResult=concat;
+	RT = concat;
+	
+	build ShiftCondNullify; 
+}
+
+:SHRPD^SEDCondSym R1,R2,SAR,RT		is opfam=0x34 & subop1012=0 & bits59=16 & R1 & R2 & RT & ShiftCondNullify & SEDCondSym & SAR {
+	left:16 = zext( (R1 & 0x7FFFFFFFFFFFFFFF) ) << 64;
+	concat:16 = left | zext(R2);
+	concat = concat >> SAR;
+	nullifyCondResult=concat:8;
+	RT = concat:8;
 	
 	build ShiftCondNullify; 
 }
 
 # previously this was shd, now is shrpw form 14
 :SHRPW^SEDCondSym R1,R2,shiftC,RT	is opfam=0x34 & R2 & R1 & subop1012=2 & shiftC & RT & SEDCondSym & ShiftCondNullify  {
-	left:8 = zext( (R1 & 0x7FFFFFFF) ) << 32;
-	concat:8 = left | zext(R2);
+	left:$(REGSIZE) = zext( (R1 & 0x7FFFFFFF) ) << 32;
+	concat:$(REGSIZE) = left | zext(R2);
 	concat = concat >> shiftC;
-	nullifyCondResult=concat:$(REGSIZE);
-	RT = concat:4;
+	nullifyCondResult=concat;
+	RT = concat;
+	
+	build ShiftCondNullify; 
+}
+
+# previously this was shd, now is shrpw form 14
+:SHRPD^SEDCondSym R1,R2,shiftCW,RT	is opfam=0x34 & R2 & R1 & bit10=1 & bit12=0 & shiftCW & RT & SEDCondSym & ShiftCondNullify  {
+	left:16 = zext( (R1 & 0x7FFFFFFFFFFFFFFF) ) << 64;
+	concat:16 = left | zext(R2);
+	concat = concat >> shiftCW;
+	nullifyCondResult=concat:8;
+	RT = concat:8;
 	
 	build ShiftCondNullify; 
 }
@@ -1146,7 +1254,17 @@ define pcodeop trap;
 # extract unsigned using SAR
 :EXTRW",U"^SEDCondSym R2,SAR,shiftCLen,R1dst	is opfam=0x34 & bits59=0 & subop1012=4 & R2 & shiftCLen & R1dst & SEDCondSym & ExtrCondNullify & SAR {
 	local value = R2 >> (31-SAR);
-	mask:4 = 0xffffffff >> (32 - shiftCLen);
+	mask:$(REGSIZE) = 0xffffffff >> (32 - shiftCLen);
+	nullifyCondResult = value & mask;
+	R1dst = nullifyCondResult;
+	
+	build ExtrCondNullify; 
+}
+
+# extract unsigned using SAR (64 bit version)
+:EXTRD",U"^SEDCondSym R2,SAR,shiftCLenW8,R1dst	is opfam=0x34 & bits57=0 & subop1012=4 & bit9=1 & R2 & shiftCLenW8 & R1dst & SEDCondSym & ExtrCondNullify & SAR {
+	local value = R2 >> (63-SAR);
+	mask:$(REGSIZE) = 0xffffffff >> (64 - shiftCLenW8);
 	nullifyCondResult = value & mask;
 	R1dst = nullifyCondResult;
 	
@@ -1163,10 +1281,30 @@ define pcodeop trap;
 	build ExtrCondNullify;
 }
 
+# extract signed using SAR (64 bit version)
+:EXTRD",S"^SEDCondSym R2,SAR,shiftCLenW8,R1dst	is opfam=0x34 & bits57=0 & subop1012=5 & bit9=1 & R2 & shiftCLenW8 & R1dst & SEDCondSym & ExtrCondNullify & SAR {
+	local value = R2 s>> (63-SAR);
+	value = value << (64 - shiftCLenW8);
+	value = value s>> (64 - shiftCLenW8);
+	nullifyCondResult = value;
+	R1dst = value;
+	build ExtrCondNullify;
+}
+
 # extract unsigned using immediate
 :EXTRW^",U"^SEDCondSym R2,cp,shiftCLen,R1dst	is opfam=0x34 & subop1012=6 & cp & R2 & shiftCLen & R1dst & SEDCondSym & ExtrCondNullify & shiftC {
 	local value = R2 >> shiftC;
-	mask:4 = 0xffffffff >> (32-shiftCLen);
+	mask:$(REGSIZE) = 0xffffffff >> (32-shiftCLen);
+	nullifyCondResult = value & mask;
+	R1dst = nullifyCondResult;
+
+	build ExtrCondNullify;
+}
+
+# extract unsigned using immediate (64 bit version)
+:EXTRD^",U"^SEDCondSym R2,cpW,shiftCLenW10,R1dst	is opfam=0x36 & cpW & bit10=0 & R2 & shiftCLenW10 & R1dst & SEDCondSym & ExtrCondNullify & shiftCW {
+	local value = R2 >> shiftCW;
+	mask:$(REGSIZE) = 0xffffffffffffffff >> (64-shiftCLenW10);
 	nullifyCondResult = value & mask;
 	R1dst = nullifyCondResult;
 
@@ -1183,9 +1321,19 @@ define pcodeop trap;
 	build ExtrCondNullify;
 }
 
+# extract signed using immediate (64 bit version)
+:EXTRD^",S"^SEDCondSym R2,cpW,shiftCLenW10,R1dst	is opfam=0x36 & bit10=1 & cpW & R2 & shiftC & shiftCLenW10 & R1dst & SEDCondSym & ExtrCondNullify & shiftCW {
+	local value = R2 s>> shiftCW;
+	value = value << (64 - shiftCLenW10);
+	value = value s>> (64 - shiftCLenW10);
+	nullifyCondResult = value;
+	R1dst = value;
+	build ExtrCondNullify;
+}
+
 # non-zeroing SAR version (VDEP)
 :DEPW^SEDCondSym R1,SAR,shiftCLen,R2dst       is opfam=0x35 & bits59=0 & subop1012=1 & R1 & R2 & R2dst & shiftCLen & DepCondNullify & SEDCondSym & SAR {
-        mask:4 = 0xffffffff >> (32-shiftCLen);
+        mask:$(REGSIZE) = 0xffffffff >> (32-shiftCLen);
         local value = R1 & mask;
         value = value << (31-SAR);
         mask = mask << (31-SAR);
@@ -1197,9 +1345,23 @@ define pcodeop trap;
         build DepCondNullify;
 }
 
+# non-zeroing SAR version (VDEP) (64 bit)
+:DEPD^SEDCondSym R1,SAR,shiftCLenW8,R2dst is opfam=0x35 & bits57=0 & bit9=1 & subop1012=1 & R1 & R2 & R2dst & shiftCLenW8 & DepCondNullify & SEDCondSym & SAR {
+        mask:$(REGSIZE) = 0xffffffff >> (64-shiftCLenW8);
+        local value = R1 & mask;
+        value = value << (63-SAR);
+        mask = mask << (63-SAR);
+        local result = R2 & ~mask;
+        result = result | value; 
+        R2dst = result;
+        nullifyCondResult = result;
+        
+        build DepCondNullify;
+}
+
 # non-zeroing constant version (DEP)
 :DEPW^SEDCondSym R1,shiftC,shiftCLen,R2dst is opfam=0x35 & subop1012=3 & shiftC & shiftCLen & R1 & R2 & R2dst & DepCondNullify & SEDCondSym & cp {
-        mask:4 = 0xffffffff >> (32-shiftCLen);
+        mask:$(REGSIZE) = 0xffffffff >> (32-shiftCLen);
         local value = R1 & mask;
         value = value << cp;
         mask = mask << cp;
@@ -1210,10 +1372,23 @@ define pcodeop trap;
         build DepCondNullify;
 }
 
+# non-zeroing constant version (DEP) (64 bit)
+:DEPD^SEDCondSym R1,shiftCW,shiftCLenW10,R2dst is opfam=0x3c & bit8=1 & shiftCW & shiftCLenW10 & R1 & R2 & R2dst & DepCondNullify & SEDCondSym & cpW {
+        mask:$(REGSIZE) = 0xffffffffffffffff >> (64-shiftCLenW10);
+        local value = R1 & mask;
+        value = value << cpW;
+        mask = mask << cpW;
+        local result = R2 & ~mask;
+        result = result | value;
+        R2dst = result;
+        nullifyCondResult = result;
+        build DepCondNullify;
+}
+
 # non-zeroing immediate SAR version (VDEPI)
 :DEPWI^SEDCondSym highlse5,SAR,shiftCLen,R2dst is opfam=0x35 & bits59=0 & subop1012=5 & shiftCLen & highlse5 & R2 & R2dst & DepCondNullify & SEDCondSym & SAR {
-        mask:4 = 0xffffffff >> (32 - shiftCLen);
-        depbits:4 = sext(highlse5);
+        mask:$(REGSIZE) = 0xffffffff >> (32 - shiftCLen);
+        depbits:$(REGSIZE) = sext(highlse5);
         depbits = sext(depbits); 
         local value = depbits & mask;
         value = value << (31-SAR);
@@ -1225,10 +1400,25 @@ define pcodeop trap;
         build DepCondNullify;
 }
 
+# non-zeroing immediate SAR version (VDEPI) (64 bit)
+:DEPDI^SEDCondSym highlse5,SAR,shiftCLenW8,R2dst is opfam=0x35 & bits57=0 & bit9=1 & subop1012=5 & shiftCLenW8 & highlse5 & R2 & R2dst & DepCondNullify & SEDCondSym & SAR {
+        mask:$(REGSIZE) = 0xffffffffffffffff >> (64 - shiftCLenW8);
+        depbits:$(REGSIZE) = sext(highlse5);
+        depbits = sext(depbits); 
+        local value = depbits & mask;
+        value = value << (63-SAR);
+        mask = mask << (63-SAR);
+        local result = R2 & ~mask;
+        result = result | value;
+        R2dst = result;
+        nullifyCondResult = result;
+        build DepCondNullify;
+}
+
 # non-zeroing immediate constant version (DEPI)
 :DEPWI^SEDCondSym highlse5,shiftC,shiftCLen,R2dst  is opfam=0x35 & subop1012=7 & shiftC & highlse5 & R2 & R2dst & shiftCLen & DepCondNullify & SEDCondSym & cp {
-        mask:4 = 0xffffffff >> (32-shiftCLen);
-        depbits:4 = sext(highlse5);
+        mask:$(REGSIZE) = 0xffffffff >> (32-shiftCLen);
+        depbits:$(REGSIZE) = sext(highlse5);
         local value = depbits & mask;
         value = value << cp;
         mask = mask << cp;
@@ -1239,11 +1429,35 @@ define pcodeop trap;
         build DepCondNullify;
 }
 
+# non-zeroing immediate constant version (DEPI) (64 bit)
+:DEPDI^SEDCondSym highlse5,shiftCW,shiftCLenW10,R2dst  is opfam=0x3d & shiftCW & highlse5 & R2 & R2dst & shiftCLenW10 & DepCondNullify & SEDCondSym & cpW {
+        mask:$(REGSIZE) = 0xffffffffffffffff >> (64-shiftCLenW10);
+        depbits:$(REGSIZE) = sext(highlse5);
+        local value = depbits & mask;
+        value = value << cpW;
+        mask = mask << cpW;
+        local result = R2 & ~mask;
+        result = result | value;
+        R2dst = result;
+        nullifyCondResult = result;
+        build DepCondNullify;
+}
+
 # DEPW,Z SAR version (ZVDEP)
 :DEPW",Z"^SEDCondSym R1,SAR,shiftCLen,R2dst        is opfam=0x35 & bits59=0 & subop1012=0 & R1 & shiftCLen & R2 & R2dst & DepCondNullify & SEDCondSym & SAR {
-        mask:4 = 0xffffffff >> (32-shiftCLen);
+        mask:$(REGSIZE) = 0xffffffff >> (32-shiftCLen);
         local value = R1 & mask;
         value = value << (31-SAR);
+        R2dst = value;
+        nullifyCondResult = value;
+        build DepCondNullify;
+}
+
+# DEPD,Z SAR version (ZVDEP) (64 bit)
+:DEPD",Z"^SEDCondSym R1,SAR,shiftCLenW8,R2dst        is opfam=0x35 & bits57=0 & bit9=1 & subop1012=0 & R1 & shiftCLenW8 & R2 & R2dst & DepCondNullify & SEDCondSym & SAR {
+        mask:$(REGSIZE) = 0xffffffff >> (64-shiftCLenW8);
+        local value = R1 & mask;
+        value = value << (63-SAR);
         R2dst = value;
         nullifyCondResult = value;
         build DepCondNullify;
@@ -1251,7 +1465,7 @@ define pcodeop trap;
 
 # DEPW,Z constant version (ZDEP)
 :DEPW^",Z"^SEDCondSym R1,shiftC,shiftCLen,R2dst    is opfam=0x35 & subop1012=2 & shiftC & R2 & R2dst & shiftCLen & R1 & DepCondNullify & SEDCondSym & cp {
-        mask:4 = 0xffffffff >> (32-shiftCLen);
+        mask:$(REGSIZE) = 0xffffffff >> (32-shiftCLen);
         local value = R1 & mask;
         value = value << cp;
         R2dst = value;
@@ -1259,10 +1473,20 @@ define pcodeop trap;
         build DepCondNullify;
 }
 
+# DEPD,Z constant version (ZDEP) (64 bit)
+:DEPD^",Z"^SEDCondSym R1,shiftCW,shiftCLenW10,R2dst    is opfam=0x3c & bit8=0 & shiftCW & R2 & R2dst & shiftCLenW10 & R1 & DepCondNullify & SEDCondSym & cpW {
+        mask:$(REGSIZE) = 0xffffffffffffffff >> (64-shiftCLenW10);
+        local value = R1 & mask;
+        value = value << cpW;
+        R2dst = value;
+        nullifyCondResult = value;
+        build DepCondNullify;
+}
+
 # DEPWI,Z SAR version (ZVDEPI)
 :DEPWI",Z"^SEDCondSym highlse5,SAR,shiftCLen,R2dst is opfam=0x35 & SAR & bits59=0 & subop1012=4 & shiftCLen & highlse5 & R2dst & DepCondNullify & SEDCondSym {
-        mask:4 = 0xffffffff >> (32-shiftCLen);
-        depbits:4 = sext(highlse5);
+        mask:$(REGSIZE) = 0xffffffff >> (32-shiftCLen);
+        depbits:$(REGSIZE) = sext(highlse5);
         local value = depbits & mask;
         value = value << (31-SAR);
         R2dst = value;
@@ -1270,10 +1494,21 @@ define pcodeop trap;
         build DepCondNullify;
 }
 
+# DEPDI,Z SAR version (ZVDEPI) (64 bit)
+:DEPDI",Z"^SEDCondSym highlse5,SAR,shiftCLenW8,R2dst is opfam=0x35 & SAR & bits57=0 & bit9=1 & subop1012=4 & shiftCLenW8 & highlse5 & R2dst & DepCondNullify & SEDCondSym {
+        mask:$(REGSIZE) = 0xffffffffffffffff >> (64-shiftCLenW8);
+        depbits:$(REGSIZE) = sext(highlse5);
+        local value = depbits & mask;
+        value = value << (63-SAR);
+        R2dst = value;
+        nullifyCondResult = value;
+        build DepCondNullify;
+}
+
 # DEPWI,Z constant version (ZDEPI)
 :DEPWI",Z"^SEDCondSym highlse5,shiftC,shiftCLen,R2dst      is opfam=0x35 & subop1012=6 & shiftC & highlse5 & R2dst & shiftCLen & DepCondNullify & SEDCondSym & cp {
-        mask:4 = 0xffffffff >> (32-shiftCLen);
-        depbits:4 = sext(highlse5);
+        mask:$(REGSIZE) = 0xffffffff >> (32-shiftCLen);
+        depbits:$(REGSIZE) = sext(highlse5);
         local value = depbits & mask;
         value = value << cp;
         nullifyCondResult = value;
@@ -1282,6 +1517,17 @@ define pcodeop trap;
         build DepCondNullify;
 }
 
+# DEPDI,Z constant version (ZDEPI) (64 bit)
+:DEPDI",Z"^SEDCondSym highlse5,shiftCW,shiftCLenW10,R2dst is opfam=0x3d & bit8=0 & shiftCW & highlse5 & R2dst & shiftCLenW10 & DepCondNullify & SEDCondSym & cpW {
+        mask:$(REGSIZE) = 0xffffffffffffffff >> (64-shiftCLenW10);
+        depbits:$(REGSIZE) = sext(highlse5);
+        local value = depbits & mask;
+        value = value << cpW;
+        nullifyCondResult = value;
+        R2dst = value;
+
+        build DepCondNullify;
+}
 
 # BCD instructions
 :DCOR^UnitCondSym R2,RT		is opfam=0x02 & op=0x2E & R2 & reg1=0x0 & RT & UnitCond & UnitCondSym { } # TODO
@@ -1325,12 +1571,12 @@ define pcodeop break;
 }
 
 :SSM highIm10,RT							is opfam=0x0 & sysop=0x6B & c=0x0 & highIm10 & RT {
-	widePswG:4 = zext(pswG);
-	widePswF:4 = zext(pswG);
-	widePswR:4 = zext(pswG);
-	widePswP:4 = zext(pswG);
-	widePswD:4 = zext(pswG);
-	widePswI:4 = zext(pswG);
+	widePswG:$(REGSIZE) = zext(pswG);
+	widePswF:$(REGSIZE) = zext(pswG);
+	widePswR:$(REGSIZE) = zext(pswG);
+	widePswP:$(REGSIZE) = zext(pswG);
+	widePswD:$(REGSIZE) = zext(pswG);
+	widePswI:$(REGSIZE) = zext(pswG);
 	RT = (widePswG << 31) | (widePswF << 30) | (widePswR << 29) | (widePswP << 27) | (widePswD << 26) | (widePswI << 25);
 	pswG = pswG || (highIm10 & 0x40);
 	pswF = pswF || (highIm10 & 0x20);
@@ -1341,12 +1587,12 @@ define pcodeop break;
 }
 
 :RSM highIm10,RT							is opfam=0x0 & sysop=0x73 & c=0x0 & highIm10 & RT {
-	widePswG:4 = zext(pswG);
-	widePswF:4 = zext(pswG);
-	widePswR:4 = zext(pswG);
-	widePswP:4 = zext(pswG);
-	widePswD:4 = zext(pswG);
-	widePswI:4 = zext(pswG);
+	widePswG:$(REGSIZE) = zext(pswG);
+	widePswF:$(REGSIZE) = zext(pswG);
+	widePswR:$(REGSIZE) = zext(pswG);
+	widePswP:$(REGSIZE) = zext(pswG);
+	widePswD:$(REGSIZE) = zext(pswG);
+	widePswI:$(REGSIZE) = zext(pswG);
 	RT = (widePswG << 31) | (widePswF << 30) | (widePswR << 29) | (widePswP << 27) | (widePswD << 26) | (widePswI << 25);
 	pswG = pswG && ((highIm10 & 0x40:1) == 0);
 	pswF = pswF && ((highIm10 & 0x20:1) == 0);
@@ -1357,13 +1603,13 @@ define pcodeop break;
  }
 
 :MTSM R1								is opfam=0x0 & sysop=0xC3 & c=0x0 & im5=0 & R1 {
-	pswG = ((R1 & 0x00000040:4) != 0);
-	pswF = (R1 & 0x00000020:4) != 0;
-	pswR = (R1 & 0x00000010:4) != 0;
-	pswQ = (R1 & 0x00000008:4) != 0;
-	pswP = (R1 & 0x00000004:4) != 0;
-	pswD = (R1 & 0x00000002:4) != 0;
-	pswI = (R1 & 0x00000001:4) != 0;
+	pswG = ((R1 & 0x00000040) != 0);
+	pswF = (R1 & 0x00000020) != 0;
+	pswR = (R1 & 0x00000010) != 0;
+	pswQ = (R1 & 0x00000008) != 0;
+	pswP = (R1 & 0x00000004) != 0;
+	pswD = (R1 & 0x00000002) != 0;
+	pswI = (R1 & 0x00000001) != 0;
 }
 
 :LDSID SRRB,RT						is opfam=0x0 & sysop=0x85 & u=0 & RT & SRRB & SR & SRVAL {

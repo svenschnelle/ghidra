@@ -2,6 +2,8 @@
 
 @define ENDIAN "big"
 @define BITS "32"
+@define REGSIZE "4"
+@define ADDRSIZE "4"
 
 @include "pa-risc.sinc"
 @include "pa-riscInstructions.sinc"

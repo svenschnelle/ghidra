@@ -45,17 +45,6 @@
 # Note- function calls and returns are usually through relocation stubs
 #
 
-#-----
-@ifdef PARISC64
-@define REGSIZE "8"     # General purpose register size (8 or 4)
-@define ADDRSIZE "8"    # Memory address size (8 bytes in 64 bit mode)
-
-@else # PARISC32
-@define REGSIZE "4"     # General purpose register size (8 or 4)
-@define ADDRSIZE "4"    # Memory address size (8 bytes, using the space registers as the upper 32 bits and the regular base and offset as the lower 32 bits)
-@endif
-#-----
-
 define endian=$(ENDIAN);
 
 define alignment=4;
@@ -109,7 +98,7 @@ define register offset=0x2000 size=$(REGSIZE) [
 ];
 
 # Space Registers
-define register offset=0x3000 size=4 [
+define register offset=0x3000 size=$(ADDRSIZE) [
 	sr0 sr1 sr2 sr3 sr4 sr5 sr6 sr7
 ];
 
@@ -119,7 +108,7 @@ define register offset=0x4000 size=1 [
 ];
 
 # Control Registers
-define register offset=0x5000 size=4 [
+define register offset=0x5000 size=$(REGSIZE) [
 	cr0 cr1 cr2 cr3 cr4 cr5 cr6 cr7
 	cr8 cr9 cr10 sar cr12 cr13 cr14 cr15
 	cr16 cr17 cr18 cr19 cr20 cr21 cr22 cr23
@@ -128,15 +117,15 @@ define register offset=0x5000 size=4 [
 
 # instruction address offset and instruction address space queues
 # these are used for branching, to compute target addresses and deal with branch delay slots
-define register offset=0x6000 size=4 [
+define register offset=0x6000 size=$(ADDRSIZE) [
 	iasq_front iasq_back iaoq_front iaoq_back
 ];
 
 # special hidden registers to support the nullify and delay slot features of PA-RISC
 define register offset=0x7000 size=1 [nullifyCond nullifyNextCond branchCond branchExecuted]; 
-define register offset=0x7100 size=4 [branchIndDest nullifyCondResult];
+define register offset=0x7100 size=$(REGSIZE) [branchIndDest nullifyCondResult];
 
-define register offset=0x7200 size=12   contextreg;
+define register offset=0x7200 size=16 contextreg;
 define context contextreg
 
  # transient context 
@@ -148,13 +137,9 @@ define context contextreg
  branchCouldBeNullified = (5,5) noflow
  branchEnable  = (6,6) noflow
  branchType    = (7,9) noflow
-# These do not appear to be used:
-#    branchIsInd     = (7,7) noflow
-#    branchIsCond    = (8,8) noflow
-#    branchIsCall    = (9,9) noflow
  branchIsReturn  = (10,10) noflow # used for returns
  padding = (10,31) noflow
- branchImmDest = (32,63) noflow  
+ branchImmDest = (32,63) noflow
  temp32 = (64,95) noflow
 ;
 
@@ -167,22 +152,23 @@ define token instr(32)
     cr			= (21,25)
     crname2		= (21,25)
     freg2		= (21,25)
-    freg2sgl	= (21,25)
+    freg2sgl		= (21,25)
     fr2half		= (21,25)
     fusedr2		= (21,25)
-    reg2        = (21,25)
+    reg2        	= (21,25)
     b			= (21,25)
-    bboffset	= (21,25)
+    bboffset		= (21,25)
     crname1		= (21,25)
+    w3			= (21,25)
     bit20		= (20,20) signed
-    fpc1sub2	= (17,20)
-    highIm10	= (16,25)
-    reg1        = (16,20)
+    fpc1sub2		= (17,20)
+    highIm10		= (16,25)
+    reg1		= (16,20)
     fusedr1		= (16,20)
     freg1		= (16,20)
-    freg1sgl	= (16,20)
+    freg1sgl		= (16,20)
     fr1half		= (16,20)
-    r           = (16,20)
+    r			= (16,20)
     highIm5		= (16,20) signed
     highIm5less16	= (17,20)
     tr			= (16,20)
@@ -194,15 +180,17 @@ define token instr(32)
     s			= (14,15)
     srbit0		= (14,14)
     im13		= (13,25) signed
-    SEDCondSym	= (13,15)
+    SEDCondSym		= (13,15)
     RegUnitCondSym	= (13,15)
     InvUnitCondSym	= (13,15)
-    RegLogicCondSym = (13,15)
-    InvLogicCondSym = (13,15)
+    RegLogicCondSym 	= (13,15)
+    InvLogicCondSym 	= (13,15)
     RegAddCondSym	= (13,15)
     InvAddCondSym	= (13,15)
     RegCSCondSym = (13,15)
+    RegCSCondSymW = (13,15)
     InvCSCondSym = (13,15)
+    InvCSCondSymW = (13,15)
     c           = (13,15)
     fpsub		= (13,15)
     srbit2		= (13,13)
@@ -217,7 +205,8 @@ define token instr(32)
     fv			= (12,12)
     zero		= (12,12)
     one			= (12,12)
-    subop1012	= (10,12)
+    bit12		= (12,12)
+    subop1012		= (10,12)
     im15		= (11,25)
     sopim10		= (11,20) signed
     sopim5		= (11,15) signed
@@ -226,20 +215,23 @@ define token instr(32)
     fpsf		= (11,12)
     fpsfraw		= (11,12)
     fpfmt		= (11,12)
-    fpfmt1bit	= (11,11)
+    fpfmt1bit		= (11,11)
     bit11		= (11,11)
     cc			= (10,11)
     ldcc		= (10,11)
     stcc		= (10,11)
     ldcwcc		= (10,11)
     bit10		= (10,10)
+    cl10		= (10,10)
     sopim17		= (9,25)
     pmuop		= (9,13)
     specop		= (9,10)
     fpclass		= (9,10)
     bit9		= (9,9)
+    p			= (9,9)
     bit8		= (8,8)
     fpx			= (8,8)
+    cl8			= (8,8)
     bits78		= (7,8)
     fpr2x		= (7,7)
     fpra		= (6,10)
@@ -247,40 +239,44 @@ define token instr(32)
     ext4		= (6,9)
     C			= (6,9)
     subop		= (6,9)
-    sysopshifted= (6,13)
+    sysopshifted	= (6,13)
     sysopshiftedshort	= (6,12)
     op			= (6,11)
     sfu			= (6,8)
-    fp0czero	= (6,8)
-    fptx		= (6,6)		
+    fp0czero		= (6,8)
+    fptx		= (6,6)
     bit6		= (6,6)
     sysop		= (5,12)
     i2			= (5,11)
     bits59		= (5,9)
     cp			= (5,9)
-    fusedfmt	= (5,5)
+    bits57		= (5,7)
+    fusedfmt		= (5,5)
     bit5		= (5,5)
     m			= (5,5)
     spn			= (5,5)
+    im10a		= (4,14)
+    m3			= (3,3)
     w2			= (2,12)
     w2_2		= (2,2)
+    a2			= (2,2)
     w2less2		= (3,12)
     n			= (1,1)
     im26		= (0,25) signed
     sim21		= (0,20) signed
     sim14		= (0,13) signed
-    im21less0	= (1,20)
-    im21_1_12	= (1,11)
-    im21_12_14	= (12,13)
-    im21_14_16	= (14,15)
-    im21_16_21	= (16,20)
+    im21less0		= (1,20)
+    im21_1_12		= (1,11)
+    im21_12_14		= (12,13)
+    im21_14_16		= (14,15)
+    im21_16_21		= (16,20)
     im14		= (0,13)
-    im14less0	= (1,13)
+    im14less0		= (1,13)
     im11		= (0,10) signed
-    im11less0	= (1,11)
+    im11less0		= (1,11)
     sim5		= (0,4) signed
     im5			= (0,4)
-    im5less0	= (1,4)
+    im5less0		= (1,4)
     fpcond		= (0,4)
     fptest		= (0,4)
     fpt			= (0,4)
@@ -290,7 +286,7 @@ define token instr(32)
     crnamet		= (0,4)
     t			= (0,4)
     bit0		= (0,0)
-    w			= (0,0) 
+    w			= (0,0)
 ;
 
 # general purpose registers
@@ -388,8 +384,16 @@ attach names [ RegCSCondSym ] [
 	"" ",=" ",&lt;" ",&lt;=" ",&lt;&lt;" ",&lt;&lt;=" ",SV" ",OD"
 ];
 
+attach names [ RegCSCondSymW ] [
+	"" ",*=" ",*&lt;" ",*&lt;=" ",*&lt;&lt;" ",*&lt;&lt;=" ",*SV" ",*OD"
+];
+
 attach names [ InvCSCondSym ] [
 	"" ",&lt;&gt;" ",&gt;=" ",&gt;" ",&gt;&gt;=" ",&gt;&gt;" ",NSV" ",EV"
+];
+
+attach names [ InvCSCondSymW ] [
+	"" ",*&lt;&gt;" ",*&gt;=" ",*&gt;" ",*&gt;&gt;=" ",*&gt;&gt;" ",*NSV" ",*EV"
 ];
 
 # the different tests used by the FTEST instruction
@@ -1244,7 +1248,7 @@ fpcmp64: ",TRUE"		is fpcond=31 { result:1 = 1; export result; }
 #################################
 # space register subconstructors
 #################################
-SR: "srN"					is s = 0 { export 0:4; }
+SR: "srN"					is s = 0 { export 0:$(ADDRSIZE); }
 SR: sr1						is s = 1 & sr1 { export sr1; }
 SR: sr2						is s = 2 & sr2 { export sr2; }
 SR: sr3						is s = 3 & sr3 { export sr3; }
@@ -1272,9 +1276,9 @@ SRRB3bit: (SR3bit,RB)				is SR3bit & RB { }
 # this first one gets the value in the appropriate space register and returns it.
 # it is used by LDSID.
 SRVAL:	SR						is SR & RB & s=0 {
-								   local selbits = (RB >> 30);
-								   srreg:4 = &sr4 + 4 * selbits;
-								   spc:4 = *[register] srreg;
+								   #local selbits = (RB >> 30);
+								   #srreg:$(REGSIZE) = &sr4 + $( * selbits;
+								   spc:$(REGSIZE) = 0;#*[register] srreg;
 								   export spc; 
 }
 
@@ -1345,6 +1349,24 @@ branchTarget3W: target				is w & w1 & w2less2 & w2_2
 	]
 	{ export *:$(ADDRSIZE) target; }
 
+branchTarget4W: target is w & w1 & w2less2 & w2_2 & w3
+	[
+		target = inst_start + 8 + 4 * (
+			((-1 * w) << 21) |
+			(w1 << 11) |
+			(w2_2 << 10) |
+			w2less2 |
+			(w3 << 16)
+		);
+		temp32 = branchImmDest;
+		branchImmDest = target;
+		globalset(inst_next, branchImmDest);
+		branchImmDest = temp32;
+	]
+	{ export *:$(ADDRSIZE) target; }
+
+
+
 # simple IP relative branch
 IPRelativeIndexedTarget: 						is RX
 {
@@ -1382,10 +1404,14 @@ externalTarget: displacement3W^SRRB3bit				is RB & displacement3W & SRRB3bit {
 
 shiftC: shift				is cp [ shift=31-cp; ] { amount:4 = shift; export amount; }
 shiftCLen: shift			is im5 [ shift=32-im5; ] { amount:4 = shift; export amount; }
+shiftCW: shift				is p & cp [ shift = 63 - ((p << 5) | cp); ] { amount:4 = shift; export amount; }
+cpW: shift				is p & cp [ shift = (p << 5) | cp; ] { amount:4 = shift; export amount; }
+shiftCLenW8: shift			is cl8 & im5 [ shift = (cl8 << 5) | (32 - im5); ] { amount:4 = shift; export amount; }
+shiftCLenW10: shift			is cl10 & im5 [ shift = (cl10 << 5) | (32 - im5); ] { amount:4 = shift; export amount; }
 
 #lse14: offset				is sim14 & bit0 [ offset = (-1 * bit0) * ( (sim14 >> 1) & 0x1FFF ); ] { temp:4 = offset; export temp; }
 #lse14: offset				is sim14 & bit0 [ offset = (-1 * 0x2000 * bit0) | ( (sim14 >> 1) & 0x1FFF ); ] { temp:4 = sext(offset:4); export temp; }
-lse14: off				is im14less0 & bit0 [ off = ((-1 * bit0) << 13) | im14less0; ] { temp:4 = sext(off:4); export temp; }
+lse14: off				is im14less0 & bit0 [ off = ((-1 * bit0) << 13) | im14less0; ] { temp:$(ADDRSIZE) = sext(off:4); export temp; }
 ####lse14: offset				is sim14 & bit0 [ offset = (0xFFFFFFFFFFFFE000 * bit0) | ( (sim14 >> 1) & 0x1FFF ); ] { temp:4 = offset; export temp; }
 
 #lse5: offset				is sim5 & bit0  [ offset = (-1 * 0x10 * bit0) | ( (sim5 >> 1) & 0xF ); ] { temp:1 = sext(offset:1); export temp; }
@@ -1414,9 +1440,14 @@ lse21: off				is im21less0 & bit0 & im21_1_12 & im21_12_14 & im21_14_16 & im21_1
 lse11: immed				is im11less0 & bit0
 	[ immed	= ((-1*bit0) << 10) | im11less0; temp32 = immed; ]
 #	[ immed = (bit0 * 0xFFFFFFFFFFFFFC00) | ( (im11 >> 1) & 0x3FF ); temp32 = immed; ]
-	{ temp:4 = immed; export temp; }
+	{ temp:$(ADDRSIZE) = immed; export temp; }
+
+lse10a: immed				is im10a & bit0
+	[ immed	= ((-1*bit0) << 13) | (im10a << 3); temp32 = immed; ]
+	{ temp:$(ADDRSIZE) = immed; export temp; }
 
 OFF_BASE_14: lse14^SRRB	is lse14 & SRRB & SPCBASE { temp:$(ADDRSIZE) = SPCBASE + sext(lse14); export temp; }
+OFF_BASE_10a: lse10a^SRRB	is lse10a & SRRB & SPCBASE { temp:$(ADDRSIZE) = SPCBASE + sext(lse10a); export temp; }
 
 #############################
 # condition codes
@@ -1604,17 +1635,28 @@ CSCondNullify:	is CSCond [ nullifyEnable = 1; globalset(inst_next, nullifyEnable
 
 CSCondSym: RegCSCondSym	is RegCSCondSym & fv=0 { }
 CSCondSym: InvCSCondSym	is InvCSCondSym & fv=1 { }
+CSCondSymW: RegCSCondSymW	is RegCSCondSymW & fv=0 { }
+CSCondSymW: InvCSCondSymW	is InvCSCondSymW & fv=1 { }
 
 # The Compare or Subtract conditions compared with 5 bit immediates
 # This is used in the COMIB[TF] instructions. The inverted versions are never used.
 RegCSCondI: 		is  c=0 & R2 & highlse5 { export 0:1; }  # never
-RegCSCondI: 		is  c=1 & R2 & highlse5 { val:$(REGSIZE) = sext(highlse5); tmp:1 = (val == R2) ; export tmp; } # equal
-RegCSCondI: 		is  c=2 & R2 & highlse5 { val:$(REGSIZE) = sext(highlse5); tmp:1 = (val s< R2) ; export tmp; } # signed less than
-RegCSCondI: 		is  c=3 & R2 & highlse5 { val:$(REGSIZE) = sext(highlse5); tmp:1 = (val s<= R2) ; export tmp; } # signed less than equal
-RegCSCondI: 		is  c=4 & R2 & highlse5 { val:$(REGSIZE) = sext(highlse5); tmp:1 = (val < R2) ; export tmp; } # unsigned less than 
-RegCSCondI: 		is  c=5 & R2 & highlse5 { val:$(REGSIZE) = sext(highlse5); tmp:1 = (val <= R2) ; export tmp; } # unsigned less than equal
-RegCSCondI: 		is  c=6 & R2 & highlse5 { val:$(REGSIZE) = sext(highlse5); local diff = (val - R2); tmp:1 = (val s> 0 && R2 s> 0 && diff s< 0) || (val s< 0 && R2 s< 0 && diff s> 0)  ; export tmp; } # overflow
-RegCSCondI: 		is  c=7 & R2 & highlse5 { val:$(REGSIZE) = sext(highlse5); tmp:1 = ((val - R2) & 0x1) == 1 ; export tmp; } # odd
+RegCSCondI: 		is  c=1 & R2 & highlse5 { val:4 = sext(highlse5); tmp:1 = (val == R2:4) ; export tmp; } # equal
+RegCSCondI: 		is  c=2 & R2 & highlse5 { val:4 = sext(highlse5); tmp:1 = (val s< R2:4) ; export tmp; } # signed less than
+RegCSCondI: 		is  c=3 & R2 & highlse5 { val:4 = sext(highlse5); tmp:1 = (val s<= R2:4) ; export tmp; } # signed less than equal
+RegCSCondI: 		is  c=4 & R2 & highlse5 { val:4 = sext(highlse5); tmp:1 = (val < R2:4) ; export tmp; } # unsigned less than 
+RegCSCondI: 		is  c=5 & R2 & highlse5 { val:4 = sext(highlse5); tmp:1 = (val <= R2:4) ; export tmp; } # unsigned less than equal
+RegCSCondI: 		is  c=6 & R2 & highlse5 { val:4 = sext(highlse5); local diff = (val - R2:4); tmp:1 = (val s> 0 && R2 s> 0 && diff s< 0) || (val s< 0 && R2 s< 0 && diff s> 0)  ; export tmp; } # overflow
+RegCSCondI: 		is  c=7 & R2 & highlse5 { val:4 = sext(highlse5); tmp:1 = ((val - R2:4) & 0x1) == 1 ; export tmp; } # odd
+
+RegCSCondIW: 		is  c=0 & R2 & highlse5 { export 0:1; }  # never
+RegCSCondIW: 		is  c=1 & R2 & highlse5 { val:$(REGSIZE) = sext(highlse5); tmp:1 = (val == R2) ; export tmp; } # equal
+RegCSCondIW: 		is  c=2 & R2 & highlse5 { val:$(REGSIZE) = sext(highlse5); tmp:1 = (val s< R2) ; export tmp; } # signed less than
+RegCSCondIW: 		is  c=3 & R2 & highlse5 { val:$(REGSIZE) = sext(highlse5); tmp:1 = (val s<= R2) ; export tmp; } # signed less than equal
+RegCSCondIW: 		is  c=4 & R2 & highlse5 { val:$(REGSIZE) = sext(highlse5); tmp:1 = (val < R2) ; export tmp; } # unsigned less than 
+RegCSCondIW: 		is  c=5 & R2 & highlse5 { val:$(REGSIZE) = sext(highlse5); tmp:1 = (val <= R2) ; export tmp; } # unsigned less than equal
+RegCSCondIW: 		is  c=6 & R2 & highlse5 { val:$(REGSIZE) = sext(highlse5); local diff = (val - R2); tmp:1 = (val s> 0 && R2 s> 0 && diff s< 0) || (val s< 0 && R2 s< 0 && diff s> 0)  ; export tmp; } # overflow
+RegCSCondIW: 		is  c=7 & R2 & highlse5 { val:$(REGSIZE) = sext(highlse5); tmp:1 = ((val - R2) & 0x1) == 1 ; export tmp; } # odd
 
 # The Compare or Subtract conditions compared with 11 bit immediates. These are used with the SUBI[O] and COMICLR instructions. Both regular and inverted forms are used.
 RegCSCondI11: 		is  c=0 & R2 & lse11 { export 0:1; }  # never
