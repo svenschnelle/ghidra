@@ -364,84 +364,84 @@ attach names [ BBCondSym ] [
 ];
 
 attach names [ SEDCondSym ] [
-	"" ",=" ",&lt;" ",OD" ",TR" ",&lt;&gt;" ",&gt;=" ",EV"
+	"" ",=" ",&lt;" ",OD" ",TR" ",&lt;&gt;" ",&gt;=" ",ev"
 ];
 
 attach names [ SEDCondSymW ] [
-	"" ",*=" ",*&lt;" ",*OD" ",*TR" ",*&lt;&gt;" ",*&gt;=" ",*EV"
+	"" ",*=" ",*&lt;" ",*OD" ",*TR" ",*&lt;&gt;" ",*&gt;=" ",*ev"
 ];
 
 attach names [ RegUnitCondSym ] [
-	"" _ ",SBZ" ",SHZ" ",SDC" _ ",SBC" ",SHC"
+	"" _ ",sbz" ",shz" ",sdc" _ ",sbc" ",shc"
 ];
 
 attach names [ InvUnitCondSym ] [
-	"" _ ",NBZ" ",NHZ" ",NDC" _ ",NBC" ",NHC"
+	"" _ ",nbz" ",nhz" ",ndc" _ ",nbc" ",nhc"
 ];
 
 attach names [ RegLogicCondSym ] [
-	"" ",=" ",&lt;" ",&lt;=" _ _ _ ",OD"
+	"" ",=" ",&lt;" ",&lt;=" _ _ _ ",od"
 ];
 
 attach names [ InvLogicCondSym ] [
-	"" ",&lt;&gt;" ",&gt;=" ",&gt;" _ _ _ ",EV"
+	"" ",&lt;&gt;" ",&gt;=" ",&gt;" _ _ _ ",ev"
 ];
 
 # Table 5-4
 attach names [ RegAddCondSym ] [
-	"" ",=" ",&lt;" ",&lt;=" ",NUV" ",ZNV" ",SV" ",OD"
+	"" ",=" ",&lt;" ",&lt;=" ",nuv" ",znv" ",sv" ",od"
 ];
 
 attach names [ RegAddCondSymW ] [
-	"" ",*=" ",*&lt;" ",*&lt;=" ",*NUV" ",*ZNV" ",*SV" ",*OD"
+	"" ",*=" ",*&lt;" ",*&lt;=" ",*nuv" ",*znv" ",*sv" ",*od"
 ];
 
 attach names [ InvAddCondSym ] [
-	"" ",&lt;&gt;" ",&gt;=" ",&gt;" ",UV" ",VNZ" ",NSV" ",EV"
+	"" ",&lt;&gt;" ",&gt;=" ",&gt;" ",uv" ",vnz" ",nsv" ",ev"
 ];
 
 attach names [ InvAddCondSymW ] [
-	"" ",*&lt;&gt;" ",*&gt;=" ",*&gt;" ",*UV" ",*VNZ" ",*NSV" ",*EV"
+	"" ",*&lt;&gt;" ",*&gt;=" ",*&gt;" ",*uv" ",*vnz" ",*nsv" ",*ev"
 ];
 
 attach names [ RegCSCondSym ] [
-	"" ",=" ",&lt;" ",&lt;=" ",&lt;&lt;" ",&lt;&lt;=" ",SV" ",OD"
+	"" ",=" ",&lt;" ",&lt;=" ",&lt;&lt;" ",&lt;&lt;=" ",sv" ",od"
 ];
 
 attach names [ RegCSCondSymW ] [
-	"" ",*=" ",*&lt;" ",*&lt;=" ",*&lt;&lt;" ",*&lt;&lt;=" ",*SV" ",*OD"
+	"" ",*=" ",*&lt;" ",*&lt;=" ",*&lt;&lt;" ",*&lt;&lt;=" ",*sv" ",*od"
 ];
 
 attach names [ InvCSCondSym ] [
-	"" ",&lt;&gt;" ",&gt;=" ",&gt;" ",&gt;&gt;=" ",&gt;&gt;" ",NSV" ",EV"
+	"" ",&lt;&gt;" ",&gt;=" ",&gt;" ",&gt;&gt;=" ",&gt;&gt;" ",nsv" ",ev"
 ];
 
 attach names [ InvCSCondSymW ] [
-	"" ",*&lt;&gt;" ",*&gt;=" ",*&gt;" ",*&gt;&gt;=" ",*&gt;&gt;" ",*NSV" ",*EV"
+	"" ",*&lt;&gt;" ",*&gt;=" ",*&gt;" ",*&gt;&gt;=" ",*&gt;&gt;" ",*nsv" ",*ev"
 ];
 
 # the different tests used by the FTEST instruction
 attach names [ fptest ] [
-	"" "ACC" "REJ" _ _ "ACC8" "REJ8" _ _ "ACC6" _ _ _ "ACC4" _ _ _ "ACC2" _ _ _ _ _ _ _ _ _ _ _ _ _ _
+	"" "acc" "rej" _ _ "acc8" "rej8" _ _ "acc6" _ _ _ "acc4" _ _ _ "acc2" _ _ _ _ _ _ _ _ _ _ _ _ _ _
 ];
 
 # the floating point number types
 attach names [ fpsf fpdf fpfmt  ] [
-	",SGL" ",DBL" ",QUAD" _
+	",sgl" ",dbl" ",quad" _
 ];
 
 attach names [ fpfmt1bit  ] [
-	",SGL" ",DBL"
+	",sgl" ",dbl"
 ];
 
 # the fixed point number types
 attach names [ fixedsf fixeddf ] [
-	",UW" ",UD" ",UQ" _
+	",uw" ",ud" ",uq" _
 ];
 
 # the floating point number types for fused ops
 attach names [ fusedfmt ] [
-	",DBL" ",SGL" 
+	",dbl" ",sgl" 
 ];
 
 
@@ -1766,83 +1766,83 @@ LogicCondNullify:	is LogicCond [ nullifyEnable = 1; globalset(inst_next, nullify
 # Table 5-11 on page 5-22
 # The shifted form for byte doesn't shift, as byte addressing is single byte aligned
 indexedByteAccessCmplt: 					is u=0 & m=0 & RX & SPCBASE { off:$(ADDRSIZE) = SPCBASE + sext(RX); export off; } # none
-indexedByteAccessCmplt: ",M"				is u=0 & m=1 & RX & RB & SPCBASE { off:$(ADDRSIZE) = SPCBASE; RB = RB + RX; export off; } # M, modify, post inc by RX
-indexedByteAccessCmplt: ",S"				is u=1 & m=0 & RX & SPCBASE { off:$(ADDRSIZE) = SPCBASE + sext(RX); export off; } # S, shift left by 2
-indexedByteAccessCmplt: ",SM"				is u=1 & m=1 & RX & RB & SPCBASE { off:$(ADDRSIZE) = SPCBASE; RB = RB + sext(RX); export off; } # SM, shift and modify
+indexedByteAccessCmplt: ",m"				is u=0 & m=1 & RX & RB & SPCBASE { off:$(ADDRSIZE) = SPCBASE; RB = RB + RX; export off; } # M, modify, post inc by RX
+indexedByteAccessCmplt: ",s"				is u=1 & m=0 & RX & SPCBASE { off:$(ADDRSIZE) = SPCBASE + sext(RX); export off; } # S, shift left by 2
+indexedByteAccessCmplt: ",sm"				is u=1 & m=1 & RX & RB & SPCBASE { off:$(ADDRSIZE) = SPCBASE; RB = RB + sext(RX); export off; } # SM, shift and modify
 
 # The shifted form for halfword shifts by 2 bytes, since that is the size of a halfword
 indexedHalfwordAccessCmplt: 					is u=0 & m=0 & RX & SPCBASE { off:$(ADDRSIZE) = SPCBASE + sext(RX); export off; } # none
-indexedHalfwordAccessCmplt: ",M"				is u=0 & m=1 & RX & RB & SPCBASE { off:$(ADDRSIZE) = SPCBASE; RB = RB + RX; export off; } # M, modify, post inc by RX
-indexedHalfwordAccessCmplt: ",S"				is u=1 & m=0 & RX & SPCBASE { off:$(ADDRSIZE) = SPCBASE + sext((RX << 1)); export off; } # S, shift left by 1
-indexedHalfwordAccessCmplt: ",SM"				is u=1 & m=1 & RX & RB & SPCBASE { off:$(ADDRSIZE) = SPCBASE; RB = RB + sext(RX << 1); export off; } # SM, shift and modify
+indexedHalfwordAccessCmplt: ",m"				is u=0 & m=1 & RX & RB & SPCBASE { off:$(ADDRSIZE) = SPCBASE; RB = RB + RX; export off; } # M, modify, post inc by RX
+indexedHalfwordAccessCmplt: ",s"				is u=1 & m=0 & RX & SPCBASE { off:$(ADDRSIZE) = SPCBASE + sext((RX << 1)); export off; } # S, shift left by 1
+indexedHalfwordAccessCmplt: ",sm"				is u=1 & m=1 & RX & RB & SPCBASE { off:$(ADDRSIZE) = SPCBASE; RB = RB + sext(RX << 1); export off; } # SM, shift and modify
 
 # The shifted form for words shifts by 2 (x4), since words are aligned on 4 and increment by 4
 indexedWordAccessCmplt: 					is u=0 & m=0 & RX & SPCBASE { off:$(ADDRSIZE) = SPCBASE + sext(RX); export off; } # none
-indexedWordAccessCmplt: ",M"				is u=0 & m=1 & RX & RB & SPCBASE { off:$(ADDRSIZE) = SPCBASE; RB = RB + RX; export off; } # M, modify, post inc by RX
-indexedWordAccessCmplt: ",S"				is u=1 & m=0 & RX & SPCBASE { off:$(ADDRSIZE) = SPCBASE + sext((RX << 2)); export off; } # S, shift left by 2
-indexedWordAccessCmplt: ",SM"				is u=1 & m=1 & RX & RB & SPCBASE { off:$(ADDRSIZE) = SPCBASE; RB = RB + sext(RX << 2); export off; } # SM, shift and modify
+indexedWordAccessCmplt: ",m"				is u=0 & m=1 & RX & RB & SPCBASE { off:$(ADDRSIZE) = SPCBASE; RB = RB + RX; export off; } # M, modify, post inc by RX
+indexedWordAccessCmplt: ",s"				is u=1 & m=0 & RX & SPCBASE { off:$(ADDRSIZE) = SPCBASE + sext((RX << 2)); export off; } # S, shift left by 2
+indexedWordAccessCmplt: ",sm"				is u=1 & m=1 & RX & RB & SPCBASE { off:$(ADDRSIZE) = SPCBASE; RB = RB + sext(RX << 2); export off; } # SM, shift and modify
 
 # same as above, but shifts by 3 bits. Used for the LDCWX instruction
 indexedDoublewordAccessCmplt: 					is u=0 & m=0 & RX & SPCBASE { off:$(ADDRSIZE) = SPCBASE + sext(RX); export off; } # none
-indexedDoublewordAccessCmplt: ",M"				is u=0 & m=1 & RX & RB & SPCBASE { off:$(ADDRSIZE) = SPCBASE; RB = RB + RX; export off; } # M, modify, post inc by RX
-indexedDoublewordAccessCmplt: ",S"				is u=1 & m=0 & RX & SPCBASE { off:$(ADDRSIZE) = SPCBASE + sext((RX << 3)); export off; } # S, shift left by 3 NOTE YES THIS IS 3
-indexedDoublewordAccessCmplt: ",SM"			is u=1 & m=1 & RX & RB & SPCBASE { off:$(ADDRSIZE) = SPCBASE; RB = RB + sext(RX << 3); export off; } # SM, shift and modify
+indexedDoublewordAccessCmplt: ",m"				is u=0 & m=1 & RX & RB & SPCBASE { off:$(ADDRSIZE) = SPCBASE; RB = RB + RX; export off; } # M, modify, post inc by RX
+indexedDoublewordAccessCmplt: ",s"				is u=1 & m=0 & RX & SPCBASE { off:$(ADDRSIZE) = SPCBASE + sext((RX << 3)); export off; } # S, shift left by 3 NOTE YES THIS IS 3
+indexedDoublewordAccessCmplt: ",sm"			is u=1 & m=1 & RX & RB & SPCBASE { off:$(ADDRSIZE) = SPCBASE; RB = RB + sext(RX << 3); export off; } # SM, shift and modify
 
 # Table 5-12 on Page 5-24
 # these are for loads, e.g.  ldws
 shortDispCmplt: 						is m=0 & highlse5 & SPCBASE { off:$(ADDRSIZE) = SPCBASE + sext(highlse5); export off; } # no modification
-shortDispCmplt: ",MA"					is u=0 & m=1 & RB & RX & SPCBASE & highlse5 { off:$(ADDRSIZE) = SPCBASE; RB = RB + sext(highlse5); export off; } # modify after
-shortDispCmplt: ",MB"					is u=1 & m=1 & RB & RX & SPCBASE & highlse5 { local lse = sext(highlse5); off:$(ADDRSIZE) = SPCBASE + sext(lse); RB = RB + lse; export off; } # modify before
+shortDispCmplt: ",ma"					is u=0 & m=1 & RB & RX & SPCBASE & highlse5 { off:$(ADDRSIZE) = SPCBASE; RB = RB + sext(highlse5); export off; } # modify after
+shortDispCmplt: ",mb"					is u=1 & m=1 & RB & RX & SPCBASE & highlse5 { local lse = sext(highlse5); off:$(ADDRSIZE) = SPCBASE + sext(lse); RB = RB + lse; export off; } # modify before
 
 # short displacement for stores, e.g. stws
 storeShortDispCmplt: 						is m=0 & lse5 & SPCBASE { off:$(ADDRSIZE) = SPCBASE + sext(lse5); export off; } # no modification
-storeShortDispCmplt: ",MA"					is u=0 & m=1 & RB & RX & SPCBASE & lse5 { off:$(ADDRSIZE) = SPCBASE; RB = RB + sext(lse5); export off; } # modify after
-storeShortDispCmplt: ",MB"					is u=1 & m=1 & RB & RX & SPCBASE & lse5 { local lse = sext(lse5); off:$(ADDRSIZE) = SPCBASE + sext(lse); RB = RB + lse; export off; } # modify before
+storeShortDispCmplt: ",ma"					is u=0 & m=1 & RB & RX & SPCBASE & lse5 { off:$(ADDRSIZE) = SPCBASE; RB = RB + sext(lse5); export off; } # modify after
+storeShortDispCmplt: ",mb"					is u=1 & m=1 & RB & RX & SPCBASE & lse5 { local lse = sext(lse5); off:$(ADDRSIZE) = SPCBASE + sext(lse); RB = RB + lse; export off; } # modify before
 
 # Table 5-13 on page 5-26
 storeBytesShortCmplt: 					is u=0 & m=0 & SPCBASE & lse5 { off:$(ADDRSIZE) = SPCBASE + sext(lse5); export off; } # none / beginning, don't modify base register
-storeBytesShortCmplt: ",BM"				is u=0 & m=1 & SPCBASE & RR & lse5  { off:$(ADDRSIZE) = SPCBASE + sext(lse5); RR = (RR + sext(lse5)) & 0xFFFFFFFC; export off; } # beginning, modify base register
-storeBytesShortCmplt: ",E"				is u=1 & m=0 & SPCBASE & lse5 { off:$(ADDRSIZE) = SPCBASE + sext(lse5); export off; } # ending, don't modify
-storeBytesShortCmplt: ",EM"				is u=1 & m=1 & SPCBASE & RR & lse5 { off:$(ADDRSIZE) = SPCBASE + sext(lse5); RR = (RR + sext(lse5)) & 0xFFFFFFFC; export off; } # ending, modify
+storeBytesShortCmplt: ",bm"				is u=0 & m=1 & SPCBASE & RR & lse5  { off:$(ADDRSIZE) = SPCBASE + sext(lse5); RR = (RR + sext(lse5)) & 0xFFFFFFFC; export off; } # beginning, modify base register
+storeBytesShortCmplt: ",e"				is u=1 & m=0 & SPCBASE & lse5 { off:$(ADDRSIZE) = SPCBASE + sext(lse5); export off; } # ending, don't modify
+storeBytesShortCmplt: ",em"				is u=1 & m=1 & SPCBASE & RR & lse5 { off:$(ADDRSIZE) = SPCBASE + sext(lse5); RR = (RR + sext(lse5)) & 0xFFFFFFFC; export off; } # ending, modify
 
 # u fixed at 0, Table 5-11 on page 5-22, for LPA and related system level opcodes
 sysCmplt: 							is m=0 { }
-sysCmplt: ",M"						is m=1 { }
+sysCmplt: ",m"						is m=1 { }
 
 # Table 5-8 on page 5-17
 loadCC: 							is cc=0 { }
-loadCC: ",SL"						is cc=2 { }
+loadCC: ",sl"						is cc=2 { }
 
 # Table 5-9 on page 5-18
 storeCC: 							is cc=0 { }
-storeCC: ",BC"						is cc=1 { }
-storeCC: ",SL"						is cc=2 { }
+storeCC: ",bc"						is cc=1 { }
+storeCC: ",sl"						is cc=2 { }
 
 # Table 5-10 on page 5-18
 loadClearCC: 						is cc=0 { }
-loadClearCC: ",CO"					is cc=1 { }
+loadClearCC: ",co"					is cc=1 { }
 
 # nullification as used with branches
 #####nullifyForBranch:					is n=0 { export 0:1; }
-#####nullifyForBranch: ",N"				is n=1 { export 1:1; }
+#####nullifyForBranch: ",n"				is n=1 { export 1:1; }
 # caret versions
 nullifyForBranch:						is n=0 { export 0:1; }
-nullifyForBranch: ",N"					is n=1 [ nullifyEnable = 1; globalset(inst_next, nullifyEnable); ] { export 1:1; }
+nullifyForBranch: ",n"					is n=1 [ nullifyEnable = 1; globalset(inst_next, nullifyEnable); ] { export 1:1; }
 
 nullifySymForBranch:					is n=0 { }
-nullifySymForBranch: ",N"				is n=1 { }
+nullifySymForBranch: ",n"				is n=1 { }
 
 # nullification as used with special function unit ops
 nullifyForSpecial:						is spn=0 { }
-nullifyForSpecial: ",N"					is spn=1 { }
+nullifyForSpecial: ",n"					is spn=1 { }
 
 # Floating point completers
-#csize: "SGL"							is fpsize=0 & opfam=0x0C { }
-#csize: "DBL"							is fpsize=1 & opfam=0x0C { }
-#csize: "QUAD"							is fpsize=3 & opfam=0x0C { }
+#csize: "sgl"							is fpsize=0 & opfam=0x0C { }
+#csize: "dbl"							is fpsize=1 & opfam=0x0C { }
+#csize: "quad"							is fpsize=3 & opfam=0x0C { }
 
-#esize: "SGL"							is fpsize=0 & opfam=0x0E { }
-#esize: "DBL"							is fpsize=1 & opfam=0x0E { }
+#esize: "sgl"							is fpsize=0 & opfam=0x0E { }
+#esize: "dbl"							is fpsize=1 & opfam=0x0E { }
 
 SFU: sfu								is sfu { }
 

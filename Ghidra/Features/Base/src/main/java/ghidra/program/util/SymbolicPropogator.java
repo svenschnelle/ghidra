@@ -982,10 +982,10 @@ public class SymbolicPropogator {
 							break; // follow internal branch
 						}
 
-						if (!in[0].isAddress()) {
-							throw new AssertException("Not a valid Address on instruction at " +
-								instruction.getAddress());
-						}
+						//if (!in[0].isAddress()) {
+						//	throw new AssertException("Not a valid Address on instruction at " +
+						//		instruction.getAddress());
+						//}
 						vContext.propogateResults(false);
 						conflict |=
 							vContext.mergeToFutureFlowState(minInstrAddress, in[0].getAddress());

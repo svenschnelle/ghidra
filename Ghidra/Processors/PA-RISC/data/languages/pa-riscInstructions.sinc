@@ -10,46 +10,46 @@ with : phase=1 {
 # Load and Store and Address Generation Instructions
 ############################
 
-:LDD OFF_BASE_10a,R1dst		is opfam=0x14 & OFF_BASE_10a & R1dst {
+:ldd OFF_BASE_10a,R1dst		is opfam=0x14 & OFF_BASE_10a & R1dst {
 	addr:$(ADDRSIZE) = OFF_BASE_10a;
     R1dst =  *[ram]:8 addr ;
  } 
 
-:LDW OFF_BASE_14,R1dst		is opfam=0x12 & OFF_BASE_14 & R1dst {
+:ldw OFF_BASE_14,R1dst		is opfam=0x12 & OFF_BASE_14 & R1dst {
 	addr:$(ADDRSIZE) = OFF_BASE_14;
     R1dst =  zext(*[ram]:4 addr) ;
  } 
 
-:LDH OFF_BASE_14,R1dst		is opfam=0x11 & OFF_BASE_14 & R1dst { 
+:ldh OFF_BASE_14,R1dst		is opfam=0x11 & OFF_BASE_14 & R1dst { 
 	addr:$(ADDRSIZE) = OFF_BASE_14;
     R1dst = zext(*[ram]:2 addr) ;
 }
 
-:LDB OFF_BASE_14,R1dst		is opfam=0x10 & OFF_BASE_14 & R1dst {
+:ldb OFF_BASE_14,R1dst		is opfam=0x10 & OFF_BASE_14 & R1dst {
 	addr:$(ADDRSIZE) = OFF_BASE_14;
     R1dst = zext(*[ram]:1 addr) ;
 } 
 
-:STD R1,OFF_BASE_10a		is opfam=0x1c & OFF_BASE_10a & R1 {
+:std R1,OFF_BASE_10a		is opfam=0x1c & OFF_BASE_10a & R1 {
 	addr:$(ADDRSIZE) = OFF_BASE_10a;
 	*[ram]:8 addr = R1; 
  } 
 
-:STW R1,OFF_BASE_14		is opfam=0x1A & OFF_BASE_14 & R1 {
+:stw R1,OFF_BASE_14		is opfam=0x1A & OFF_BASE_14 & R1 {
 	addr:$(ADDRSIZE) = OFF_BASE_14;
 	*[ram]:4 addr = R1:4; 
  } 
 
-:STH R1,OFF_BASE_14 		is opfam=0x19 & R1 & OFF_BASE_14 { 
+:sth R1,OFF_BASE_14 		is opfam=0x19 & R1 & OFF_BASE_14 { 
 	addr:$(ADDRSIZE) = OFF_BASE_14;
 	*[ram]:2 addr = R1:2; 
 }
-:STB R1,OFF_BASE_14		is opfam=0x18 & OFF_BASE_14 & R1 {
+:stb R1,OFF_BASE_14		is opfam=0x18 & OFF_BASE_14 & R1 {
 	addr:$(ADDRSIZE) = OFF_BASE_14;
 	*[ram]:1 addr = R1:1; 
 } 
 
-:LDW^",M" OFF_BASE_14,R1dst		is opfam=0x13 & OFF_BASE_14 & R1dst & RB & SPCBASE & lse14 {
+:ldw^",m" OFF_BASE_14,R1dst		is opfam=0x13 & OFF_BASE_14 & R1dst & RB & SPCBASE & lse14 {
 	off:$(ADDRSIZE) = 0;
 	if (lse14 s>=  0x0) goto <IGNOREIMM>;
 	off = sext(lse14);
@@ -59,7 +59,7 @@ with : phase=1 {
     R1dst = zext( *[ram]:4 addr );
 } 
 
-:STW^",M" R1,OFF_BASE_14		is opfam=0x1B & OFF_BASE_14 & R1 & RB & SPCBASE & lse14 {
+:stw^",m" R1,OFF_BASE_14		is opfam=0x1B & OFF_BASE_14 & R1 & RB & SPCBASE & lse14 {
 	addr:$(ADDRSIZE) = SPCBASE;
     local imm = sext(lse14);
 	if (imm s>=  0x0) goto <IGNOREIMM>;
@@ -70,107 +70,107 @@ with : phase=1 {
 } 
 
 # LDWX
-:LDW^indexedWordAccessCmplt^loadCC RX^SRRB,RT is opfam=0x03 & subop=2 & zero=0 & indexedWordAccessCmplt & loadCC & RX & RT & SRRB {
+:ldw^indexedWordAccessCmplt^loadCC RX^SRRB,RT is opfam=0x03 & subop=2 & zero=0 & indexedWordAccessCmplt & loadCC & RX & RT & SRRB {
 	address:$(ADDRSIZE) = indexedWordAccessCmplt;  
     RT =  zext(*[ram]:4 address) ;
  }
 
 # LDDX
-:LDD^indexedWordAccessCmplt^loadCC RX^SRRB,RT is opfam=0x03 & subop=3 & zero=0 & indexedWordAccessCmplt & loadCC & RX & RT & SRRB {
+:ldd^indexedWordAccessCmplt^loadCC RX^SRRB,RT is opfam=0x03 & subop=3 & zero=0 & indexedWordAccessCmplt & loadCC & RX & RT & SRRB {
 	address:$(ADDRSIZE) = indexedWordAccessCmplt;  
     RT =  zext(*[ram]:$(REGSIZE) address) ;
  }
  
  #LDHX
-:LDH^indexedHalfwordAccessCmplt^loadCC RX^SRRB,RT is opfam=0x03 & subop=1 & zero=0 & indexedHalfwordAccessCmplt & loadCC & RX & SRRB & RT {
+:ldh^indexedHalfwordAccessCmplt^loadCC RX^SRRB,RT is opfam=0x03 & subop=1 & zero=0 & indexedHalfwordAccessCmplt & loadCC & RX & SRRB & RT {
 	address:$(ADDRSIZE) = indexedHalfwordAccessCmplt;  
     RT =  zext(*[ram]:2 address) ;
 }
 
 #LDBX
-:LDB^indexedByteAccessCmplt^loadCC RX^SRRB,RT is opfam=0x03 & subop=0 & zero=0 & indexedByteAccessCmplt & loadCC & RX & SRRB & RT {
+:ldb^indexedByteAccessCmplt^loadCC RX^SRRB,RT is opfam=0x03 & subop=0 & zero=0 & indexedByteAccessCmplt & loadCC & RX & SRRB & RT {
 	address:$(ADDRSIZE) = indexedByteAccessCmplt;  
     RT =  zext(*[ram]:1 address) ;
 }
 
 # same as LDWX, except that it checks privilege levels
-:LDWAX^indexedWordAccessCmplt^loadCC RX(RB),RT 				is opfam=0x03 & subop=6 & zero=0 & s=0 & indexedWordAccessCmplt & loadCC & RX & SRRB & RB & RT {
+:ldwax^indexedWordAccessCmplt^loadCC RX(RB),RT 				is opfam=0x03 & subop=6 & zero=0 & s=0 & indexedWordAccessCmplt & loadCC & RX & SRRB & RB & RT {
 	address:$(ADDRSIZE) = indexedWordAccessCmplt;  
     RT =  zext(*[ram]:4 address) ;
 }
 
-:LDCWX^indexedDoublewordAccessCmplt^loadClearCC RX^SRRB,RT 		is opfam=0x03 & subop=7 & zero=0 & indexedDoublewordAccessCmplt & loadClearCC & RX & SRRB & RT {
+:ldcwx^indexedDoublewordAccessCmplt^loadClearCC RX^SRRB,RT 		is opfam=0x03 & subop=7 & zero=0 & indexedDoublewordAccessCmplt & loadClearCC & RX & SRRB & RT {
 	address:$(ADDRSIZE) = indexedDoublewordAccessCmplt;  
     RT =  zext(*[ram]:4 address);
     *[ram]:4 address = 0:4; 
  }
 
 # LDWS
-:LDW^shortDispCmplt^loadCC highlse5^SRRB,RT			is opfam=0x03 & subop=2 & one=1 & shortDispCmplt & loadCC & highlse5 & SRRB & RT {
+:ldw^shortDispCmplt^loadCC highlse5^SRRB,RT			is opfam=0x03 & subop=2 & one=1 & shortDispCmplt & loadCC & highlse5 & SRRB & RT {
 	addr:$(ADDRSIZE) = shortDispCmplt;
     RT =  zext(*[ram]:4 addr) ;
 }
 
 # LDDS
-:LDD^shortDispCmplt^loadCC highlse5^SRRB,RT			is opfam=0x03 & subop=3 & one=1 & shortDispCmplt & loadCC & highlse5 & SRRB & RT {
+:ldd^shortDispCmplt^loadCC highlse5^SRRB,RT			is opfam=0x03 & subop=3 & one=1 & shortDispCmplt & loadCC & highlse5 & SRRB & RT {
 	addr:$(ADDRSIZE) = shortDispCmplt;
     RT =  zext(*[ram]:$(REGSIZE) addr) ;
 }
 
 # LDHS
-:LDH^shortDispCmplt^loadCC highlse5^SRRB,RT			is opfam=0x03 & subop=1 & one=1 & shortDispCmplt & loadCC & highlse5 & SRRB & RT {
+:ldh^shortDispCmplt^loadCC highlse5^SRRB,RT			is opfam=0x03 & subop=1 & one=1 & shortDispCmplt & loadCC & highlse5 & SRRB & RT {
 	addr:$(ADDRSIZE) = shortDispCmplt;
     RT =  zext(*[ram]:2 addr) ;
 }
 
 # LDBS
-:LDB^shortDispCmplt^loadCC highlse5^SRRB,RT			is opfam=0x03 & subop=0 & one=1 & shortDispCmplt & loadCC & highlse5 & SRRB & RT {
+:ldb^shortDispCmplt^loadCC highlse5^SRRB,RT			is opfam=0x03 & subop=0 & one=1 & shortDispCmplt & loadCC & highlse5 & SRRB & RT {
 	addr:$(ADDRSIZE) = shortDispCmplt;
     RT =  zext(*[ram]:1 addr) ;
 }
 
 #STWS
-:STW^storeShortDispCmplt^storeCC RR,lse5^SRRB				is opfam=0x03 & subop=0xA & one=1 & storeShortDispCmplt & storeCC & lse5 & SRRB & RR {
+:stw^storeShortDispCmplt^storeCC RR,lse5^SRRB				is opfam=0x03 & subop=0xA & one=1 & storeShortDispCmplt & storeCC & lse5 & SRRB & RR {
 	addr:$(ADDRSIZE) = storeShortDispCmplt;
 	*[ram]:4 addr = RR:4; 
 }
 
 #STDS
-:STD^storeShortDispCmplt^storeCC RR,lse5^SRRB				is opfam=0x03 & subop=0xB & one=1 & storeShortDispCmplt & storeCC & lse5 & SRRB & RR {
+:std^storeShortDispCmplt^storeCC RR,lse5^SRRB				is opfam=0x03 & subop=0xB & one=1 & storeShortDispCmplt & storeCC & lse5 & SRRB & RR {
 	addr:$(ADDRSIZE) = storeShortDispCmplt;
 	*[ram]:4 addr = RR:4; 
 }
 
 #STHS
-:STH^storeShortDispCmplt^storeCC RR,lse5^SRRB				is opfam=0x03 & subop=0x9 & one=1 & storeShortDispCmplt & storeCC & lse5 & SRRB & RR {
+:sth^storeShortDispCmplt^storeCC RR,lse5^SRRB				is opfam=0x03 & subop=0x9 & one=1 & storeShortDispCmplt & storeCC & lse5 & SRRB & RR {
 	addr:$(ADDRSIZE) = storeShortDispCmplt;
 	*[ram]:2 addr = RR:2; 
 }
 
 #STBS
-:STB^storeShortDispCmplt^storeCC RR,lse5^SRRB				is opfam=0x03 & subop=0x8 & one=1 & storeShortDispCmplt & storeCC & lse5 & SRRB & RR {
+:stb^storeShortDispCmplt^storeCC RR,lse5^SRRB				is opfam=0x03 & subop=0x8 & one=1 & storeShortDispCmplt & storeCC & lse5 & SRRB & RR {
 	addr:$(ADDRSIZE) = storeShortDispCmplt;
 	*[ram]:1 addr = RR:1; 
 }
 
-:LDWAS^shortDispCmplt^loadCC highlse5(RB),RT			is opfam=0x03 & subop=6 & one=1 & shortDispCmplt & loadCC & highlse5 & RB & RT {
+:ldwas^shortDispCmplt^loadCC highlse5(RB),RT			is opfam=0x03 & subop=6 & one=1 & shortDispCmplt & loadCC & highlse5 & RB & RT {
 	addr:$(ADDRSIZE) = shortDispCmplt;
     RT =  zext(*[ram]:4 addr) ;
 }
 
-:LDCWS^shortDispCmplt^loadClearCC highlse5^SRRB,RT		is opfam=0x03 & subop=7 & one=1 & shortDispCmplt & loadClearCC & highlse5 & SRRB & RT {
+:ldcws^shortDispCmplt^loadClearCC highlse5^SRRB,RT		is opfam=0x03 & subop=7 & one=1 & shortDispCmplt & loadClearCC & highlse5 & SRRB & RT {
 	address:$(ADDRSIZE) = shortDispCmplt;  
     RT =  zext(*:4 address);
     *[ram]:4 address = 0:4; 
 }
 
-:STWAS^shortDispCmplt^storeCC RR,lse5(RB)				is opfam=0x03 & subop=0xE & one=1 & shortDispCmplt & storeCC & lse5 & RB & RR {
+:stwas^shortDispCmplt^storeCC RR,lse5(RB)				is opfam=0x03 & subop=0xE & one=1 & shortDispCmplt & storeCC & lse5 & RB & RR {
 	addr:$(ADDRSIZE) = shortDispCmplt;
 	*[ram] :4 addr = RR:4; 
 }
 
 # This is the "begin" version for big endian. I am not doing the little endian version.
-:STBYS^storeBytesShortCmplt^storeCC RR,lse5^SRRB 		is opfam=0x03 & subop=0xC & one=1 & storeBytesShortCmplt & storeCC & lse5 & SRRB & RR & u=0 {
+:stbys^storeBytesShortCmplt^storeCC RR,lse5^SRRB 		is opfam=0x03 & subop=0xC & one=1 & storeBytesShortCmplt & storeCC & lse5 & SRRB & RR & u=0 {
 	# get the address, which is most likely not word aligned
 	addr:$(ADDRSIZE) = storeBytesShortCmplt;
 	# figure out how many bytes need to be written
@@ -190,7 +190,7 @@ with : phase=1 {
 }
 
 # This is the "end" version for big endian. I am not doing the little endian version.
-:STBYS^storeBytesShortCmplt^storeCC RR,lse5^SRRB 		is opfam=0x03 & subop=0xC & one=1 & storeBytesShortCmplt & storeCC & lse5 & SRRB & RR & u=1 {
+:stbys^storeBytesShortCmplt^storeCC RR,lse5^SRRB 		is opfam=0x03 & subop=0xC & one=1 & storeBytesShortCmplt & storeCC & lse5 & SRRB & RR & u=1 {
 	# get the address, which is most likely not word aligned
 	addr:$(ADDRSIZE) = storeBytesShortCmplt;
 	# figure out how many bytes need to be written
@@ -214,26 +214,26 @@ with : phase=1 {
 
 # Note: LDO and LDIL do not access memory, they just load an address into a register
 # LDI is a pseudo-op that is commonly used to load immediate values into registers. The values may or may not be addresses.
-:LDO lse14(RB),R1dst										is opfam=0x0D & lse14 & RB & R1dst {
+:ldo lse14(RB),R1dst										is opfam=0x0D & lse14 & RB & R1dst {
 	R1dst = RB + lse14;
  }
 
 # LDO is often used as a copy operator, so when the offset is zero, we display it as a copy
-:COPY RB,R1dst										is opfam=0x0D & im14=0 & RB & R1dst {
+:copy RB,R1dst										is opfam=0x0D & im14=0 & RB & R1dst {
 	R1dst = RB;
  }
  
-:LDI lse14,R1dst									is opfam=0x0D & b=0 & lse14 & R1dst {
+:ldi lse14,R1dst									is opfam=0x0D & b=0 & lse14 & R1dst {
 	R1dst = lse14;
 }
 
-:LDIL lse21,R2									is opfam=0x08 & R2 & lse21 {
+:ldil lse21,R2									is opfam=0x08 & R2 & lse21 {
 	R2 = lse21;
 }
 
 # this instruction adds lse21 + R2 and puts the result into the hard coded r1 register
 # (not the register specified by bitfield reg1, the actual register r1)
-:ADDIL lse21, R2, r1							is opfam=0x0A & R2 & lse21 & r1 {
+:addil lse21, R2, r1							is opfam=0x0A & R2 & lse21 & r1 {
 	r1 = R2 + lse21;
 }
 
@@ -245,7 +245,7 @@ with : phase=1 {
 # unconditional immediate calls
 ################################################################################
 # non-nullifying unconditional immediate call
-:B^",L"^nullifyForBranch branchTarget3W,R2dst						is opfam=0x3A & c=0x0 & R2dst & nullifyForBranch & n=0 & branchTarget3W & $(COMMON) 
+:b^",l"^nullifyForBranch branchTarget3W,R2dst						is opfam=0x3A & c=0x0 & R2dst & nullifyForBranch & n=0 & branchTarget3W & $(COMMON) 
 	[
 	  branchEnable = 1;
 	  globalset(inst_next, branchEnable);
@@ -261,14 +261,14 @@ with : phase=1 {
 
 # nullifying unconditional immediate call
 # special case that doesn't need the deferral mechanism 
-:B^",L"^nullifySymForBranch branchTarget3W,R2dst						is opfam=0x3A & c=0x0 & R2dst & nullifySymForBranch & n=1 & branchTarget3W & $(COMMON) 
+:b^",l"^nullifySymForBranch branchTarget3W,R2dst						is opfam=0x3A & c=0x0 & R2dst & nullifySymForBranch & n=1 & branchTarget3W & $(COMMON) 
 {
 	R2dst = inst_start+8;
 	call branchTarget3W;
 }
 
 # non-nullifying unconditional immediate call (22 bit version)
-:B^",L"^nullifyForBranch branchTarget4W,rp 			is opfam=0x3A & c=0x5 & rp & nullifyForBranch & n=0 & branchTarget4W & $(COMMON) 
+:b^",l"^nullifyForBranch branchTarget4W,rp 			is opfam=0x3A & c=0x5 & rp & nullifyForBranch & n=0 & branchTarget4W & $(COMMON) 
 	[
 	  branchEnable = 1;
 	  globalset(inst_next, branchEnable);
@@ -284,7 +284,7 @@ with : phase=1 {
 
 # nullifying unconditional immediate call
 # special case that doesn't need the deferral mechanism 
-:B^",L"^nullifySymForBranch branchTarget4W,rp						is opfam=0x3A & c=0x5 & rp & nullifySymForBranch & n=1 & branchTarget4W & $(COMMON) 
+:b^",l"^nullifySymForBranch branchTarget4W,rp						is opfam=0x3A & c=0x5 & rp & nullifySymForBranch & n=1 & branchTarget4W & $(COMMON) 
 {
 	rp = inst_start+8;
 	call branchTarget4W;
@@ -296,7 +296,7 @@ with : phase=1 {
 # By having a second op for it, we can use a goto and prevent analysis tools from thinking this is a legitimate subroutine call
 ################################################################################
 # non-nullifying unconditional immediate branch (no link)
-:B^nullifyForBranch branchTarget3W							is opfam=0x3A & c=0x0 & reg2=0 & nullifyForBranch & n=0 & branchTarget3W & $(COMMON) 
+:b^nullifyForBranch branchTarget3W							is opfam=0x3A & c=0x0 & reg2=0 & nullifyForBranch & n=0 & branchTarget3W & $(COMMON) 
 	[
 	  branchEnable = 1;
 	  globalset(inst_next, branchEnable);
@@ -313,7 +313,7 @@ with : phase=1 {
 # nullifying unconditional immediate branch (no link)
 # This is a special case, as we just do the branch and don't use
 # our defered branching mechanism
-:B^nullifySymForBranch branchTarget3W							is opfam=0x3A & c=0x0 & reg2=0 & nullifySymForBranch & n=1 & branchTarget3W & $(COMMON) 
+:b^nullifySymForBranch branchTarget3W							is opfam=0x3A & c=0x0 & reg2=0 & nullifySymForBranch & n=1 & branchTarget3W & $(COMMON) 
 {
 	goto branchTarget3W;
 }
@@ -321,7 +321,7 @@ with : phase=1 {
 ################################################################################
 # conditional immediate branches - comparison with registers
 ################################################################################
-:CMPBT^RegCSCondSym^nullifyForBranch R1,R2,branchTarget2W		is opfam=0x20 & R1 & R2 & nullifyForBranch & n=0 & branchTarget2W & RegCSCondSym & RegCSCond & $(COMMON)
+:cmpb^RegCSCondSym^nullifyForBranch R1,R2,branchTarget2W		is opfam=0x20 & R1 & R2 & nullifyForBranch & n=0 & branchTarget2W & RegCSCondSym & RegCSCond & $(COMMON)
  	[ branchEnable = 1;
 	  globalset(inst_next, branchEnable);
 	  branchType = 2; # conditional imm branch
@@ -334,7 +334,7 @@ with : phase=1 {
 	branchExecuted = 1;
 }
 
- :CMPBT^RegCSCondSym^nullifyForBranch R1,R2,branchTarget2W		is opfam=0x20 & R1 & R2 & nullifyForBranch & n=1 & branchTarget2W & displacement2W & RegCSCondSym & RegCSCond & $(COMMON)
+:cmpb^RegCSCondSym^nullifyForBranch R1,R2,branchTarget2W		is opfam=0x20 & R1 & R2 & nullifyForBranch & n=1 & branchTarget2W & displacement2W & RegCSCondSym & RegCSCond & $(COMMON)
  	[ branchEnable = 1;
 	  globalset(inst_next, branchEnable);
 	  branchType = 2; # conditional imm branch
@@ -348,7 +348,7 @@ with : phase=1 {
 	nullifyNextCond = ( ! branchCond && (displacement2W s< 0)) || ( branchCond && (displacement2W s>= 0) );
 }
 
-:CMPBF^RegCSCondSym^nullifyForBranch R1,R2,branchTarget2W		is opfam=0x22 & R1 & R2 & nullifyForBranch & n=0 & branchTarget2W & RegCSCondSym & RegCSCond & $(COMMON)
+:cmpb^InvCSCondSym^nullifyForBranch R1,R2,branchTarget2W		is opfam=0x22 & R1 & R2 & nullifyForBranch & n=0 & branchTarget2W & InvCSCondSym & RegCSCond & $(COMMON)
  	[ branchEnable = 1;
 	  globalset(inst_next, branchEnable);
 	  branchType = 2; # conditional imm branch
@@ -361,7 +361,7 @@ with : phase=1 {
 	branchExecuted = 1;
 }
 
-:CMPBF^RegCSCondSym^nullifyForBranch R1,R2,branchTarget2W		is opfam=0x22 & R1 & R2 & nullifyForBranch & n=1 & branchTarget2W & displacement2W & RegCSCondSym & RegCSCond & $(COMMON)
+:cmpb^InvCSCondSym^nullifyForBranch R1,R2,branchTarget2W		is opfam=0x22 & R1 & R2 & nullifyForBranch & n=1 & branchTarget2W & displacement2W & InvCSCondSym & RegCSCond & $(COMMON)
  	[ branchEnable = 1;
 	  globalset(inst_next, branchEnable);
 	  branchType = 2; # conditional imm branch
@@ -375,7 +375,7 @@ with : phase=1 {
 	nullifyNextCond = ( ! branchCond && (displacement2W s< 0)) || ( branchCond && (displacement2W s>= 0) );
 }
 
-:CMPBT^RegCSCondSymW^nullifyForBranch R1,R2,branchTarget2W		is opfam=0x27 & R1 & R2 & nullifyForBranch & n=0 & branchTarget2W & RegCSCondSymW & RegCSCondW & $(COMMON)
+:cmpb^RegCSCondSymW^nullifyForBranch R1,R2,branchTarget2W		is opfam=0x27 & R1 & R2 & nullifyForBranch & n=0 & branchTarget2W & RegCSCondSymW & RegCSCondW & $(COMMON)
  	[ branchEnable = 1;
 	  globalset(inst_next, branchEnable);
 	  branchType = 2; # conditional imm branch
@@ -388,7 +388,7 @@ with : phase=1 {
 	branchExecuted = 1;
 }
 
- :CMPBT^RegCSCondSymW^nullifyForBranch R1,R2,branchTarget2W		is opfam=0x27 & R1 & R2 & nullifyForBranch & n=1 & branchTarget2W & displacement2W & RegCSCondSymW & RegCSCondW & $(COMMON)
+:cmpb^RegCSCondSymW^nullifyForBranch R1,R2,branchTarget2W		is opfam=0x27 & R1 & R2 & nullifyForBranch & n=1 & branchTarget2W & displacement2W & RegCSCondSymW & RegCSCondW & $(COMMON)
  	[ branchEnable = 1;
 	  globalset(inst_next, branchEnable);
 	  branchType = 2; # conditional imm branch
@@ -402,7 +402,7 @@ with : phase=1 {
 	nullifyNextCond = ( ! branchCond && (displacement2W s< 0)) || ( branchCond && (displacement2W s>= 0) );
 }
 
-:CMPBF^RegCSCondSymW^nullifyForBranch R1,R2,branchTarget2W		is opfam=0x2f & R1 & R2 & nullifyForBranch & n=0 & branchTarget2W & RegCSCondSymW & RegCSCondW & $(COMMON)
+:cmpb^InvCSCondSymW^nullifyForBranch R1,R2,branchTarget2W		is opfam=0x2f & R1 & R2 & nullifyForBranch & n=0 & branchTarget2W & InvCSCondSymW & RegCSCondW & $(COMMON)
  	[ branchEnable = 1;
 	  globalset(inst_next, branchEnable);
 	  branchType = 2; # conditional imm branch
@@ -415,7 +415,7 @@ with : phase=1 {
 	branchExecuted = 1;
 }
 
-:CMPBF^RegCSCondSymW^nullifyForBranch R1,R2,branchTarget2W		is opfam=0x2f & R1 & R2 & nullifyForBranch & n=1 & branchTarget2W & displacement2W & RegCSCondSymW & RegCSCondW & $(COMMON)
+:cmpb^InvCSCondSymW^nullifyForBranch R1,R2,branchTarget2W		is opfam=0x2f & R1 & R2 & nullifyForBranch & n=1 & branchTarget2W & displacement2W & InvCSCondSymW & RegCSCondW & $(COMMON)
  	[ branchEnable = 1;
 	  globalset(inst_next, branchEnable);
 	  branchType = 2; # conditional imm branch
@@ -433,7 +433,7 @@ with : phase=1 {
 ################################################################################
 # conditional immediate branches -- comparison with immediates
 ################################################################################
-:CMPIBT^RegCSCondSym^nullifyForBranch highlse5,R2,branchTarget2W	is opfam=0x21 & highlse5 & R2 & nullifyForBranch & branchTarget2W & RegCSCondSym & RegCSCondI & n=0 & $(COMMON)
+:cmpib^RegCSCondSym^nullifyForBranch highlse5,R2,branchTarget2W	is opfam=0x21 & highlse5 & R2 & nullifyForBranch & branchTarget2W & RegCSCondSym & RegCSCondI & n=0 & $(COMMON)
  	[ branchEnable = 1;
 	  globalset(inst_next, branchEnable);
 	  branchType = 2; # conditional imm branch
@@ -446,7 +446,7 @@ with : phase=1 {
 	branchExecuted = 1;
 }
 
-:CMPIBT^RegCSCondSym^nullifyForBranch highlse5,R2,branchTarget2W	is opfam=0x21 & highlse5 & R2 & nullifyForBranch & branchTarget2W & displacement2W & RegCSCondSym & RegCSCondI & n=1 & $(COMMON)
+:cmpib^RegCSCondSym^nullifyForBranch highlse5,R2,branchTarget2W	is opfam=0x21 & highlse5 & R2 & nullifyForBranch & branchTarget2W & displacement2W & RegCSCondSym & RegCSCondI & n=1 & $(COMMON)
  	[ branchEnable = 1;
 	  globalset(inst_next, branchEnable);
 	  branchType = 2; # conditional imm branch
@@ -462,7 +462,7 @@ with : phase=1 {
 
 
 
-:CMPIBF^RegCSCondSym^nullifyForBranch highlse5,R2,branchTarget2W	is opfam=0x23 & highlse5 & R2 & nullifyForBranch & branchTarget2W & RegCSCondSym & RegCSCondI & n=0 & $(COMMON)
+:cmpib^InvCSCondSym^nullifyForBranch highlse5,R2,branchTarget2W	is opfam=0x23 & highlse5 & R2 & nullifyForBranch & branchTarget2W & InvCSCondSym & RegCSCondI & n=0 & $(COMMON)
  	[ branchEnable = 1;
 	  globalset(inst_next, branchEnable);
 	  branchType = 2; # conditional imm branch
@@ -475,7 +475,7 @@ with : phase=1 {
 	branchExecuted = 1;
 }
 
-:CMPIBF^RegCSCondSym^nullifyForBranch highlse5,R2,branchTarget2W	is opfam=0x23 & highlse5 & R2 & nullifyForBranch & branchTarget2W & displacement2W & RegCSCondSym & RegCSCondI & n=1 & $(COMMON)
+:cmpib^InvCSCondSym^nullifyForBranch highlse5,R2,branchTarget2W	is opfam=0x23 & highlse5 & R2 & nullifyForBranch & branchTarget2W & displacement2W & InvCSCondSym & RegCSCondI & n=1 & $(COMMON)
  	[ branchEnable = 1;
 	  globalset(inst_next, branchEnable);
 	  branchType = 2; # conditional imm branch
@@ -490,7 +490,7 @@ with : phase=1 {
 }
 
 # 64 bit versions
-:CMPIBT^RegCSCondSymW^nullifyForBranch highlse5,R2,branchTarget2W	is opfam=0x3b & highlse5 & R2 & nullifyForBranch & branchTarget2W & RegCSCondSymW & RegCSCondIW & n=0 & $(COMMON)
+:cmpib^RegCSCondSymW^nullifyForBranch highlse5,R2,branchTarget2W	is opfam=0x3b & highlse5 & R2 & nullifyForBranch & branchTarget2W & RegCSCondSymW & RegCSCondIW & n=0 & $(COMMON)
  	[ branchEnable = 1;
 	  globalset(inst_next, branchEnable);
 	  branchType = 2; # conditional imm branch
@@ -503,7 +503,7 @@ with : phase=1 {
 	branchExecuted = 1;
 }
 
-:CMPIBT^RegCSCondSymW^nullifyForBranch highlse5,R2,branchTarget2W	is opfam=0x3b & highlse5 & R2 & nullifyForBranch & branchTarget2W & displacement2W & RegCSCondSymW & RegCSCondIW & n=1 & $(COMMON)
+:cmpib^RegCSCondSymW^nullifyForBranch highlse5,R2,branchTarget2W	is opfam=0x3b & highlse5 & R2 & nullifyForBranch & branchTarget2W & displacement2W & RegCSCondSymW & RegCSCondIW & n=1 & $(COMMON)
  	[ branchEnable = 1;
 	  globalset(inst_next, branchEnable);
 	  branchType = 2; # conditional imm branch
@@ -521,7 +521,7 @@ with : phase=1 {
 # unconditional indirect calls & branches
 ################################################################################
 # IP relative unconditional indirect call
-:BLR^nullifyForBranch RR,R2dst									is opfam=0x3A & c=0x2 & R2dst & nullifyForBranch & RR & IPRelativeIndexedTarget & n=0 & $(COMMON)
+:blr^nullifyForBranch RR,R2dst									is opfam=0x3A & c=0x2 & R2dst & nullifyForBranch & RR & IPRelativeIndexedTarget & n=0 & $(COMMON)
 	[
 	  branchEnable = 1;
 	  globalset(inst_next, branchEnable);
@@ -536,14 +536,14 @@ with : phase=1 {
 }
 
 # IP relative unconditional indirect call
-:BLR^nullifySymForBranch RR,R2dst									is opfam=0x3A & c=0x2 & R2dst & nullifySymForBranch & RR & IPRelativeIndexedTarget & n=1 & $(COMMON)
+:blr^nullifySymForBranch RR,R2dst									is opfam=0x3A & c=0x2 & R2dst & nullifySymForBranch & RR & IPRelativeIndexedTarget & n=1 & $(COMMON)
 {
 	R2dst = inst_start+8;
 	call [branchIndDest];
 }
 
 # vectored (offset register plus index register) unconditional indirect branch
-:BV^nullifyForBranch RX(RB)									is opfam=0x3A & c=0x6 & RB & nullifyForBranch & RX & IndexedTarget & bit0=0 & n=0 & $(COMMON)
+:bv^nullifyForBranch RX(RB)									is opfam=0x3A & c=0x6 & RB & nullifyForBranch & RX & IndexedTarget & bit0=0 & n=0 & $(COMMON)
 	[
 	  branchEnable = 1;
 	  globalset(inst_next, branchEnable);
@@ -557,14 +557,14 @@ with : phase=1 {
 }
 
 # vectored (offset register plus index register) unconditional indirect branch
-:BV^nullifySymForBranch RX(RB)								is opfam=0x3A & c=0x6 & RB & nullifySymForBranch & RX & IndexedTarget & bit0=0 & n=1 & $(COMMON)
+:bv^nullifySymForBranch RX(RB)								is opfam=0x3A & c=0x6 & RB & nullifySymForBranch & RX & IndexedTarget & bit0=0 & n=1 & $(COMMON)
 {
 	goto [branchIndDest];
 }
 
 # this is the idiom for return from subroutine
 # currently we pull it out so we don't print out the R0, but we could modify this to do a return...
-:BV^nullifyForBranch (RB)									is opfam=0x3A & c=0x6 & RB & nullifyForBranch & reg1=0 & ReturnTarget & bit0=0 & n=0 & $(COMMON)
+:bv^nullifyForBranch (RB)									is opfam=0x3A & c=0x6 & RB & nullifyForBranch & reg1=0 & ReturnTarget & bit0=0 & n=0 & $(COMMON)
 	[
 	  branchEnable = 1;
 	  globalset(inst_next, branchEnable);
@@ -581,7 +581,7 @@ with : phase=1 {
 
 # this is the idiom for return from subroutine
 # currently we pull it out so we don't print out the R0, but we could modify this to do a return...
-:BV^nullifyForBranch (RB)									is opfam=0x3A & c=0x6 & RB & nullifyForBranch & reg1=0 & ReturnTarget & bit0=0 & n=1 & $(COMMON)
+:bv^nullifyForBranch (RB)									is opfam=0x3A & c=0x6 & RB & nullifyForBranch & reg1=0 & ReturnTarget & bit0=0 & n=1 & $(COMMON)
 {
 	return [branchIndDest];
 }
@@ -590,7 +590,7 @@ with : phase=1 {
 
 #### MOVB
 
-:MOVB^SEDCondSym^nullifyForBranch R1,R2dst,branchTarget2W			is opfam=0x32 & R2dst & R1 & nullifyForBranch & branchTarget2W & DepCond & SEDCondSym & n=0 & $(COMMON)
+:movb^SEDCondSym^nullifyForBranch R1,R2dst,branchTarget2W			is opfam=0x32 & R2dst & R1 & nullifyForBranch & branchTarget2W & DepCond & SEDCondSym & n=0 & $(COMMON)
  	[ branchEnable = 1;
 	  globalset(inst_next, branchEnable);
 	  branchType = 2; # conditional imm branch
@@ -606,7 +606,7 @@ with : phase=1 {
 	branchExecuted = 1;
 }
 
-:MOVB^SEDCondSym^nullifyForBranch R1,R2dst,branchTarget2W			is opfam=0x32 & R2dst & R1 & nullifyForBranch & branchTarget2W & displacement2W & DepCond & SEDCondSym & n=1 & $(COMMON)
+:movb^SEDCondSym^nullifyForBranch R1,R2dst,branchTarget2W			is opfam=0x32 & R2dst & R1 & nullifyForBranch & branchTarget2W & displacement2W & DepCond & SEDCondSym & n=1 & $(COMMON)
  	[ branchEnable = 1;
 	  globalset(inst_next, branchEnable);
 	  branchType = 2; # conditional imm branch
@@ -627,7 +627,7 @@ with : phase=1 {
 
 #### MOVIB
 
-:MOVIB^SEDCondSym^nullifyForBranch im5,R2dst,branchTarget2W		is opfam=0x33 & R2dst & im5 & nullifyForBranch & branchTarget2W & DepCond & SEDCondSym & n=0 & $(COMMON)
+:movib^SEDCondSym^nullifyForBranch im5,R2dst,branchTarget2W		is opfam=0x33 & R2dst & im5 & nullifyForBranch & branchTarget2W & DepCond & SEDCondSym & n=0 & $(COMMON)
  	[ branchEnable = 1;
 	  globalset(inst_next, branchEnable);
 	  branchType = 2; # conditional imm branch
@@ -643,7 +643,7 @@ with : phase=1 {
 	branchCond = DepCond;
 }
 
-:MOVIB^SEDCondSym^nullifyForBranch im5,R2dst,branchTarget2W		is opfam=0x33 & R2dst & im5 & nullifyForBranch & branchTarget2W & displacement2W & DepCond & SEDCondSym & n=1 & $(COMMON)
+:movib^SEDCondSym^nullifyForBranch im5,R2dst,branchTarget2W		is opfam=0x33 & R2dst & im5 & nullifyForBranch & branchTarget2W & displacement2W & DepCond & SEDCondSym & n=1 & $(COMMON)
  	[ branchEnable = 1;
 	  globalset(inst_next, branchEnable);
 	  branchType = 2; # conditional imm branch
@@ -661,7 +661,7 @@ with : phase=1 {
 }
 
 ###########################
-:ADDBT^RegAddCondSym^nullifyForBranch R1,R2dst,branchTarget2W		is opfam=0x28 & R1 & R2dst & R2 & nullifyForBranch & branchTarget2W & RegAddCond & RegAddCondSym & n=0 & $(COMMON) 
+:addb^RegAddCondSym^nullifyForBranch R1,R2dst,branchTarget2W		is opfam=0x28 & R1 & R2dst & R2 & nullifyForBranch & branchTarget2W & RegAddCond & RegAddCondSym & n=0 & $(COMMON) 
  	[ branchEnable = 1;
 	  globalset(inst_next, branchEnable);
 	  branchType = 2; # conditional imm branch
@@ -676,7 +676,7 @@ with : phase=1 {
 	R2dst = R1 + R2;
 }
 
-:ADDBT^RegAddCondSym^nullifyForBranch R1,R2dst,branchTarget2W		is opfam=0x28 & R1 & R2dst & R2 & nullifyForBranch & branchTarget2W & displacement2W & RegAddCond & RegAddCondSym & n=1 & $(COMMON) 
+:addb^RegAddCondSym^nullifyForBranch R1,R2dst,branchTarget2W		is opfam=0x28 & R1 & R2dst & R2 & nullifyForBranch & branchTarget2W & displacement2W & RegAddCond & RegAddCondSym & n=1 & $(COMMON) 
  	[ branchEnable = 1;
 	  globalset(inst_next, branchEnable);
 	  branchType = 2; # conditional imm branch
@@ -694,7 +694,7 @@ with : phase=1 {
 }
 
 ###########################
-:ADDBF^RegAddCondSym^nullifyForBranch R1,R2dst,branchTarget2W		is opfam=0x2A & R1 & R2dst & R2 & nullifyForBranch & branchTarget2W & RegAddCond & RegAddCondSym & n=0 & $(COMMON)
+:addb^InvAddCondSym^nullifyForBranch R1,R2dst,branchTarget2W		is opfam=0x2A & R1 & R2dst & R2 & nullifyForBranch & branchTarget2W & RegAddCond & InvAddCondSym & n=0 & $(COMMON)
  	[ branchEnable = 1;
 	  globalset(inst_next, branchEnable);
 	  branchType = 2; # conditional imm branch
@@ -709,7 +709,7 @@ with : phase=1 {
 	R2dst = R1 + R2;
 }
 
-:ADDBF^RegAddCondSym^nullifyForBranch R1,R2dst,branchTarget2W		is opfam=0x2A & R1 & R2 & R2dst & nullifyForBranch & branchTarget2W & displacement2W & RegAddCondSym & RegAddCond & n=1 & $(COMMON)
+:addb^InvAddCondSym^nullifyForBranch R1,R2dst,branchTarget2W		is opfam=0x2A & R1 & R2 & R2dst & nullifyForBranch & branchTarget2W & displacement2W & InvAddCondSym & RegAddCond & n=1 & $(COMMON)
  	[ branchEnable = 1;
 	  globalset(inst_next, branchEnable);
 	  branchType = 2; # conditional imm branch
@@ -726,7 +726,7 @@ with : phase=1 {
 }
 
 ###########################
-:ADDIBT^RegAddCondSym^nullifyForBranch highlse5,R2dst,branchTarget2W	is opfam=0x29 & highlse5 & R2 & R2dst & nullifyForBranch & branchTarget2W & RegAddCondI & RegAddCondSym & n=0 & $(COMMON)
+:addib^RegAddCondSym^nullifyForBranch highlse5,R2dst,branchTarget2W	is opfam=0x29 & highlse5 & R2 & R2dst & nullifyForBranch & branchTarget2W & RegAddCondI & RegAddCondSym & n=0 & $(COMMON)
  	[ branchEnable = 1;
 	  globalset(inst_next, branchEnable);
 	  branchType = 2; # conditional imm branch
@@ -741,7 +741,7 @@ with : phase=1 {
 	R2dst = R2 + sext(highlse5);
 }
 
-:ADDIBT^RegAddCondSym^nullifyForBranch highlse5,R2dst,branchTarget2W	is opfam=0x29 & highlse5 & R2 & R2dst & nullifyForBranch & branchTarget2W & displacement2W & RegAddCondI & RegAddCondSym & n=1 & $(COMMON)
+:addib^RegAddCondSym^nullifyForBranch highlse5,R2dst,branchTarget2W	is opfam=0x29 & highlse5 & R2 & R2dst & nullifyForBranch & branchTarget2W & displacement2W & RegAddCondI & RegAddCondSym & n=1 & $(COMMON)
  	[ branchEnable = 1;
 	  globalset(inst_next, branchEnable);
 	  branchType = 2; # conditional imm branch
@@ -757,7 +757,7 @@ with : phase=1 {
 	R2dst = R2 + sext(highlse5);
 }
 
-:ADDIBF^RegAddCondSym^nullifyForBranch highlse5,R2dst,branchTarget2W	is opfam=0x2B & highlse5 & R2 & R2dst & nullifyForBranch & branchTarget2W & RegAddCondI & RegAddCondSym & n=0 & $(COMMON)
+:addib^InvAddCondSym^nullifyForBranch highlse5,R2dst,branchTarget2W	is opfam=0x2B & highlse5 & R2 & R2dst & nullifyForBranch & branchTarget2W & RegAddCondI & InvAddCondSym & n=0 & $(COMMON)
  	[ branchEnable = 1;
 	  globalset(inst_next, branchEnable);
 	  branchType = 2; # conditional imm branch
@@ -772,7 +772,7 @@ with : phase=1 {
 	R2dst = R2 + sext(highlse5);
 }
 
-:ADDIBF^RegAddCondSym^nullifyForBranch highlse5,R2dst,branchTarget2W	is opfam=0x2B & highlse5 & R2 & R2dst & nullifyForBranch & branchTarget2W & displacement2W & RegAddCondI & RegAddCondSym & n=1 & $(COMMON)
+:addib^InvAddCondSym^nullifyForBranch highlse5,R2dst,branchTarget2W	is opfam=0x2B & highlse5 & R2 & R2dst & nullifyForBranch & branchTarget2W & displacement2W & RegAddCondI & InvAddCondSym & n=1 & $(COMMON)
  	[ branchEnable = 1;
 	  globalset(inst_next, branchEnable);
 	  branchType = 2; # conditional imm branch
@@ -789,7 +789,7 @@ with : phase=1 {
 }
 	
 #######################################
-:BB^BBCondSym^nullifyForBranch R1,SAR,branchTarget2W				is opfam=0x30 & branchTarget2W & nullifyForBranch & R1 & BVBCond & BBCondSym & SAR & n=0 & $(COMMON)
+:bb^BBCondSym^nullifyForBranch R1,SAR,branchTarget2W				is opfam=0x30 & branchTarget2W & nullifyForBranch & R1 & BVBCond & BBCondSym & SAR & n=0 & $(COMMON)
 	[ branchEnable = 1;
 	  globalset(inst_next, branchEnable);
 	  branchType = 2; # conditional imm branch
@@ -802,7 +802,7 @@ with : phase=1 {
 	branchExecuted = 1;
 }
 
-:BB^BBCondSym^nullifyForBranch R1,SAR,branchTarget2W				is opfam=0x30 & branchTarget2W & nullifyForBranch & displacement2W & R1 & BVBCond & BBCondSym & SAR & n=1 & $(COMMON) 
+:bb^BBCondSym^nullifyForBranch R1,SAR,branchTarget2W				is opfam=0x30 & branchTarget2W & nullifyForBranch & displacement2W & R1 & BVBCond & BBCondSym & SAR & n=1 & $(COMMON) 
 	[ branchEnable = 1;
 	  globalset(inst_next, branchEnable);
 	  branchType = 2; # conditional imm branch
@@ -817,7 +817,7 @@ with : phase=1 {
 }
 
 #######################################
-:BB^BBCondSym^nullifyForBranch R1,bboffset,branchTarget2W			is opfam=0x31 & branchTarget2W & nullifyForBranch & R1 & BBCond & BBCondSym & n=0 & bboffset & $(COMMON)
+:bb^BBCondSym^nullifyForBranch R1,bboffset,branchTarget2W			is opfam=0x31 & branchTarget2W & nullifyForBranch & R1 & BBCond & BBCondSym & n=0 & bboffset & $(COMMON)
 	[ branchEnable = 1;
 	  globalset(inst_next, branchEnable);
 	  branchType = 2; # conditional imm branch
@@ -830,7 +830,7 @@ with : phase=1 {
 	branchExecuted = 1;
 }
 
-:BB^BBCondSym^nullifyForBranch R1,bboffset,branchTarget2W			is opfam=0x31 & branchTarget2W & displacement2W & nullifyForBranch & R1 & BBCond & BBCondSym & n=1 & bboffset & $(COMMON)
+:bb^BBCondSym^nullifyForBranch R1,bboffset,branchTarget2W			is opfam=0x31 & branchTarget2W & displacement2W & nullifyForBranch & R1 & BBCond & BBCondSym & n=1 & bboffset & $(COMMON)
 	[ branchEnable = 1;
 	  globalset(inst_next, branchEnable);
 	  branchType = 2; # conditional imm branch
@@ -850,7 +850,7 @@ define pcodeop changePrivLevel;
 define pcodeop changeSpace;
 define pcodeop getCurrentSpace;
 
-:BE^nullifyForBranch externalTarget		is opfam=0x38 & nullifyForBranch & externalTarget & SR3bit & n=0 & $(COMMON)
+:be^nullifyForBranch externalTarget		is opfam=0x38 & nullifyForBranch & externalTarget & SR3bit & n=0 & $(COMMON)
 	[
 	  branchEnable = 1;
 	  globalset(inst_next, branchEnable);
@@ -865,13 +865,13 @@ define pcodeop getCurrentSpace;
 	branchExecuted = 1;
 }
 
-:BE^nullifyForBranch externalTarget		is opfam=0x38 & nullifyForBranch & externalTarget & SR3bit & n=1 & $(COMMON)
+:be^nullifyForBranch externalTarget		is opfam=0x38 & nullifyForBranch & externalTarget & SR3bit & n=1 & $(COMMON)
 {
 	iasq_front = SR3bit; # set the space ID to the new space ID
 	goto [externalTarget];
 }
 
-:BE^",L"^nullifyForBranch externalTarget,SR0,R31	is opfam=0x39 & nullifyForBranch & SR0 & R31 & SR3bit & externalTarget & n=0 & $(COMMON)
+:be^",L"^nullifyForBranch externalTarget,SR0,R31	is opfam=0x39 & nullifyForBranch & SR0 & R31 & SR3bit & externalTarget & n=0 & $(COMMON)
 	[
 	  branchEnable = 1;
 	  globalset(inst_next, branchEnable);
@@ -888,7 +888,7 @@ define pcodeop getCurrentSpace;
 	branchExecuted = 1;
 }
 
-:BE^",L"^nullifyForBranch externalTarget,SR0,R31	is opfam=0x39 & nullifyForBranch & SR0 & R31 & SR3bit & externalTarget & n=1 & $(COMMON)
+:be^",L"^nullifyForBranch externalTarget,SR0,R31	is opfam=0x39 & nullifyForBranch & SR0 & R31 & SR3bit & externalTarget & n=1 & $(COMMON)
 {
 	r31 = inst_next+4; # store the link/return address
 	sr0 = iasq_front; # store the link/return space ID 
@@ -896,7 +896,7 @@ define pcodeop getCurrentSpace;
 	call [externalTarget];
 }
 
-:B^",GATE"^nullifyForBranch branchTarget3W,R2dst					is opfam=0x3A & c=0x1 & R2dst & nullifyForBranch & branchTarget3W & n=0 & $(COMMON) 
+:b^",gate"^nullifyForBranch branchTarget3W,R2dst					is opfam=0x3A & c=0x1 & R2dst & nullifyForBranch & branchTarget3W & n=0 & $(COMMON) 
 	[
 	  branchEnable = 1;
 	  globalset(inst_next, branchEnable);
@@ -910,7 +910,7 @@ define pcodeop getCurrentSpace;
 	branchExecuted = 1;
 }
 
-:B^",GATE"^nullifyForBranch branchTarget3W,R2dst					is opfam=0x3A & c=0x1 & R2dst & nullifyForBranch & branchTarget3W & n=1 & $(COMMON)
+:b^"gate"^nullifyForBranch branchTarget3W,R2dst					is opfam=0x3A & c=0x1 & R2dst & nullifyForBranch & branchTarget3W & n=1 & $(COMMON)
 {
 	R2dst = changePrivLevel();
 	goto [branchTarget3W];
@@ -924,19 +924,19 @@ define pcodeop getCurrentSpace;
 #######################################
 define pcodeop trap;
 
-:ADD^AddCondSym R1,R2,RT	is opfam=0x02 & op=0x18 & R1 & R2 & RT & AddCondNullify & AddCondSym {
+:add^AddCondSym R1,R2,RT	is opfam=0x02 & op=0x18 & R1 & R2 & RT & AddCondNullify & AddCondSym {
 	pswCB = carry(R1,R2);
 	RT = R1 + R2;
 	build AddCondNullify;
 }
 
 # this version intentionally does not set the carry bits
-:ADD^",L"^AddCondSym R1,R2,RT	is opfam=0x02 & op=0x28 & R1 & R2 & RT & AddCondNullify & AddCondSym {
+:add^",l"^AddCondSym R1,R2,RT	is opfam=0x02 & op=0x28 & R1 & R2 & RT & AddCondNullify & AddCondSym {
 	RT = R1 + R2;
 	build AddCondNullify;
 }
 
-:ADDO^AddCondSym R1,R2,RT	is opfam=0x02 & op=0x38 & R1 & R2 & RT & AddCondSym & AddCondNullify {
+:addo^AddCondSym R1,R2,RT	is opfam=0x02 & op=0x38 & R1 & R2 & RT & AddCondSym & AddCondNullify {
 	if (scarry(R1,R2)) goto <TRAP>;
 	pswCB = carry(R1,R2);
 	RT = R1 + R2;
@@ -947,7 +947,7 @@ define pcodeop trap;
 	build AddCondNullify;
 }
 
-:ADD^",C"^AddCondSym R1,R2,RT	is opfam=0x02 & op=0x1C & R1 & R2 & RT & AddCondSym & AddCondNullify {
+:add^",c"^AddCondSym R1,R2,RT	is opfam=0x02 & op=0x1C & R1 & R2 & RT & AddCondSym & AddCondNullify {
 	local partialSum = R2 + zext(pswCB);
 	pswCB = carry(partialSum, R1);
 	RT = partialSum + R1;
@@ -955,7 +955,7 @@ define pcodeop trap;
 }
 
 # TODO This may need some work
-:ADD^",CO"^AddCondSym R1,R2,RT	is opfam=0x02 & op=0x3C & R1 & R2 & RT & AddCondSym & AddCondNullify {
+:add^",co"^AddCondSym R1,R2,RT	is opfam=0x02 & op=0x3C & R1 & R2 & RT & AddCondSym & AddCondNullify {
 	local partialSum = R2 + zext(pswCB);
 	partialCarry:1 = carry(R2, zext(pswCB));
 	partialOverflow:1 = scarry(R2, zext(pswCB));
@@ -974,20 +974,20 @@ define pcodeop trap;
 	build AddCondNullify;
 }
 
-:SH1ADD^AddCondSym R1,R2,RT	is opfam=0x02 & op=0x19 & R1 & R2 & RT & AddCond & AddCondSym & AddCondNullify {
+:sh1add^AddCondSym R1,R2,RT	is opfam=0x02 & op=0x19 & R1 & R2 & RT & AddCond & AddCondSym & AddCondNullify {
 	local shiftedR1 = R1 << 1;
 	pswCB = carry(shiftedR1,R2);
 	RT = shiftedR1 + R2;
 	build AddCondNullify;
 }
 
-:SH1ADDL^AddCondSym R1,R2,RT	is opfam=0x02 & op=0x29 & R1 & R2 & RT & AddCondNullify & AddCondSym {
+:sh1addl^AddCondSym R1,R2,RT	is opfam=0x02 & op=0x29 & R1 & R2 & RT & AddCondNullify & AddCondSym {
 	local shiftedR1 = R1 << 1;
 	RT = shiftedR1 + R2;
 	build AddCondNullify;
 }
 
-:SH1ADDO^SEDCondSym R1,R2,RT	is opfam=0x02 & op=0x39 & R1 & R2 & RT & AddCondNullify & SEDCondSym {
+:sh1addo^SEDCondSym R1,R2,RT	is opfam=0x02 & op=0x39 & R1 & R2 & RT & AddCondNullify & SEDCondSym {
 	local shiftedR1 = R1 << 1;
 	if (scarry(shiftedR1, R2)) goto <TRAP>;
 	pswCB = carry(shiftedR1,R2);
@@ -999,20 +999,20 @@ define pcodeop trap;
 	build AddCondNullify;
 }
 
-:SH2ADD^SEDCondSym R1,R2,RT	is opfam=0x02 & op=0x1A & R1 & R2 & RT & AddCondNullify & SEDCondSym {
+:sh2add^SEDCondSym R1,R2,RT	is opfam=0x02 & op=0x1A & R1 & R2 & RT & AddCondNullify & SEDCondSym {
 	local shiftedR1 = R1 << 2;
 	pswCB = carry(shiftedR1,R2);
 	RT = shiftedR1 + R2;
 	build AddCondNullify;
 }
 
-:SH2ADDL^AddCondSym R1,R2,RT	is opfam=0x02 & op=0x2A & R1 & R2 & RT & AddCondNullify & AddCondSym {
+:sh2addl^AddCondSym R1,R2,RT	is opfam=0x02 & op=0x2A & R1 & R2 & RT & AddCondNullify & AddCondSym {
 	local shiftedR1 = R1 << 2;
 	RT = shiftedR1 + R2;
 	build AddCondNullify;
 }
 
-:SH2ADDO^AddCondSym R1,R2,RT	is opfam=0x02 & op=0x3A & R1 & R2 & RT & AddCondNullify & AddCondSym {
+:sh2addo^AddCondSym R1,R2,RT	is opfam=0x02 & op=0x3A & R1 & R2 & RT & AddCondNullify & AddCondSym {
 	local shiftedR1 = R1 << 2;
 	if (scarry(shiftedR1, R2)) goto <TRAP>;
 	pswCB = carry(shiftedR1,R2);
@@ -1024,20 +1024,20 @@ define pcodeop trap;
 	build AddCondNullify;
 }
 
-:SH3ADD^AddCondSym R1,R2,RT	is opfam=0x02 & op=0x1B & R1 & R2 & RT & AddCondNullify & AddCondSym {
+:sh3add^AddCondSym R1,R2,RT	is opfam=0x02 & op=0x1B & R1 & R2 & RT & AddCondNullify & AddCondSym {
 	local shiftedR1 = R1 << 3;
 	pswCB = carry(shiftedR1,R2);
 	RT = shiftedR1 + R2;
 	build AddCondNullify;
 }
 
-:SH3ADDL^AddCondSym R1,R2,RT	is opfam=0x02 & op=0x2B & R1 & R2 & RT & AddCondNullify & AddCondSym {
+:sh3addl^AddCondSym R1,R2,RT	is opfam=0x02 & op=0x2B & R1 & R2 & RT & AddCondNullify & AddCondSym {
 	local shiftedR1 = R1 << 3;
 	RT = shiftedR1 + R2;
 	build AddCondNullify;
 }
 
-:SH3ADDO^AddCondSym R1,R2,RT	is opfam=0x02 & op=0x3B & R1 & R2 & RT & AddCondNullify & AddCondSym {
+:sh3addo^AddCondSym R1,R2,RT	is opfam=0x02 & op=0x3B & R1 & R2 & RT & AddCondNullify & AddCondSym {
 	local shiftedR1 = R1 << 3;
 	if (scarry(shiftedR1, R2)) goto <TRAP>;
 	pswCB = carry(shiftedR1,R2);
@@ -1049,13 +1049,13 @@ define pcodeop trap;
 	build AddCondNullify;
 }
 
-:SUB^CSCondSym R1,R2,RT	is opfam=0x02 & op=0x10 & m=0 & R1 & R2 & RT & CSCondSym & CSCondNullify {
+:sub^CSCondSym R1,R2,RT	is opfam=0x02 & op=0x10 & m=0 & R1 & R2 & RT & CSCondSym & CSCondNullify {
 	pswCB = ! (R1 < R2);
 	RT = R1 - R2;
 	build CSCondNullify;
 }
 
-:SUB",O"^CSCondSym R1,R2,RT	is opfam=0x02 & op=0x30 & m=0 & R1 & R2 & RT & CSCondSym & CSCondNullify {
+:sub",o"^CSCondSym R1,R2,RT	is opfam=0x02 & op=0x30 & m=0 & R1 & R2 & RT & CSCondSym & CSCondNullify {
 	if (sborrow(R1,R2)) goto <TRAP>;
 	pswCB = ! (R1 < R2);
 	RT = R1 - R2;
@@ -1066,14 +1066,14 @@ define pcodeop trap;
 	<DONE>
 }
 
-:SUB",B"^CSCondSym R1,R2,RT	is opfam=0x02 & op=0x14 & m=0 & R1 & R2 & RT & CSCondSym & CSCondNullify {
+:sub",b"^CSCondSym R1,R2,RT	is opfam=0x02 & op=0x14 & m=0 & R1 & R2 & RT & CSCondSym & CSCondNullify {
 	right:$(REGSIZE) = ~R2 + zext(pswCB);
 	pswCB =  ! (R1 < right); #! carry(R1, right);
 	RT = R1 + right;
 	build CSCondNullify;
 }
 
-:SUB",BO"^CSCondSym R1,R2,RT	is opfam=0x02 & op=0x34 & m=0 & R1 & R2 & RT & CSCondSym & CSCondNullify {
+:sub",bo"^CSCondSym R1,R2,RT	is opfam=0x02 & op=0x34 & m=0 & R1 & R2 & RT & CSCondSym & CSCondNullify {
 	right:$(REGSIZE) = ~R2 + zext(pswCB);
 	if (sborrow(R1,right)) goto <TRAP>;
 	pswCB =  ! (R1 < right);
@@ -1087,7 +1087,7 @@ define pcodeop trap;
 
 # subtract and trap on condition
 # this instruction does not have a nullify form
-:SUB",T"^CSCondSym R1,R2,RT	is opfam=0x02 & op=0x13 & m=0 & R1 & R2 & RT & CSCondSym & CSCond {
+:sub",t"^CSCondSym R1,R2,RT	is opfam=0x02 & op=0x13 & m=0 & R1 & R2 & RT & CSCondSym & CSCond {
 	pswCB = ! (R1 < R2);
 	RT = R1 - R2;
 	build CSCond;
@@ -1098,7 +1098,7 @@ define pcodeop trap;
 	<DONE>
 }
 
-:SUB",TO"^CSCondSym R1,R2,RT	is opfam=0x02 & op=0x33 & m=0 & R1 & R2 & RT & CSCondSym & CSCond {
+:sub",to"^CSCondSym R1,R2,RT	is opfam=0x02 & op=0x33 & m=0 & R1 & R2 & RT & CSCondSym & CSCond {
 	if (sborrow(R1,R2)) goto <TRAP>;
 	pswCB = ! (R1<R2);
 	RT = R1 - R2;
@@ -1111,7 +1111,7 @@ define pcodeop trap;
 }
 
 # R1 is partial remainder, R2 is denominator, RT is updated partial remainder
-:DS^CSCondSym R1,R2,RT	is opfam=0x02 & op=0x11 & m=0 & R1 & R2 & RT & CSCondSym & CSCondNullify {
+:ds^CSCondSym R1,R2,RT	is opfam=0x02 & op=0x11 & m=0 & R1 & R2 & RT & CSCondSym & CSCondNullify {
 	local origR2 = R2;
 	left:$(REGSIZE) =  (R1 << 1) | zext(pswCB);
 	if (pswV) goto <MINUS>;
@@ -1134,13 +1134,13 @@ define pcodeop trap;
 	build CSCondNullify;
 }
 
-:CMPCLR^CSCondSym R1,R2,RT	is opfam=0x02 & op=0x22 & d=0 & R1 & R2 & RT & CSCondSym & CSCondNullify
+:cmpclr^CSCondSym R1,R2,RT	is opfam=0x02 & op=0x22 & d=0 & R1 & R2 & RT & CSCondSym & CSCondNullify
 {
 	build CSCondNullify; # must do this before setting register
 	RT = 0;
 }
 
-:CMPCLR^CSCondSymW R1,R2,RT	is opfam=0x02 & op=0x22 & d=1 & R1 & R2 & RT & CSCondSymW & CSCondNullify
+:cmpclr^CSCondSymW R1,R2,RT	is opfam=0x02 & op=0x22 & d=1 & R1 & R2 & RT & CSCondSymW & CSCondNullify
 {
 	build CSCondNullify; # must do this before setting register
 	RT = 0;
@@ -1148,45 +1148,45 @@ define pcodeop trap;
 
 
 # COPY is a pseudo-op using OR to move values between registers
-:COPY R1,RT				is opfam=0x02 & op=0x09 & m=0 & R1 & reg2=0 & RT & c=0 & fv=0 {
+:copy R1,RT				is opfam=0x02 & op=0x09 & m=0 & R1 & reg2=0 & RT & c=0 & fv=0 {
 	RT = R1;
  }
  
 # nop is a pseudo-op for OR R0,R0, which is one way to make a nop
-:NOP					is opfam=0x02 & op=0x09 & m=0 & reg1=0 & reg2=0 & t=0 & c=0 & fv=0 { } # intentionally left blank
+:nop					is opfam=0x02 & op=0x09 & m=0 & reg1=0 & reg2=0 & t=0 & c=0 & fv=0 { } # intentionally left blank
 
-:OR^LogicCondSym R1,R2,RT	is opfam=0x02 & op=0x09 & m=0 & R1 & R2 & RT & LogicCondSym & LogicCondNullify {
+:or^LogicCondSym R1,R2,RT	is opfam=0x02 & op=0x09 & m=0 & R1 & R2 & RT & LogicCondSym & LogicCondNullify {
 	RT = R1 | R2;
 	build LogicCondNullify;
 }
 
-:XOR^LogicCondSym R1,R2,RT	is opfam=0x02 & op=0x0A & m=0 & R1 & R2 & RT & LogicCondSym & LogicCondNullify {
+:xor^LogicCondSym R1,R2,RT	is opfam=0x02 & op=0x0A & m=0 & R1 & R2 & RT & LogicCondSym & LogicCondNullify {
 	RT = R1 ^ R2;
 	build LogicCondNullify;
 }
 
-:AND^LogicCondSym R1,R2,RT	is opfam=0x02 & op=0x08 & m=0 & R1 & R2 & RT & LogicCondSym & LogicCondNullify {
+:and^LogicCondSym R1,R2,RT	is opfam=0x02 & op=0x08 & m=0 & R1 & R2 & RT & LogicCondSym & LogicCondNullify {
 	RT = R1 & R2;
 	build LogicCondNullify;
 }
 
-:ANDCM^LogicCondSym R1,R2,RT	is opfam=0x02 & op=0x00 & m=0 & R1 & R2 & RT & LogicCondSym & LogicCondNullify {
+:andcm^LogicCondSym R1,R2,RT	is opfam=0x02 & op=0x00 & m=0 & R1 & R2 & RT & LogicCondSym & LogicCondNullify {
 	RT = R1 & ~R2;
 	build LogicCondNullify;
 }
 
-:UXOR^UnitCondSym R1,R2,RT		is opfam=0x02 & op=0x0E & m=0 & R1 & R2 & RT & UnitCondSym & UnitCondNullify {
+:uxor^UnitCondSym R1,R2,RT		is opfam=0x02 & op=0x0E & m=0 & R1 & R2 & RT & UnitCondSym & UnitCondNullify {
 	RT = R1 ^ R2;
 	build UnitCondNullify;
 }
 
-:UADDCM^UnitCondSym R1,R2,RT	is opfam=0x02 & op=0x26 & m=0 & R1 & R2 & RT & UnitCondSym & UnitCondNullify {
+:uaddcm^UnitCondSym R1,R2,RT	is opfam=0x02 & op=0x26 & m=0 & R1 & R2 & RT & UnitCondSym & UnitCondNullify {
 	RT = R1 + ~R2;
 	build UnitCondNullify;
 	
 }
 
-:UADDCMT^UnitCondSym R1,R2,RT	is opfam=0x02 & op=0x27 & m=0 & R1 & R2 & RT & UnitCond & UnitCondSym {
+:uaddcmt^UnitCondSym R1,R2,RT	is opfam=0x02 & op=0x27 & m=0 & R1 & R2 & RT & UnitCond & UnitCondSym {
 	if (UnitCond) goto <TRAP>;
 	RT = R1 + ~R2;
 	goto <DONE>;
@@ -1195,7 +1195,7 @@ define pcodeop trap;
 	<DONE>
 }
 
-:ADDI^AddCondSym lse11,R2,R1dst	is opfam=0x2D & bit11=0 & lse11 & R2 & R1dst & AddCondSym & AddCondI11Nullify {
+:addi^AddCondSym lse11,R2,R1dst	is opfam=0x2D & bit11=0 & lse11 & R2 & R1dst & AddCondSym & AddCondI11Nullify {
 	tmp:$(REGSIZE) = R2; # Don't clobber the original value, when R1 is the same as R2
 	R1dst = R2 + lse11;
 	pswCB = carry(tmp,lse11);
@@ -1203,7 +1203,7 @@ define pcodeop trap;
 }
 
 # PA1.1 this is ADDIO, PA2.0 is ADDI,TSV (trap on signed overflow)
-:ADDI^",TSV"^AddCondSym lse11,R2,R1dst	is opfam=0x2D & bit11=1 & lse11 & R2 & R1dst & AddCondSym & AddCondI11Nullify {
+:addi^",TSV"^AddCondSym lse11,R2,R1dst	is opfam=0x2D & bit11=1 & lse11 & R2 & R1dst & AddCondSym & AddCondI11Nullify {
         tmp:$(REGSIZE) = R2; # Don't clobber the original value, when R1 is the same as R2
 	if (scarry(R2, lse11) == 1:1) goto <TRAP>;
 	R1dst = R2 + lse11;
@@ -1216,7 +1216,7 @@ define pcodeop trap;
 }
 
 # PA11 this is ADDIT, PA2.0 this is ADDI,TC
-:ADDI^",TC"^AddCondSym lse11,R2,R1dst	is opfam=0x2C & bit11=0 & lse11 & R2 & R1dst & AddCondSym & AddCondI11 {
+:addi^",TC"^AddCondSym lse11,R2,R1dst	is opfam=0x2C & bit11=0 & lse11 & R2 & R1dst & AddCondSym & AddCondI11 {
         tmp:$(REGSIZE) = R2; # Don't clobber the original value, when R1 is the same as R2
 	R1dst = R2 + lse11;
 	build AddCondI11;
@@ -1229,7 +1229,7 @@ define pcodeop trap;
 }
 
 # PA11 this is ADDITO, PA2.0 this is ADDI,TC,TSV
-:ADDI^",TC,TSV"^AddCondSym lse11,R2,R1dst	is opfam=0x2C & bit11=1 & lse11 & R2 & R1dst & AddCondSym & AddCondI11 {
+:addi^",tc,tsv"^AddCondSym lse11,R2,R1dst	is opfam=0x2C & bit11=1 & lse11 & R2 & R1dst & AddCondSym & AddCondI11 {
         tmp:$(REGSIZE) = R2; # Don't clobber the original value, when R1 is the same as R2
 	R1dst = R2 + lse11;
 	build AddCondI11;
@@ -1242,14 +1242,14 @@ define pcodeop trap;
 	<DONE>
 }
 
-:SUBI^CSCondSym lse11,R2,R1dst		is opfam=0x25 & bit11=0 & lse11 & R2 & R1dst & CSCondI11Nullify & CSCondSym {
+:subi^CSCondSym lse11,R2,R1dst		is opfam=0x25 & bit11=0 & lse11 & R2 & R1dst & CSCondI11Nullify & CSCondSym {
         tmp:$(REGSIZE) = R2; # Don't clobber the original value, when R1 is the same as R2
 	R1dst = lse11 - R2;
 	pswCB = !(lse11 < tmp);
 	build CSCondI11Nullify;
 }
 
-:SUBI^",TSV"^CSCondSym lse11,R2,R1dst	is opfam=0x25 & bit11=1 & lse11 & R2 & R1dst & CSCondI11 & CSCondSym & CSCondI11Nullify {
+:subi^",tsv"^CSCondSym lse11,R2,R1dst	is opfam=0x25 & bit11=1 & lse11 & R2 & R1dst & CSCondI11 & CSCondSym & CSCondI11Nullify {
         tmp:$(REGSIZE) = R2; # Don't clobber the original value, when R1 is the same as R2
 	if (sborrow(lse11, R2) == 1:1) goto <TRAP>;
 	R1dst = lse11 - R2;
@@ -1261,17 +1261,17 @@ define pcodeop trap;
 	build CSCondI11Nullify;
 }
 
-:CMPICLR^CSCondSym lse11,R2,R1dst	is opfam=0x24 & bit11=0 & lse11 & R2 & R1dst & CSCondI11Nullify & CSCondSym
+:cmpiclr^CSCondSym lse11,R2,R1dst	is opfam=0x24 & bit11=0 & lse11 & R2 & R1dst & CSCondI11Nullify & CSCondSym
 {
 	R1dst = 0;
 }
 
-:CMPICLR^CSCondSymW lse11,R2,R1dst	is opfam=0x24 & bit11=1 & lse11 & R2 & R1dst & CSCondI11Nullify & CSCondSymW
+:cmpiclr^CSCondSymW lse11,R2,R1dst	is opfam=0x24 & bit11=1 & lse11 & R2 & R1dst & CSCondI11Nullify & CSCondSymW
 {
 	R1dst = 0;
 }
 
-:SHRPW^SEDCondSym R1,R2,SAR,RT		is opfam=0x34 & subop1012=0 & bits59=0 & R1 & R2 & RT & ShiftCondNullify & SEDCondSym & SAR {
+:shrpw^SEDCondSym R1,R2,SAR,RT		is opfam=0x34 & subop1012=0 & bits59=0 & R1 & R2 & RT & ShiftCondNullify & SEDCondSym & SAR {
 	left:$(REGSIZE) = zext( (R1 & 0x7FFFFFFF) ) << 32;
 	concat:$(REGSIZE) = left | zext(R2);
 	concat = concat >> SAR;
@@ -1281,7 +1281,7 @@ define pcodeop trap;
 	build ShiftCondNullify; 
 }
 
-:SHRPD^SEDCondSym R1,R2,SAR,RT		is opfam=0x34 & subop1012=0 & bits59=16 & R1 & R2 & RT & ShiftCondNullify & SEDCondSym & SAR {
+:shrpd^SEDCondSym R1,R2,SAR,RT		is opfam=0x34 & subop1012=0 & bits59=16 & R1 & R2 & RT & ShiftCondNullify & SEDCondSym & SAR {
 	left:16 = zext( (R1 & 0x7FFFFFFFFFFFFFFF) ) << 64;
 	concat:16 = left | zext(R2);
 	concat = concat >> SAR;
@@ -1292,7 +1292,7 @@ define pcodeop trap;
 }
 
 # previously this was shd, now is shrpw form 14
-:SHRPW^SEDCondSym R1,R2,shiftC,RT	is opfam=0x34 & R2 & R1 & subop1012=2 & shiftC & RT & SEDCondSym & ShiftCondNullify  {
+:shrpw^SEDCondSym R1,R2,shiftC,RT	is opfam=0x34 & R2 & R1 & subop1012=2 & shiftC & RT & SEDCondSym & ShiftCondNullify  {
 	left:$(REGSIZE) = zext( (R1 & 0x7FFFFFFF) ) << 32;
 	concat:$(REGSIZE) = left | zext(R2);
 	concat = concat >> shiftC;
@@ -1303,7 +1303,7 @@ define pcodeop trap;
 }
 
 # previously this was shd, now is shrpw form 14
-:SHRPD^SEDCondSym R1,R2,shiftCW,RT	is opfam=0x34 & R2 & R1 & bit10=1 & bit12=0 & shiftCW & RT & SEDCondSym & ShiftCondNullify  {
+:shrpd^SEDCondSym R1,R2,shiftCW,RT	is opfam=0x34 & R2 & R1 & bit10=1 & bit12=0 & shiftCW & RT & SEDCondSym & ShiftCondNullify  {
 	left:16 = zext( (R1 & 0x7FFFFFFFFFFFFFFF) ) << 64;
 	concat:16 = left | zext(R2);
 	concat = concat >> shiftCW;
@@ -1314,7 +1314,7 @@ define pcodeop trap;
 }
 
 # extract unsigned using SAR
-:EXTRW",U"^SEDCondSym R2,SAR,shiftCLen,R1dst	is opfam=0x34 & bits59=0 & subop1012=4 & R2 & shiftCLen & R1dst & SEDCondSym & ExtrCondNullify & SAR {
+:extrw",u"^SEDCondSym R2,SAR,shiftCLen,R1dst	is opfam=0x34 & bits59=0 & subop1012=4 & R2 & shiftCLen & R1dst & SEDCondSym & ExtrCondNullify & SAR {
 	local value = R2 >> (31-SAR);
 	mask:$(REGSIZE) = 0xffffffff >> (32 - shiftCLen);
 	nullifyCondResult = value & mask;
@@ -1324,7 +1324,7 @@ define pcodeop trap;
 }
 
 # extract unsigned using SAR (64 bit version)
-:EXTRD",U"^SEDCondSym R2,SAR,shiftCLenW8,R1dst	is opfam=0x34 & bits57=0 & subop1012=4 & bit9=1 & R2 & shiftCLenW8 & R1dst & SEDCondSym & ExtrCondNullify & SAR {
+:extrd",u"^SEDCondSym R2,SAR,shiftCLenW8,R1dst	is opfam=0x34 & bits57=0 & subop1012=4 & bit9=1 & R2 & shiftCLenW8 & R1dst & SEDCondSym & ExtrCondNullify & SAR {
 	local value = R2 >> (63-SAR);
 	mask:$(REGSIZE) = 0xffffffff >> (64 - shiftCLenW8);
 	nullifyCondResult = value & mask;
@@ -1334,7 +1334,7 @@ define pcodeop trap;
 }
 
 # extract signed using SAR
-:EXTRW",S"^SEDCondSym R2,SAR,shiftCLen,R1dst	is opfam=0x34 & bits59=0 & subop1012=5 & R2 & shiftCLen & R1dst & SEDCondSym & ExtrCondNullify & SAR {
+:extrw",s"^SEDCondSym R2,SAR,shiftCLen,R1dst	is opfam=0x34 & bits59=0 & subop1012=5 & R2 & shiftCLen & R1dst & SEDCondSym & ExtrCondNullify & SAR {
 	local value = R2 s>> (31-SAR);
 	value = value << (32 - shiftCLen);
 	value = value s>> (32 - shiftCLen);
@@ -1344,7 +1344,7 @@ define pcodeop trap;
 }
 
 # extract signed using SAR (64 bit version)
-:EXTRD",S"^SEDCondSym R2,SAR,shiftCLenW8,R1dst	is opfam=0x34 & bits57=0 & subop1012=5 & bit9=1 & R2 & shiftCLenW8 & R1dst & SEDCondSym & ExtrCondNullify & SAR {
+:extrd",s"^SEDCondSym R2,SAR,shiftCLenW8,R1dst	is opfam=0x34 & bits57=0 & subop1012=5 & bit9=1 & R2 & shiftCLenW8 & R1dst & SEDCondSym & ExtrCondNullify & SAR {
 	local value = R2 s>> (63-SAR);
 	value = value << (64 - shiftCLenW8);
 	value = value s>> (64 - shiftCLenW8);
@@ -1354,7 +1354,7 @@ define pcodeop trap;
 }
 
 # extract unsigned using immediate
-:EXTRW^",U"^SEDCondSym R2,cp,shiftCLen,R1dst	is opfam=0x34 & subop1012=6 & cp & R2 & shiftCLen & R1dst & SEDCondSym & ExtrCondNullify & shiftC {
+:extrw^",u"^SEDCondSym R2,cp,shiftCLen,R1dst	is opfam=0x34 & subop1012=6 & cp & R2 & shiftCLen & R1dst & SEDCondSym & ExtrCondNullify & shiftC {
 	local value = R2 >> shiftC;
 	mask:$(REGSIZE) = 0xffffffff >> (32-shiftCLen);
 	nullifyCondResult = value & mask;
@@ -1364,7 +1364,7 @@ define pcodeop trap;
 }
 
 # extract unsigned using immediate (64 bit version)
-:EXTRD^",U"^SEDCondSym R2,cpW,shiftCLenW10,R1dst	is opfam=0x36 & cpW & bit10=0 & R2 & shiftCLenW10 & R1dst & SEDCondSym & ExtrCondNullify & shiftCW {
+:extrd^",u"^SEDCondSym R2,cpW,shiftCLenW10,R1dst	is opfam=0x36 & cpW & bit10=0 & R2 & shiftCLenW10 & R1dst & SEDCondSym & ExtrCondNullify & shiftCW {
 	local value = R2 >> shiftCW;
 	mask:$(REGSIZE) = 0xffffffffffffffff >> (64-shiftCLenW10);
 	nullifyCondResult = value & mask;
@@ -1374,7 +1374,7 @@ define pcodeop trap;
 }
 
 # extract signed using immediate
-:EXTRW^",S"^SEDCondSym R2,cp,shiftCLen,R1dst	is opfam=0x34 & subop1012=7 & cp & R2 & shiftC & shiftCLen & R1dst & SEDCondSym & ExtrCondNullify {
+:extrw^",s"^SEDCondSym R2,cp,shiftCLen,R1dst	is opfam=0x34 & subop1012=7 & cp & R2 & shiftC & shiftCLen & R1dst & SEDCondSym & ExtrCondNullify {
 	local value = R2 s>> shiftC;
 	value = value << (32 - shiftCLen);
 	value = value s>> (32 - shiftCLen);
@@ -1384,7 +1384,7 @@ define pcodeop trap;
 }
 
 # extract signed using immediate (64 bit version)
-:EXTRD^",S"^SEDCondSym R2,cpW,shiftCLenW10,R1dst	is opfam=0x36 & bit10=1 & cpW & R2 & shiftC & shiftCLenW10 & R1dst & SEDCondSym & ExtrCondNullify & shiftCW {
+:extrd^",s"^SEDCondSym R2,cpW,shiftCLenW10,R1dst	is opfam=0x36 & bit10=1 & cpW & R2 & shiftC & shiftCLenW10 & R1dst & SEDCondSym & ExtrCondNullify & shiftCW {
 	local value = R2 s>> shiftCW;
 	value = value << (64 - shiftCLenW10);
 	value = value s>> (64 - shiftCLenW10);
@@ -1394,7 +1394,7 @@ define pcodeop trap;
 }
 
 # non-zeroing SAR version (VDEP)
-:DEPW^SEDCondSym R1,SAR,shiftCLen,R2dst       is opfam=0x35 & bits59=0 & subop1012=1 & R1 & R2 & R2dst & shiftCLen & DepCondNullify & SEDCondSym & SAR {
+:depw^SEDCondSym R1,SAR,shiftCLen,R2dst       is opfam=0x35 & bits59=0 & subop1012=1 & R1 & R2 & R2dst & shiftCLen & DepCondNullify & SEDCondSym & SAR {
         mask:$(REGSIZE) = 0xffffffff >> (32-shiftCLen);
         local value = R1 & mask;
         value = value << (31-SAR);
@@ -1408,7 +1408,7 @@ define pcodeop trap;
 }
 
 # non-zeroing SAR version (VDEP) (64 bit)
-:DEPD^SEDCondSym R1,SAR,shiftCLenW8,R2dst is opfam=0x35 & bits57=0 & bit9=1 & subop1012=1 & R1 & R2 & R2dst & shiftCLenW8 & DepCondNullify & SEDCondSym & SAR {
+:depd^SEDCondSym R1,SAR,shiftCLenW8,R2dst is opfam=0x35 & bits57=0 & bit9=1 & subop1012=1 & R1 & R2 & R2dst & shiftCLenW8 & DepCondNullify & SEDCondSym & SAR {
         mask:$(REGSIZE) = 0xffffffff >> (64-shiftCLenW8);
         local value = R1 & mask;
         value = value << (63-SAR);
@@ -1422,7 +1422,7 @@ define pcodeop trap;
 }
 
 # non-zeroing constant version (DEP)
-:DEPW^SEDCondSym R1,shiftC,shiftCLen,R2dst is opfam=0x35 & subop1012=3 & shiftC & shiftCLen & R1 & R2 & R2dst & DepCondNullify & SEDCondSym & cp {
+:depw^SEDCondSym R1,shiftC,shiftCLen,R2dst is opfam=0x35 & subop1012=3 & shiftC & shiftCLen & R1 & R2 & R2dst & DepCondNullify & SEDCondSym & cp {
         mask:$(REGSIZE) = 0xffffffff >> (32-shiftCLen);
         local value = R1 & mask;
         value = value << cp;
@@ -1435,7 +1435,7 @@ define pcodeop trap;
 }
 
 # non-zeroing constant version (DEP) (64 bit)
-:DEPD^SEDCondSym R1,shiftCW,shiftCLenW10,R2dst is opfam=0x3c & bit8=1 & shiftCW & shiftCLenW10 & R1 & R2 & R2dst & DepCondNullify & SEDCondSym & cpW {
+:depd^SEDCondSym R1,shiftCW,shiftCLenW10,R2dst is opfam=0x3c & bit8=1 & shiftCW & shiftCLenW10 & R1 & R2 & R2dst & DepCondNullify & SEDCondSym & cpW {
         mask:$(REGSIZE) = 0xffffffffffffffff >> (64-shiftCLenW10);
         local value = R1 & mask;
         value = value << cpW;
@@ -1448,7 +1448,7 @@ define pcodeop trap;
 }
 
 # non-zeroing immediate SAR version (VDEPI)
-:DEPWI^SEDCondSym highlse5,SAR,shiftCLen,R2dst is opfam=0x35 & bits59=0 & subop1012=5 & shiftCLen & highlse5 & R2 & R2dst & DepCondNullify & SEDCondSym & SAR {
+:depwi^SEDCondSym highlse5,SAR,shiftCLen,R2dst is opfam=0x35 & bits59=0 & subop1012=5 & shiftCLen & highlse5 & R2 & R2dst & DepCondNullify & SEDCondSym & SAR {
         mask:$(REGSIZE) = 0xffffffff >> (32 - shiftCLen);
         depbits:$(REGSIZE) = sext(highlse5);
         depbits = sext(depbits); 
@@ -1463,7 +1463,7 @@ define pcodeop trap;
 }
 
 # non-zeroing immediate SAR version (VDEPI) (64 bit)
-:DEPDI^SEDCondSym highlse5,SAR,shiftCLenW8,R2dst is opfam=0x35 & bits57=0 & bit9=1 & subop1012=5 & shiftCLenW8 & highlse5 & R2 & R2dst & DepCondNullify & SEDCondSym & SAR {
+:depdi^SEDCondSym highlse5,SAR,shiftCLenW8,R2dst is opfam=0x35 & bits57=0 & bit9=1 & subop1012=5 & shiftCLenW8 & highlse5 & R2 & R2dst & DepCondNullify & SEDCondSym & SAR {
         mask:$(REGSIZE) = 0xffffffffffffffff >> (64 - shiftCLenW8);
         depbits:$(REGSIZE) = sext(highlse5);
         depbits = sext(depbits); 
@@ -1478,7 +1478,7 @@ define pcodeop trap;
 }
 
 # non-zeroing immediate constant version (DEPI)
-:DEPWI^SEDCondSym highlse5,shiftC,shiftCLen,R2dst  is opfam=0x35 & subop1012=7 & shiftC & highlse5 & R2 & R2dst & shiftCLen & DepCondNullify & SEDCondSym & cp {
+:depwi^SEDCondSym highlse5,shiftC,shiftCLen,R2dst  is opfam=0x35 & subop1012=7 & shiftC & highlse5 & R2 & R2dst & shiftCLen & DepCondNullify & SEDCondSym & cp {
         mask:$(REGSIZE) = 0xffffffff >> (32-shiftCLen);
         depbits:$(REGSIZE) = sext(highlse5);
         local value = depbits & mask;
@@ -1492,7 +1492,7 @@ define pcodeop trap;
 }
 
 # non-zeroing immediate constant version (DEPI) (64 bit)
-:DEPDI^SEDCondSym highlse5,shiftCW,shiftCLenW10,R2dst  is opfam=0x3d & shiftCW & highlse5 & R2 & R2dst & shiftCLenW10 & DepCondNullify & SEDCondSym & cpW {
+:depdi^SEDCondSym highlse5,shiftCW,shiftCLenW10,R2dst  is opfam=0x3d & shiftCW & highlse5 & R2 & R2dst & shiftCLenW10 & DepCondNullify & SEDCondSym & cpW {
         mask:$(REGSIZE) = 0xffffffffffffffff >> (64-shiftCLenW10);
         depbits:$(REGSIZE) = sext(highlse5);
         local value = depbits & mask;
@@ -1506,7 +1506,7 @@ define pcodeop trap;
 }
 
 # DEPW,Z SAR version (ZVDEP)
-:DEPW",Z"^SEDCondSym R1,SAR,shiftCLen,R2dst        is opfam=0x35 & bits59=0 & subop1012=0 & R1 & shiftCLen & R2 & R2dst & DepCondNullify & SEDCondSym & SAR {
+:depw",Z"^SEDCondSym R1,SAR,shiftCLen,R2dst        is opfam=0x35 & bits59=0 & subop1012=0 & R1 & shiftCLen & R2 & R2dst & DepCondNullify & SEDCondSym & SAR {
         mask:$(REGSIZE) = 0xffffffff >> (32-shiftCLen);
         local value = R1 & mask;
         value = value << (31-SAR);
@@ -1516,7 +1516,7 @@ define pcodeop trap;
 }
 
 # DEPD,Z SAR version (ZVDEP) (64 bit)
-:DEPD",Z"^SEDCondSym R1,SAR,shiftCLenW8,R2dst        is opfam=0x35 & bits57=0 & bit9=1 & subop1012=0 & R1 & shiftCLenW8 & R2 & R2dst & DepCondNullify & SEDCondSym & SAR {
+:depd",z"^SEDCondSym R1,SAR,shiftCLenW8,R2dst        is opfam=0x35 & bits57=0 & bit9=1 & subop1012=0 & R1 & shiftCLenW8 & R2 & R2dst & DepCondNullify & SEDCondSym & SAR {
         mask:$(REGSIZE) = 0xffffffff >> (64-shiftCLenW8);
         local value = R1 & mask;
         value = value << (63-SAR);
@@ -1526,7 +1526,7 @@ define pcodeop trap;
 }
 
 # DEPW,Z constant version (ZDEP)
-:DEPW^",Z"^SEDCondSym R1,shiftC,shiftCLen,R2dst    is opfam=0x35 & subop1012=2 & shiftC & R2 & R2dst & shiftCLen & R1 & DepCondNullify & SEDCondSym & cp {
+:depw^",z"^SEDCondSym R1,shiftC,shiftCLen,R2dst    is opfam=0x35 & subop1012=2 & shiftC & R2 & R2dst & shiftCLen & R1 & DepCondNullify & SEDCondSym & cp {
         mask:$(REGSIZE) = 0xffffffff >> (32-shiftCLen);
         local value = R1 & mask;
         value = value << cp;
@@ -1536,7 +1536,7 @@ define pcodeop trap;
 }
 
 # DEPD,Z constant version (ZDEP) (64 bit)
-:DEPD^",Z"^SEDCondSym R1,shiftCW,shiftCLenW10,R2dst    is opfam=0x3c & bit8=0 & shiftCW & R2 & R2dst & shiftCLenW10 & R1 & DepCondNullify & SEDCondSym & cpW {
+:depd^",z"^SEDCondSym R1,shiftCW,shiftCLenW10,R2dst    is opfam=0x3c & bit8=0 & shiftCW & R2 & R2dst & shiftCLenW10 & R1 & DepCondNullify & SEDCondSym & cpW {
         mask:$(REGSIZE) = 0xffffffffffffffff >> (64-shiftCLenW10);
         local value = R1 & mask;
         value = value << cpW;
@@ -1546,7 +1546,7 @@ define pcodeop trap;
 }
 
 # DEPWI,Z SAR version (ZVDEPI)
-:DEPWI",Z"^SEDCondSym highlse5,SAR,shiftCLen,R2dst is opfam=0x35 & SAR & bits59=0 & subop1012=4 & shiftCLen & highlse5 & R2dst & DepCondNullify & SEDCondSym {
+:depwi",z"^SEDCondSym highlse5,SAR,shiftCLen,R2dst is opfam=0x35 & SAR & bits59=0 & subop1012=4 & shiftCLen & highlse5 & R2dst & DepCondNullify & SEDCondSym {
         mask:$(REGSIZE) = 0xffffffff >> (32-shiftCLen);
         depbits:$(REGSIZE) = sext(highlse5);
         local value = depbits & mask;
@@ -1557,7 +1557,7 @@ define pcodeop trap;
 }
 
 # DEPDI,Z SAR version (ZVDEPI) (64 bit)
-:DEPDI",Z"^SEDCondSym highlse5,SAR,shiftCLenW8,R2dst is opfam=0x35 & SAR & bits57=0 & bit9=1 & subop1012=4 & shiftCLenW8 & highlse5 & R2dst & DepCondNullify & SEDCondSym {
+:depdi",z"^SEDCondSym highlse5,SAR,shiftCLenW8,R2dst is opfam=0x35 & SAR & bits57=0 & bit9=1 & subop1012=4 & shiftCLenW8 & highlse5 & R2dst & DepCondNullify & SEDCondSym {
         mask:$(REGSIZE) = 0xffffffffffffffff >> (64-shiftCLenW8);
         depbits:$(REGSIZE) = sext(highlse5);
         local value = depbits & mask;
@@ -1568,7 +1568,7 @@ define pcodeop trap;
 }
 
 # DEPWI,Z constant version (ZDEPI)
-:DEPWI",Z"^SEDCondSym highlse5,shiftC,shiftCLen,R2dst      is opfam=0x35 & subop1012=6 & shiftC & highlse5 & R2dst & shiftCLen & DepCondNullify & SEDCondSym & cp {
+:depwi",z"^SEDCondSym highlse5,shiftC,shiftCLen,R2dst      is opfam=0x35 & subop1012=6 & shiftC & highlse5 & R2dst & shiftCLen & DepCondNullify & SEDCondSym & cp {
         mask:$(REGSIZE) = 0xffffffff >> (32-shiftCLen);
         depbits:$(REGSIZE) = sext(highlse5);
         local value = depbits & mask;
@@ -1580,7 +1580,7 @@ define pcodeop trap;
 }
 
 # DEPDI,Z constant version (ZDEPI) (64 bit)
-:DEPDI",Z"^SEDCondSym highlse5,shiftCW,shiftCLenW10,R2dst is opfam=0x3d & bit8=0 & shiftCW & highlse5 & R2dst & shiftCLenW10 & DepCondNullify & SEDCondSym & cpW {
+:depdi",z"^SEDCondSym highlse5,shiftCW,shiftCLenW10,R2dst is opfam=0x3d & bit8=0 & shiftCW & highlse5 & R2dst & shiftCLenW10 & DepCondNullify & SEDCondSym & cpW {
         mask:$(REGSIZE) = 0xffffffffffffffff >> (64-shiftCLenW10);
         depbits:$(REGSIZE) = sext(highlse5);
         local value = depbits & mask;
@@ -1592,16 +1592,16 @@ define pcodeop trap;
 }
 
 # BCD instructions
-:DCOR^UnitCondSym R2,RT		is opfam=0x02 & op=0x2E & R2 & reg1=0x0 & RT & UnitCond & UnitCondSym { } # TODO
-:IDCOR^UnitCondSym R2,RT		is opfam=0x02 & op=0x2F & R2 & reg1=0x0 & RT & UnitCond & UnitCondSym { } # TODO
+:dcor^UnitCondSym R2,RT		is opfam=0x02 & op=0x2E & R2 & reg1=0x0 & RT & UnitCond & UnitCondSym { } # TODO
+:idcor^UnitCondSym R2,RT		is opfam=0x02 & op=0x2F & R2 & reg1=0x0 & RT & UnitCond & UnitCondSym { } # TODO
 
 #################################################
 # System Instructions
 #################################################
 define pcodeop break;
-:BREAK im5,im13							is opfam=0x0 & sysop=0x00 & im5 & im13 { break(); }
+:break im5,im13							is opfam=0x0 & sysop=0x00 & im5 & im13 { break(); }
 
-:RFI									is opfam=0x0 & sysop=0x60 & im5=0x0 {
+:rfi									is opfam=0x0 & sysop=0x60 & im5=0x0 {
 	iaoq_back = cr18;
 	iaoq_front = cr18;
 	iasq_back = cr17;
@@ -1612,7 +1612,7 @@ define pcodeop break;
 	goto [returnAddr];
  }
 
-:RFI^",R"									is opfam=0x0 & sysop=0x65 & im5=0x0 {
+:rfi^",r"									is opfam=0x0 & sysop=0x65 & im5=0x0 {
 	r1 = shr0;
 	r8 = shr1;
 	r9 = shr2;
@@ -1632,7 +1632,7 @@ define pcodeop break;
 	goto [returnAddr];
 }
 
-:SSM highIm10,RT							is opfam=0x0 & sysop=0x6B & c=0x0 & highIm10 & RT {
+:ssm highIm10,RT							is opfam=0x0 & sysop=0x6B & c=0x0 & highIm10 & RT {
 	widePswG:$(REGSIZE) = zext(pswG);
 	widePswF:$(REGSIZE) = zext(pswG);
 	widePswR:$(REGSIZE) = zext(pswG);
@@ -1648,7 +1648,7 @@ define pcodeop break;
 	pswI = pswI || (highIm10 & 0x1); 
 }
 
-:RSM highIm10,RT							is opfam=0x0 & sysop=0x73 & c=0x0 & highIm10 & RT {
+:rsm highIm10,RT							is opfam=0x0 & sysop=0x73 & c=0x0 & highIm10 & RT {
 	widePswG:$(REGSIZE) = zext(pswG);
 	widePswF:$(REGSIZE) = zext(pswG);
 	widePswR:$(REGSIZE) = zext(pswG);
@@ -1664,7 +1664,7 @@ define pcodeop break;
 	pswI = pswI && ((highIm10 & 0x1:1) == 0); 
  }
 
-:MTSM R1								is opfam=0x0 & sysop=0xC3 & c=0x0 & im5=0 & R1 {
+:mtsm R1								is opfam=0x0 & sysop=0xC3 & c=0x0 & im5=0 & R1 {
 	pswG = ((R1 & 0x00000040) != 0);
 	pswF = (R1 & 0x00000020) != 0;
 	pswR = (R1 & 0x00000010) != 0;
@@ -1674,109 +1674,109 @@ define pcodeop break;
 	pswI = (R1 & 0x00000001) != 0;
 }
 
-:LDSID SRRB,RT						is opfam=0x0 & sysop=0x85 & u=0 & RT & SRRB & SR & SRVAL {
+:ldsid SRRB,RT						is opfam=0x0 & sysop=0x85 & u=0 & RT & SRRB & SR & SRVAL {
 											RT = SRVAL;
 }
 
-:MTSP R1,SR3bit							is opfam=0x0 & sysop=0xC1 & im5=0 & R1 & SR3bit {
+:mtsp R1,SR3bit							is opfam=0x0 & sysop=0xC1 & im5=0 & R1 & SR3bit {
 	SR3bit = R1;
  }
 
-:MTCTL R1,crname2						is opfam=0x0 & sysop=0xC2 & im5=0 & R1 & crname2 & cr {
+:mtctl R1,crname2						is opfam=0x0 & sysop=0xC2 & im5=0 & R1 & crname2 & cr {
 	cr = R1;
  }
 
-:MTSAR R1								is opfam=0x0 & sysop=0xC2 & im5=0 & R1 & crname2 & cr=11 {
+:mtsar R1								is opfam=0x0 & sysop=0xC2 & im5=0 & R1 & crname2 & cr=11 {
 	sar = (R1 & 0x1F);
  }
 
-:MTSARCM R1								is opfam=0x0 & sysop=0xC6 & im5=0 & R1 & crname2 & cr=11 {
+:mtsarcm R1								is opfam=0x0 & sysop=0xC6 & im5=0 & R1 & crname2 & cr=11 {
 	sar = (~R1 & 0x1F);
  }
 
 
-:MFSP SR3bit,RT							is opfam=0x0 & sysop=0x25 & reg1=0x0 & RT & SR3bit {
+:mfsp SR3bit,RT							is opfam=0x0 & sysop=0x25 & reg1=0x0 & RT & SR3bit {
 	RT = SR3bit;
 }
 
-:MFCTL crname2,RT						is opfam=0x0 & sysop=0x45 & RT & crname2 & reg1=0  & cr {
+:mfctl crname2,RT						is opfam=0x0 & sysop=0x45 & RT & crname2 & reg1=0  & cr {
 	RT = cr;
 }
 
 # this instruction is PA-RISC 2.0 only, but here to avoid disassembler comparison issues
-:MFIA RT								is opfam=0x0 & sysop=0xA5 & RT & reg1=0 {
-	RT = iaoq_front;
+:mfia RT								is opfam=0x0 & sysop=0xA5 & RT & reg1=0 {
+	RT = inst_start;
 }
 
 define pcodeop sync;
-:SYNC									is opfam=0x0 & sysop=0x20 & im5=0 & c=0 & bit20=0 { sync(); } # sync cache
-:SYNCDMA								is opfam=0x0 & sysop=0x20 & im5=0 & c=0 & bit20=1 { sync(); } # sync DMA
+:sync									is opfam=0x0 & sysop=0x20 & im5=0 & c=0 & bit20=0 { sync(); } # sync cache
+:syncdma								is opfam=0x0 & sysop=0x20 & im5=0 & c=0 & bit20=1 { sync(); } # sync DMA
 define pcodeop probe;
-:PROBER SRRB,R1,RT					is opfam=0x1 & sysopshifted=0x46 & m=0 & SRRB & R1 & RT & SPCBASE { RT = probe(R1, SPCBASE); } # probe read
-:PROBERI SRRB,highIm5,RT				is opfam=0x1 & sysopshifted=0xC6 & m=0 & SRRB & highIm5 & RT & SPCBASE { RT = probe(highIm5:1, SPCBASE); } # probe read imm
-:PROBEW SRRB,R1,RT					is opfam=0x1 & sysopshifted=0x47 & m=0 & SRRB & R1 & RT & SPCBASE { RT = probe(R1, SPCBASE); } # probe write
-:PROBEWI SRRB,highIm5,RT				is opfam=0x1 & sysopshifted=0xC7 & m=0 & SRRB & highIm5 & RT & SPCBASE { RT = probe(highIm5:1, SPCBASE); } # probe write imm
+:prober SRRB,R1,RT					is opfam=0x1 & sysopshifted=0x46 & m=0 & SRRB & R1 & RT & SPCBASE { RT = probe(R1, SPCBASE); } # probe read
+:proberi SRRB,highIm5,RT				is opfam=0x1 & sysopshifted=0xC6 & m=0 & SRRB & highIm5 & RT & SPCBASE { RT = probe(highIm5:1, SPCBASE); } # probe read imm
+:probew SRRB,R1,RT					is opfam=0x1 & sysopshifted=0x47 & m=0 & SRRB & R1 & RT & SPCBASE { RT = probe(R1, SPCBASE); } # probe write
+:probewi SRRB,highIm5,RT				is opfam=0x1 & sysopshifted=0xC7 & m=0 & SRRB & highIm5 & RT & SPCBASE { RT = probe(highIm5:1, SPCBASE); } # probe write imm
 define pcodeop physicalAddress;
-:LPA^sysCmplt RX^SRRB,RT  				is opfam=0x1 & sysopshifted=0x4D & sysCmplt & RX & SRRB & RT & SPCBASE { RT = physicalAddress(SPCBASE); } # virt to phy addr translation
+:lpa^sysCmplt RX^SRRB,RT  				is opfam=0x1 & sysopshifted=0x4D & sysCmplt & RX & SRRB & RT & SPCBASE { RT = physicalAddress(SPCBASE); } # virt to phy addr translation
 define pcodeop coherenceIndex;
-:LCI RX^SRRB,RT						is opfam=0x1 & sysopshifted=0x4C & m=0 & RX & SRRB & RT & SPCBASE { RT = coherenceIndex(SPCBASE); } # load coherence index
+:lci RX^SRRB,RT						is opfam=0x1 & sysopshifted=0x4C & m=0 & RX & SRRB & RT & SPCBASE { RT = coherenceIndex(SPCBASE); } # load coherence index
 define pcodeop purgeTLB;
-:PDTLB^sysCmplt RX^SRRB3bit				is opfam=0x1 & sysopshifted=0x48 & RX & SRRB3bit & sysCmplt & m=0 & SPCBASE { purgeTLB(RX, SPCBASE); }
-:PDTLB^sysCmplt RX^SRRB3bit				is opfam=0x1 & sysopshifted=0x48 & RX & SRRB3bit & sysCmplt & m=1 & SPCBASE & RB { RB = RB + RX; purgeTLB(RX, SPCBASE); }
+:pdtlb^sysCmplt RX^SRRB3bit				is opfam=0x1 & sysopshifted=0x48 & RX & SRRB3bit & sysCmplt & m=0 & SPCBASE { purgeTLB(RX, SPCBASE); }
+:pdtlb^sysCmplt RX^SRRB3bit				is opfam=0x1 & sysopshifted=0x48 & RX & SRRB3bit & sysCmplt & m=1 & SPCBASE & RB { RB = RB + RX; purgeTLB(RX, SPCBASE); }
 
-:PITLB^sysCmplt RX^SRRB3bit				is opfam=0x1 & sysopshifted=0x8 & RX & SRRB3bit & sysCmplt & m=0 & SPCBASE { purgeTLB(RX, SPCBASE); }
-:PITLB^sysCmplt RX^SRRB3bit				is opfam=0x1 & sysopshifted=0x8 & RX & SRRB3bit & sysCmplt & m=1 & SPCBASE & RB { RB = RB + RX; purgeTLB(RX, SPCBASE); }
+:pitlb^sysCmplt RX^SRRB3bit				is opfam=0x1 & sysopshifted=0x8 & RX & SRRB3bit & sysCmplt & m=0 & SPCBASE { purgeTLB(RX, SPCBASE); }
+:pitlb^sysCmplt RX^SRRB3bit				is opfam=0x1 & sysopshifted=0x8 & RX & SRRB3bit & sysCmplt & m=1 & SPCBASE & RB { RB = RB + RX; purgeTLB(RX, SPCBASE); }
 
-:PDTLBE^sysCmplt RX^SRRB3bit			is opfam=0x1 & sysopshifted=0x49 & RX & SRRB3bit & sysCmplt & m=0 & SPCBASE { purgeTLB(RX, SPCBASE); }
-:PDTLBE^sysCmplt RX^SRRB3bit			is opfam=0x1 & sysopshifted=0x49 & RX & SRRB3bit & sysCmplt & m=1 & SPCBASE & RB { RB = RB + RX; purgeTLB(RX, SPCBASE); }
+:pdtlbe^sysCmplt RX^SRRB3bit			is opfam=0x1 & sysopshifted=0x49 & RX & SRRB3bit & sysCmplt & m=0 & SPCBASE { purgeTLB(RX, SPCBASE); }
+:pdtlbe^sysCmplt RX^SRRB3bit			is opfam=0x1 & sysopshifted=0x49 & RX & SRRB3bit & sysCmplt & m=1 & SPCBASE & RB { RB = RB + RX; purgeTLB(RX, SPCBASE); }
 
-:PITLBE^sysCmplt RX^SRRB3bit			is opfam=0x1 & sysopshifted=0x9 & RX & SRRB3bit & sysCmplt & m=0 & SPCBASE { purgeTLB(RX, SPCBASE); }
-:PITLBE^sysCmplt RX^SRRB3bit			is opfam=0x1 & sysopshifted=0x9 & RX & SRRB3bit & sysCmplt & m=1 & SPCBASE & RB { RB = RB + RX; purgeTLB(RX, SPCBASE); }
+:pitble^sysCmplt RX^SRRB3bit			is opfam=0x1 & sysopshifted=0x9 & RX & SRRB3bit & sysCmplt & m=0 & SPCBASE { purgeTLB(RX, SPCBASE); }
+:pitble^sysCmplt RX^SRRB3bit			is opfam=0x1 & sysopshifted=0x9 & RX & SRRB3bit & sysCmplt & m=1 & SPCBASE & RB { RB = RB + RX; purgeTLB(RX, SPCBASE); }
 
 define pcodeop insertTLBEntry;
-:IDTLBA R1,SRRB							is opfam=0x1 & sysopshifted=0x41 & m=0 & SRRB & R1 & SPCBASE & im5=0 { insertTLBEntry(SPCBASE, R1); }
-:IITLBA R1,(SR3bit,RB)					is opfam=0x1 & sysopshiftedshort=0x01 & m=0 & SR3bit & RB & R1 & im5=0 { insertTLBEntry(SR3bit, RB, R1); }
-:IDTLBP R1,SRRB							is opfam=0x1 & sysopshifted=0x40 & m=0 & SRRB & R1 & SPCBASE & im5=0 { insertTLBEntry(SPCBASE, R1); }
-:IITLBP R1,(SR3bit,RB)					is opfam=0x1 & sysopshiftedshort=0x00 & m=0 & im5=0 & SR3bit & RB & R1 { insertTLBEntry(SR3bit, RB, R1); }
-:IITLBT R1, R2							is opfam=0x1 & sysopshiftedshort=0x20 & m=0 & im5=0 & fpsub=0 & R2 & R1 { insertTLBEntry(R1, R2); }
+:idtlba R1,SRRB							is opfam=0x1 & sysopshifted=0x41 & m=0 & SRRB & R1 & SPCBASE & im5=0 { insertTLBEntry(SPCBASE, R1); }
+:iitlba R1,(SR3bit,RB)					is opfam=0x1 & sysopshiftedshort=0x01 & m=0 & SR3bit & RB & R1 & im5=0 { insertTLBEntry(SR3bit, RB, R1); }
+:idtlbp R1,SRRB							is opfam=0x1 & sysopshifted=0x40 & m=0 & SRRB & R1 & SPCBASE & im5=0 { insertTLBEntry(SPCBASE, R1); }
+:iitlbp R1,(SR3bit,RB)					is opfam=0x1 & sysopshiftedshort=0x00 & m=0 & im5=0 & SR3bit & RB & R1 { insertTLBEntry(SR3bit, RB, R1); }
+:iitlbt R1, R2							is opfam=0x1 & sysopshiftedshort=0x20 & m=0 & im5=0 & fpsub=0 & R2 & R1 { insertTLBEntry(R1, R2); }
 
 define pcodeop purgeCache;
-:PDC^indexedWordAccessCmplt RX^SRRB			is opfam=0x1 & sysopshifted=0x4E & indexedWordAccessCmplt & RX & SRRB & SPCBASE & im5=0 & m=0 { purgeCache(SPCBASE, RX); }
-:PDC^indexedWordAccessCmplt RX^SRRB			is opfam=0x1 & sysopshifted=0x4E & indexedWordAccessCmplt & RX & SRRB & SPCBASE & RB & im5=0 & m=1 { purgeCache(SPCBASE, RX); RB = RB + RX; }
+:pdc^indexedWordAccessCmplt RX^SRRB			is opfam=0x1 & sysopshifted=0x4E & indexedWordAccessCmplt & RX & SRRB & SPCBASE & im5=0 & m=0 { purgeCache(SPCBASE, RX); }
+:pdc^indexedWordAccessCmplt RX^SRRB			is opfam=0x1 & sysopshifted=0x4E & indexedWordAccessCmplt & RX & SRRB & SPCBASE & RB & im5=0 & m=1 { purgeCache(SPCBASE, RX); RB = RB + RX; }
 
-:FDC^indexedWordAccessCmplt RX^SRRB			is opfam=0x1 & sysopshifted=0x4A & indexedWordAccessCmplt & RX & SRRB & SPCBASE & m=0 { purgeCache(SPCBASE, RX); }
-:FDC^indexedWordAccessCmplt RX^SRRB			is opfam=0x1 & sysopshifted=0x4A & indexedWordAccessCmplt & RX & SRRB & SPCBASE & RB & m=1 { purgeCache(SPCBASE, RX); RB = RB + RX; }
+:fdc^indexedWordAccessCmplt RX^SRRB			is opfam=0x1 & sysopshifted=0x4A & indexedWordAccessCmplt & RX & SRRB & SPCBASE & m=0 { purgeCache(SPCBASE, RX); }
+:fdc^indexedWordAccessCmplt RX^SRRB			is opfam=0x1 & sysopshifted=0x4A & indexedWordAccessCmplt & RX & SRRB & SPCBASE & RB & m=1 { purgeCache(SPCBASE, RX); RB = RB + RX; }
 
-:FIC^indexedWordAccessCmplt RX(SR3bit,RB)		is opfam=0x1 & sysopshiftedshort=0x0A & indexedWordAccessCmplt & RX & SR3bit & RB & m=0 { purgeCache(SR3bit, RB, RX); }
-:FIC^indexedWordAccessCmplt RX(SR3bit,RB)		is opfam=0x1 & sysopshiftedshort=0x0A & indexedWordAccessCmplt & RX & SR3bit & RB & m=1 { purgeCache(SR3bit, RB, RX); RB = RB + RX;}
+:fic^indexedWordAccessCmplt RX(SR3bit,RB)		is opfam=0x1 & sysopshiftedshort=0x0A & indexedWordAccessCmplt & RX & SR3bit & RB & m=0 { purgeCache(SR3bit, RB, RX); }
+:fic^indexedWordAccessCmplt RX(SR3bit,RB)		is opfam=0x1 & sysopshiftedshort=0x0A & indexedWordAccessCmplt & RX & SR3bit & RB & m=1 { purgeCache(SR3bit, RB, RX); RB = RB + RX;}
 
-:FDCE^indexedWordAccessCmplt RX^SRRB			is opfam=0x1 & sysopshifted=0x4B & indexedWordAccessCmplt & RX & SRRB & SPCBASE & m=0 { purgeCache(SPCBASE, RX); }
-:FDCE^indexedWordAccessCmplt RX^SRRB			is opfam=0x1 & sysopshifted=0x4B & indexedWordAccessCmplt & RX & SRRB & SPCBASE & RB & m=1 { purgeCache(SPCBASE, RX); RB = RB + RX; }
+:fdce^indexedWordAccessCmplt RX^SRRB			is opfam=0x1 & sysopshifted=0x4B & indexedWordAccessCmplt & RX & SRRB & SPCBASE & m=0 { purgeCache(SPCBASE, RX); }
+:fdce^indexedWordAccessCmplt RX^SRRB			is opfam=0x1 & sysopshifted=0x4B & indexedWordAccessCmplt & RX & SRRB & SPCBASE & RB & m=1 { purgeCache(SPCBASE, RX); RB = RB + RX; }
 
-:FICE^indexedWordAccessCmplt RX(SR3bit,RB) 	is opfam=0x1 & sysopshiftedshort=0x0B & indexedWordAccessCmplt & RX & SR3bit & RB & m=0 { purgeCache(SR3bit, RB, RX); }
-:FICE^indexedWordAccessCmplt RX(SR3bit,RB) 	is opfam=0x1 & sysopshiftedshort=0x0B & indexedWordAccessCmplt & RX & SR3bit & RB & m=1 { purgeCache(SR3bit, RB, RX); RB = RB + RX; }
+:fice^indexedWordAccessCmplt RX(SR3bit,RB) 	is opfam=0x1 & sysopshiftedshort=0x0B & indexedWordAccessCmplt & RX & SR3bit & RB & m=0 { purgeCache(SR3bit, RB, RX); }
+:fice^indexedWordAccessCmplt RX(SR3bit,RB) 	is opfam=0x1 & sysopshiftedshort=0x0B & indexedWordAccessCmplt & RX & SR3bit & RB & m=1 { purgeCache(SR3bit, RB, RX); RB = RB + RX; }
 
 define pcodeop diag;
-:DIAG im26								is opfam=0x05 & im26 { diag(im26:4); }
+:diag im26								is opfam=0x05 & im26 { diag(im26:4); }
 
 #################################################
 # Coprocessor and Special Function Instructions
 #################################################
-:SPOP0,SFU^nullifyForSpecial sop					is opfam=0x04 & specop=0 & SFU & nullifyForSpecial & im5 & im15 [ sop=(im15 << 5) | im5; ] unimpl
-:SPOP1,SFU^nullifyForSpecial sop					is opfam=0x04 & specop=1 & SFU & nullifyForSpecial & im5 & sopim10 [ sop=(sopim10 << 5) | im5; ] unimpl
-:SPOP2,SFU^nullifyForSpecial sop R2					is opfam=0x04 & specop=2 & SFU & nullifyForSpecial & R2 & im5 & sopim5 [ sop=(sopim5 << 5) | im5; ] unimpl
-:SPOP3,SFU^nullifyForSpecial sop R1,R2				is opfam=0x04 & specop=3 & SFU & nullifyForSpecial & R1 & R2 & im5 & sopim5 [ sop=(sopim5 << 5) | im5; ] unimpl
-:COPR,SFU,sop^nullifyForSpecial						is opfam=0x0C & SFU & nullifyForSpecial & im5 & sopim17 [ sop=(sopim17 << 5) | im5; ] unimpl
+:spop0,SFU^nullifyForSpecial sop					is opfam=0x04 & specop=0 & SFU & nullifyForSpecial & im5 & im15 [ sop=(im15 << 5) | im5; ] unimpl
+:spop1,SFU^nullifyForSpecial sop					is opfam=0x04 & specop=1 & SFU & nullifyForSpecial & im5 & sopim10 [ sop=(sopim10 << 5) | im5; ] unimpl
+:spop2,SFU^nullifyForSpecial sop R2					is opfam=0x04 & specop=2 & SFU & nullifyForSpecial & R2 & im5 & sopim5 [ sop=(sopim5 << 5) | im5; ] unimpl
+:spop3,SFU^nullifyForSpecial sop R1,R2				is opfam=0x04 & specop=3 & SFU & nullifyForSpecial & R1 & R2 & im5 & sopim5 [ sop=(sopim5 << 5) | im5; ] unimpl
+:copr,SFU,sop^nullifyForSpecial						is opfam=0x0C & SFU & nullifyForSpecial & im5 & sopim17 [ sop=(sopim17 << 5) | im5; ] unimpl
 
-:CLDW,SFU^indexedWordAccessCmplt^loadCC RX^SRRB,RT		is opfam=0x09 & bit9=0 & zero=0 & RX & SRRB & RT & SFU & indexedWordAccessCmplt & loadCC unimpl 
-:CLDD,SFU^indexedDoublewordAccessCmplt^loadCC RX^SRRB,RT		is opfam=0x0B & bit9=0 & zero=0 & RX & SRRB & RT & SFU & indexedDoublewordAccessCmplt & loadCC unimpl
-:CSTW,SFU^indexedWordAccessCmplt^storeCC RT,RX^SRRB	is opfam=0x09 & bit9=1 & zero=0 & RX & SRRB & RT & SFU & indexedWordAccessCmplt & storeCC unimpl
-:CSTD,SFU^indexedDoublewordAccessCmplt^storeCC RT,RX^SRRB	is opfam=0x0B & bit9=1 & zero=0 & RX & SRRB & RT & SFU & indexedDoublewordAccessCmplt & storeCC unimpl
+:cldw,SFU^indexedWordAccessCmplt^loadCC RX^SRRB,RT		is opfam=0x09 & bit9=0 & zero=0 & RX & SRRB & RT & SFU & indexedWordAccessCmplt & loadCC unimpl 
+:cldd,SFU^indexedDoublewordAccessCmplt^loadCC RX^SRRB,RT		is opfam=0x0B & bit9=0 & zero=0 & RX & SRRB & RT & SFU & indexedDoublewordAccessCmplt & loadCC unimpl
+:cstw,SFU^indexedWordAccessCmplt^storeCC RT,RX^SRRB	is opfam=0x09 & bit9=1 & zero=0 & RX & SRRB & RT & SFU & indexedWordAccessCmplt & storeCC unimpl
+:cstd,SFU^indexedDoublewordAccessCmplt^storeCC RT,RX^SRRB	is opfam=0x0B & bit9=1 & zero=0 & RX & SRRB & RT & SFU & indexedDoublewordAccessCmplt & storeCC unimpl
 
-:CLDW,SFU^shortDispCmplt^loadCC highlse5^SRRB,RT	is opfam=0x09 & bit9=0 & one=1 & SRRB & RT & SFU & highlse5 & shortDispCmplt & loadCC unimpl 
-:CLDD,SFU^shortDispCmplt^loadCC highlse5^SRRB,RT	is opfam=0x0B & bit9=0 & one=1 & SRRB & RT & SFU & highlse5 & shortDispCmplt & loadCC unimpl 
-:CSTW,SFU^shortDispCmplt^storeCC RT,highlse5^SRRB	is opfam=0x09 & bit9=1 & one=1 & SRRB & RT & SFU & highlse5 & shortDispCmplt & storeCC unimpl 
-:CSTD,SFU^shortDispCmplt^storeCC RT,highlse5^SRRB	is opfam=0x0B & bit9=1 & one=1 & SRRB & RT & SFU & highlse5 & shortDispCmplt & storeCC unimpl
+:cldw,SFU^shortDispCmplt^loadCC highlse5^SRRB,RT	is opfam=0x09 & bit9=0 & one=1 & SRRB & RT & SFU & highlse5 & shortDispCmplt & loadCC unimpl 
+:cldd,SFU^shortDispCmplt^loadCC highlse5^SRRB,RT	is opfam=0x0B & bit9=0 & one=1 & SRRB & RT & SFU & highlse5 & shortDispCmplt & loadCC unimpl 
+:cstw,SFU^shortDispCmplt^storeCC RT,highlse5^SRRB	is opfam=0x09 & bit9=1 & one=1 & SRRB & RT & SFU & highlse5 & shortDispCmplt & storeCC unimpl 
+:cstd,SFU^shortDispCmplt^storeCC RT,highlse5^SRRB	is opfam=0x0B & bit9=1 & one=1 & SRRB & RT & SFU & highlse5 & shortDispCmplt & storeCC unimpl
  
  
 #################################################
@@ -1785,46 +1785,46 @@ define pcodeop diag;
 # These ld/st instructions are the same as the coprocessor instructions, with an SFU of zero or one
 
 # Floating Point Loads, 32 bit, indirect/indexed
-:FLDW^indexedWordAccessCmplt^loadCC RX^SRRB,FPRT32		is opfam=0x09 & zero=0 & bit9=0 & bits78=0 & indexedWordAccessCmplt & loadCC & SRRB & RX & FPRT32 & SPCBASE & u=0 & m=0 {
+:fldw^indexedWordAccessCmplt^loadCC RX^SRRB,FPRT32		is opfam=0x09 & zero=0 & bit9=0 & bits78=0 & indexedWordAccessCmplt & loadCC & SRRB & RX & FPRT32 & SPCBASE & u=0 & m=0 {
 	addr:$(ADDRSIZE) = SPCBASE + sext(RX);
     FPRT32 = zext(*:4 addr);
 } 
 
-:FLDW^indexedWordAccessCmplt^loadCC RX^SRRB,FPRT32		is opfam=0x09 & zero=0 & bit9=0 & bits78=0 & indexedWordAccessCmplt & loadCC & SRRB & RX & FPRT32 & SPCBASE & u=1 & m=0 {
+:fldw^indexedWordAccessCmplt^loadCC RX^SRRB,FPRT32		is opfam=0x09 & zero=0 & bit9=0 & bits78=0 & indexedWordAccessCmplt & loadCC & SRRB & RX & FPRT32 & SPCBASE & u=1 & m=0 {
 	addr:$(ADDRSIZE) = SPCBASE + (sext(RX) << 2);
     FPRT32 = zext(*:4 addr);
 } 
 
-:FLDW^indexedWordAccessCmplt^loadCC RX^SRRB,FPRT32		is opfam=0x09 & zero=0 & bit9=0 & bits78=0 & indexedWordAccessCmplt & loadCC & SRRB & RX & RB & FPRT32 & SPCBASE & u=0 & m=1 {
+:fldw^indexedWordAccessCmplt^loadCC RX^SRRB,FPRT32		is opfam=0x09 & zero=0 & bit9=0 & bits78=0 & indexedWordAccessCmplt & loadCC & SRRB & RX & RB & FPRT32 & SPCBASE & u=0 & m=1 {
 	addr:$(ADDRSIZE) = SPCBASE + sext(RX);
     FPRT32 = zext(*:4 addr);
     RB = RB + RX;
 } 
 
-:FLDW^indexedWordAccessCmplt^loadCC RX^SRRB,FPRT32		is opfam=0x09 & zero=0 & bit9=0 & bits78=0 & indexedWordAccessCmplt & loadCC & SRRB & RB & RX & FPRT32 & SPCBASE & u=1 & m=1 {
+:fldw^indexedWordAccessCmplt^loadCC RX^SRRB,FPRT32		is opfam=0x09 & zero=0 & bit9=0 & bits78=0 & indexedWordAccessCmplt & loadCC & SRRB & RB & RX & FPRT32 & SPCBASE & u=1 & m=1 {
 	addr:$(ADDRSIZE) = SPCBASE + (sext(RX) << 2);
     FPRT32 = zext(*:4 addr);
     RB = RB + RX;
 } 
 
 # Floating Point Loads, 64 bit, indirect/indexed
-:FLDD^indexedDoublewordAccessCmplt^loadCC RX^SRRB,FPRT64		is opfam=0x0B & zero=0 & bit9=0 & sfu=0 & indexedDoublewordAccessCmplt & loadCC & SRRB & RX & FPRT64 & SPCBASE & u=0 & m=0 {
+:fldd^indexedDoublewordAccessCmplt^loadCC RX^SRRB,FPRT64		is opfam=0x0B & zero=0 & bit9=0 & sfu=0 & indexedDoublewordAccessCmplt & loadCC & SRRB & RX & FPRT64 & SPCBASE & u=0 & m=0 {
 	addr:$(ADDRSIZE) = SPCBASE + sext(RX);
     FPRT64 = zext(*:8 addr);
 } 
 
-:FLDD^indexedDoublewordAccessCmplt^loadCC RX^SRRB,FPRT64		is opfam=0x0B & zero=0 & bit9=0 & sfu=0 & indexedDoublewordAccessCmplt & loadCC & SRRB & RX & FPRT64 & SPCBASE & u=1 & m=0 {
+:fldd^indexedDoublewordAccessCmplt^loadCC RX^SRRB,FPRT64		is opfam=0x0B & zero=0 & bit9=0 & sfu=0 & indexedDoublewordAccessCmplt & loadCC & SRRB & RX & FPRT64 & SPCBASE & u=1 & m=0 {
 	addr:$(ADDRSIZE) = SPCBASE + (sext(RX) << 2);
     FPRT64 = zext(*:8 addr);
 } 
 
-:FLDD^indexedDoublewordAccessCmplt^loadCC RX^SRRB,FPRT64		is opfam=0x0B & zero=0 & bit9=0 & sfu=0 & indexedDoublewordAccessCmplt & loadCC & SRRB & RX & RB & FPRT64 & SPCBASE & u=0 & m=1 {
+:fldd^indexedDoublewordAccessCmplt^loadCC RX^SRRB,FPRT64		is opfam=0x0B & zero=0 & bit9=0 & sfu=0 & indexedDoublewordAccessCmplt & loadCC & SRRB & RX & RB & FPRT64 & SPCBASE & u=0 & m=1 {
 	addr:$(ADDRSIZE) = SPCBASE + sext(RX);
     FPRT64 = zext(*:8 addr);
     RB = RB + RX;
 } 
 
-:FLDD^indexedDoublewordAccessCmplt^loadCC RX^SRRB,FPRT64		is opfam=0x0B & zero=0 & bit9=0 & sfu=0 & indexedDoublewordAccessCmplt & loadCC & SRRB & RB & RX & FPRT64 & SPCBASE & u=1 & m=1 {
+:fldd^indexedDoublewordAccessCmplt^loadCC RX^SRRB,FPRT64		is opfam=0x0B & zero=0 & bit9=0 & sfu=0 & indexedDoublewordAccessCmplt & loadCC & SRRB & RB & RX & FPRT64 & SPCBASE & u=1 & m=1 {
 	addr:$(ADDRSIZE) = SPCBASE + (sext(RX) << 3);
     FPRT64 = zext(*:8 addr);
     RB = RB + RX;
@@ -1832,45 +1832,45 @@ define pcodeop diag;
 
 
 # Floating Point Stores -- 32 and 64 bits
-:FSTW^indexedWordAccessCmplt^storeCC FPRT32,RX^SRRB		is opfam=0x09 & zero=0 & bit9=1 & bits78=0 & indexedWordAccessCmplt & storeCC & SRRB & RX & FPRT32 & SPCBASE & u=0 & m=0 {
+:fstw^indexedWordAccessCmplt^storeCC FPRT32,RX^SRRB		is opfam=0x09 & zero=0 & bit9=1 & bits78=0 & indexedWordAccessCmplt & storeCC & SRRB & RX & FPRT32 & SPCBASE & u=0 & m=0 {
 	addr:$(ADDRSIZE) = SPCBASE + sext(RX);
 	*addr = FPRT32:4; 
 }
 
-:FSTW^indexedWordAccessCmplt^storeCC FPRT32,RX^SRRB		is opfam=0x09 & zero=0 & bit9=1 & bits78=0 & indexedWordAccessCmplt & storeCC & SRRB & RX & FPRT32 & SPCBASE & u=1 & m=0 {
+:fstw^indexedWordAccessCmplt^storeCC FPRT32,RX^SRRB		is opfam=0x09 & zero=0 & bit9=1 & bits78=0 & indexedWordAccessCmplt & storeCC & SRRB & RX & FPRT32 & SPCBASE & u=1 & m=0 {
 	addr:$(ADDRSIZE) = SPCBASE + (sext(RX) << 2);
 	*addr = FPRT32:4; 
 }
 
-:FSTW^indexedWordAccessCmplt^storeCC FPRT32,RX^SRRB		is opfam=0x09 & zero=0 & bit9=1 & bits78=0 & indexedWordAccessCmplt & storeCC & SRRB & RX & RB & FPRT32 & SPCBASE & u=0 & m=1 {
+:fstw^indexedWordAccessCmplt^storeCC FPRT32,RX^SRRB		is opfam=0x09 & zero=0 & bit9=1 & bits78=0 & indexedWordAccessCmplt & storeCC & SRRB & RX & RB & FPRT32 & SPCBASE & u=0 & m=1 {
 	addr:$(ADDRSIZE) = SPCBASE + sext(RX);
 	*addr = FPRT32:4; 
     RB = RB + RX;
 }
 
-:FSTW^indexedWordAccessCmplt^storeCC FPRT32,RX^SRRB		is opfam=0x09 & zero=0 & bit9=1 & bits78=0 & indexedWordAccessCmplt & storeCC & SRRB & RX & RB & FPRT32 & SPCBASE & u=1 & m=1 {
+:fstw^indexedWordAccessCmplt^storeCC FPRT32,RX^SRRB		is opfam=0x09 & zero=0 & bit9=1 & bits78=0 & indexedWordAccessCmplt & storeCC & SRRB & RX & RB & FPRT32 & SPCBASE & u=1 & m=1 {
 	addr:$(ADDRSIZE) = SPCBASE + (sext(RX) << 2);
 	*addr = FPRT32:4; 
     RB = RB + RX;
 }
 
-:FSTD^indexedDoublewordAccessCmplt^storeCC FPRT64,RX^SRRB		is opfam=0x0B & zero=0 & bit9=1 & bits78=0 & indexedDoublewordAccessCmplt & storeCC & SRRB & RX & FPRT64 & SPCBASE & u=0 & m=0 {
+:fstd^indexedDoublewordAccessCmplt^storeCC FPRT64,RX^SRRB		is opfam=0x0B & zero=0 & bit9=1 & bits78=0 & indexedDoublewordAccessCmplt & storeCC & SRRB & RX & FPRT64 & SPCBASE & u=0 & m=0 {
 	addr:$(ADDRSIZE) = SPCBASE + sext(RX);
 	*addr = FPRT64:8; 
 }
 
-:FSTD^indexedDoublewordAccessCmplt^storeCC FPRT64,RX^SRRB		is opfam=0x0B & zero=0 & bit9=1 & bits78=0 & indexedDoublewordAccessCmplt & storeCC & SRRB & RX & FPRT64 & SPCBASE & u=1 & m=0 {
+:fstd^indexedDoublewordAccessCmplt^storeCC FPRT64,RX^SRRB		is opfam=0x0B & zero=0 & bit9=1 & bits78=0 & indexedDoublewordAccessCmplt & storeCC & SRRB & RX & FPRT64 & SPCBASE & u=1 & m=0 {
 	addr:$(ADDRSIZE) = SPCBASE + (sext(RX) << 3);
 	*addr = FPRT64:8; 
 }
 
-:FSTD^indexedDoublewordAccessCmplt^storeCC FPRT64,RX^SRRB		is opfam=0x0B & zero=0 & bit9=1 & bits78=0 & indexedDoublewordAccessCmplt & storeCC & SRRB & RX & RB & FPRT64 & SPCBASE & u=0 & m=1 {
+:fstd^indexedDoublewordAccessCmplt^storeCC FPRT64,RX^SRRB		is opfam=0x0B & zero=0 & bit9=1 & bits78=0 & indexedDoublewordAccessCmplt & storeCC & SRRB & RX & RB & FPRT64 & SPCBASE & u=0 & m=1 {
 	addr:$(ADDRSIZE) = SPCBASE + sext(RX);
 	*addr = FPRT64:8; 
     RB = RB + RX;
 }
 
-:FSTD^indexedDoublewordAccessCmplt^storeCC FPRT64,RX^SRRB		is opfam=0x0B & zero=0 & bit9=1 & bits78=0 & indexedDoublewordAccessCmplt & storeCC & SRRB & RX & RB & FPRT64 & SPCBASE & u=1 & m=1 {
+:fstd^indexedDoublewordAccessCmplt^storeCC FPRT64,RX^SRRB		is opfam=0x0B & zero=0 & bit9=1 & bits78=0 & indexedDoublewordAccessCmplt & storeCC & SRRB & RX & RB & FPRT64 & SPCBASE & u=1 & m=1 {
 	addr:$(ADDRSIZE) = SPCBASE + (sext(RX) << 2);
 	*addr = FPRT64:8; 
     RB = RB + RX;
@@ -1878,82 +1878,82 @@ define pcodeop diag;
 
 
 # Floating Point Load Word with Short Displacement, no modification to RB
-:FLDW^shortDispCmplt^loadCC highlse5^SRRB,FPRT32	is opfam=0x09 & one=1 & bit9=0 & bits78=0 & shortDispCmplt & loadCC & SRRB & SPCBASE & FPRT32 & highlse5 & m=0 {
+:fldw^shortDispCmplt^loadCC highlse5^SRRB,FPRT32	is opfam=0x09 & one=1 & bit9=0 & bits78=0 & shortDispCmplt & loadCC & SRRB & SPCBASE & FPRT32 & highlse5 & m=0 {
 	addr:$(ADDRSIZE) = SPCBASE + sext(highlse5);
     FPRT32 = zext(*:4 addr);
 }
 
 # Floating Point Load Word with Short Displacement, post-modification to RB
-:FLDW^shortDispCmplt^loadCC highlse5^SRRB,FPRT32	is opfam=0x09 & one=1 & bit9=0 & bits78=0 & shortDispCmplt & loadCC & SRRB & SPCBASE & FPRT32 & RB & highlse5 & m=1 & u=0 {
+:fldw^shortDispCmplt^loadCC highlse5^SRRB,FPRT32	is opfam=0x09 & one=1 & bit9=0 & bits78=0 & shortDispCmplt & loadCC & SRRB & SPCBASE & FPRT32 & RB & highlse5 & m=1 & u=0 {
 	addr:$(ADDRSIZE) = SPCBASE;
     FPRT32 = zext(*:4 addr);
     RB = RB + sext(highlse5);
 }
 
 # Floating Point Load Word with Short Displacement, pre-modification to RB
-:FLDW^shortDispCmplt^loadCC highlse5^SRRB,FPRT32	is opfam=0x09 & one=1 & bit9=0 & bits78=0 & shortDispCmplt & loadCC & SRRB & RB & SPCBASE & FPRT32 & highlse5 & m=1 & u=1 {
+:fldw^shortDispCmplt^loadCC highlse5^SRRB,FPRT32	is opfam=0x09 & one=1 & bit9=0 & bits78=0 & shortDispCmplt & loadCC & SRRB & RB & SPCBASE & FPRT32 & highlse5 & m=1 & u=1 {
 	addr:$(ADDRSIZE) = SPCBASE + sext(highlse5);
     FPRT32 = zext(*:4 addr);
     RB = RB + sext(highlse5);
 }
 
-:FLDD^shortDispCmplt^loadCC highlse5^SRRB,FPRT64	is opfam=0x0B & one=1 & bit6=0 & bits78=0 & bit9=0 & shortDispCmplt & loadCC & SRRB & SPCBASE & FPRT64 & highlse5 & m=0 {
+:fldd^shortDispCmplt^loadCC highlse5^SRRB,FPRT64	is opfam=0x0B & one=1 & bit6=0 & bits78=0 & bit9=0 & shortDispCmplt & loadCC & SRRB & SPCBASE & FPRT64 & highlse5 & m=0 {
 	addr:$(ADDRSIZE) = SPCBASE + sext(highlse5);
     FPRT64 = zext(*:8 addr);
 }
 
-:FLDD^shortDispCmplt^loadCC highlse5^SRRB,FPRT64	is opfam=0x0B & one=1 & bit6=0 & bits78=0 & bit9=0 & shortDispCmplt & loadCC & SRRB & RB & SPCBASE & FPRT64 & highlse5 & m=1 & u=0 {
+:fldd^shortDispCmplt^loadCC highlse5^SRRB,FPRT64	is opfam=0x0B & one=1 & bit6=0 & bits78=0 & bit9=0 & shortDispCmplt & loadCC & SRRB & RB & SPCBASE & FPRT64 & highlse5 & m=1 & u=0 {
 	addr:$(ADDRSIZE) = SPCBASE;
     FPRT64 = zext(*:8 addr);
     RB = RB + sext(highlse5);
 }
 
-:FLDD^shortDispCmplt^loadCC highlse5^SRRB,FPRT64	is opfam=0x0B & one=1 & bit6=0 & bits78=0 & bit9=0 & shortDispCmplt & loadCC & SRRB & RB & SPCBASE & FPRT64 & highlse5 & m=1 & u=1 {
+:fldd^shortDispCmplt^loadCC highlse5^SRRB,FPRT64	is opfam=0x0B & one=1 & bit6=0 & bits78=0 & bit9=0 & shortDispCmplt & loadCC & SRRB & RB & SPCBASE & FPRT64 & highlse5 & m=1 & u=1 {
 	addr:$(ADDRSIZE) = SPCBASE + sext(highlse5);
     FPRT64 = zext(*:8 addr);
     RB = RB + sext(highlse5);
 }
 
-:FSTW^shortDispCmplt^storeCC FPRT32,highlse5^SRRB	is opfam=0x09 & one=1 & bits78=0 & bit9=1 & shortDispCmplt & storeCC & SRRB & SPCBASE & FPRT32 & highlse5 & m=0 {
+:fstw^shortDispCmplt^storeCC FPRT32,highlse5^SRRB	is opfam=0x09 & one=1 & bits78=0 & bit9=1 & shortDispCmplt & storeCC & SRRB & SPCBASE & FPRT32 & highlse5 & m=0 {
 	addr:$(ADDRSIZE) = SPCBASE + sext(highlse5);
 	*addr = FPRT32:4; 
 }
 
-:FSTW^shortDispCmplt^storeCC FPRT32,highlse5^SRRB	is opfam=0x09 & one=1 & bits78=0 & bit9=1 & shortDispCmplt & storeCC & SRRB & SPCBASE & RB & FPRT32 & highlse5 & m=1 & u=0 {
+:fstw^shortDispCmplt^storeCC FPRT32,highlse5^SRRB	is opfam=0x09 & one=1 & bits78=0 & bit9=1 & shortDispCmplt & storeCC & SRRB & SPCBASE & RB & FPRT32 & highlse5 & m=1 & u=0 {
 	addr:$(ADDRSIZE) = SPCBASE;
 	*addr = FPRT32:4;
 	RB = RB + sext(highlse5);
 }
 
-:FSTW^shortDispCmplt^storeCC FPRT32,highlse5^SRRB	is opfam=0x09 & one=1 & bits78=0 & bit9=1 & shortDispCmplt & storeCC & SRRB & SPCBASE & RB & FPRT32 & highlse5 & m=1 & u=1 {
+:fstw^shortDispCmplt^storeCC FPRT32,highlse5^SRRB	is opfam=0x09 & one=1 & bits78=0 & bit9=1 & shortDispCmplt & storeCC & SRRB & SPCBASE & RB & FPRT32 & highlse5 & m=1 & u=1 {
 	addr:$(ADDRSIZE) = SPCBASE + sext(highlse5);
 	*addr = FPRT32:4;
 	RB = RB + sext(highlse5);
 }
 
-:FSTD^shortDispCmplt^storeCC FPRT64,highlse5^SRRB	is opfam=0x0B & one=1 & bit6=0 & bits78=0 & bit9=1 & shortDispCmplt & storeCC & SRRB & SPCBASE & FPRT64 & highlse5 & m=0 {
+:fstd^shortDispCmplt^storeCC FPRT64,highlse5^SRRB	is opfam=0x0B & one=1 & bit6=0 & bits78=0 & bit9=1 & shortDispCmplt & storeCC & SRRB & SPCBASE & FPRT64 & highlse5 & m=0 {
 	addr:$(ADDRSIZE) = SPCBASE + sext(highlse5);
 	*addr = FPRT64:8; 
 }
 
-:FSTD^shortDispCmplt^storeCC FPRT64,highlse5^SRRB	is opfam=0x0B & one=1 & bit6=0 & bits78=0 & bit9=1 & shortDispCmplt & storeCC & SRRB & RB & SPCBASE & FPRT64 & highlse5 & u=0 & m=1 {
+:fstd^shortDispCmplt^storeCC FPRT64,highlse5^SRRB	is opfam=0x0B & one=1 & bit6=0 & bits78=0 & bit9=1 & shortDispCmplt & storeCC & SRRB & RB & SPCBASE & FPRT64 & highlse5 & u=0 & m=1 {
 	addr:$(ADDRSIZE) = SPCBASE;
 	*addr = FPRT64:8;
 	RB = RB + sext(highlse5);
 }
 
-:FSTD^shortDispCmplt^storeCC FPRT64,highlse5^SRRB	is opfam=0x0B & one=1 & bit6=0 & bits78=0 & bit9=1 & shortDispCmplt & storeCC & SRRB & RB & SPCBASE & FPRT64 & highlse5 & u=1 & m=1 {
+:fstd^shortDispCmplt^storeCC FPRT64,highlse5^SRRB	is opfam=0x0B & one=1 & bit6=0 & bits78=0 & bit9=1 & shortDispCmplt & storeCC & SRRB & RB & SPCBASE & FPRT64 & highlse5 & u=1 & m=1 {
 	addr:$(ADDRSIZE) = SPCBASE + sext(highlse5);
 	*addr = FPRT64:8;
 	RB = RB + sext(highlse5);
 }
 
 # Floating Point Format Conversion Instructions
-:FCNV^fpsf^fpdf FPR232,FPRT32						is opfam=0x0E & fpclass=1 & fpc1sub=0 & fpc1sub2=0 & FPR232 & FPRT32 & fpsf & fpdf {
+:fcnv^fpsf^fpdf FPR232,FPRT32						is opfam=0x0E & fpclass=1 & fpc1sub=0 & fpc1sub2=0 & FPR232 & FPRT32 & fpsf & fpdf {
 	FPRT32 = float2float(FPR232);
 }
  
-:FCNV^fpsf^fpdf FPR264,FPRT64						is opfam=0x0C & fpclass=1 & fpc1sub=0 & fpc1sub2=0 & sfu=0 & bit5=0 & FPR264 & FPRT64 & fpsf & fpdf & freg2sgl & fptsgl {
+:fcnv^fpsf^fpdf FPR264,FPRT64						is opfam=0x0C & fpclass=1 & fpc1sub=0 & fpc1sub2=0 & sfu=0 & bit5=0 & FPR264 & FPRT64 & fpsf & fpdf & freg2sgl & fptsgl {
 # if src format is sgl, this is sgl to dbl
 # if src format is dbl, this is dbl to sgl
 # sgl to sgl or dbl to dbl don't make sense
@@ -1966,13 +1966,13 @@ define pcodeop diag;
 	<DONE>
 }
  
-:FCNVXF^fpsf^fpdf FPR232,FPRT32							is opfam=0x0E & fpclass=1 & fpc1sub=1 & fpc1sub2=0 & FPR232 & FPRT32 & fpsf & fpdf {
+:fcnvxf^fpsf^fpdf FPR232,FPRT32							is opfam=0x0E & fpclass=1 & fpc1sub=1 & fpc1sub2=0 & FPR232 & FPRT32 & fpsf & fpdf {
 	FPRT32 = int2float(FPR232);
 } 
 
 # int2float -- support single/double size ints and single/double floats
 # so handle 4 different cases
-:FCNVXF^fixedsf^fpdf FPR264,FPRT64							is opfam=0x0C & fpclass=1 & fpc1sub=1 & fpc1sub2=0 & FPR264 & FPRT64 & sfu=0 & fixedsf & fpdf & fptsgl & freg2sgl & fpsfraw & fpdfraw {
+:fcnvxf^fixedsf^fpdf FPR264,FPRT64							is opfam=0x0C & fpclass=1 & fpc1sub=1 & fpc1sub2=0 & FPR264 & FPRT64 & sfu=0 & fixedsf & fpdf & fptsgl & freg2sgl & fpsfraw & fpdfraw {
 	srcIsSgl:1 =  ((fpsfraw:1 == 0:1));
 	srcIsDbl:1 =  ((fpsfraw:1 != 0:1));
 	destIsSgl:1 = ((fpdfraw:1 == 0:1));
@@ -1997,11 +1997,11 @@ define pcodeop diag;
 	<DONE>
 }
 
-:FCNVFX^fpsf^fixeddf FPR232,FPRT32							is opfam=0x0E & fpclass=1 & fpc1sub=2 & fpc1sub2=0 & FPR232 & FPRT32 & fpsf & fixeddf {
+:fcnvfx^fpsf^fixeddf FPR232,FPRT32							is opfam=0x0E & fpclass=1 & fpc1sub=2 & fpc1sub2=0 & FPR232 & FPRT32 & fpsf & fixeddf {
 	temp:4 = round(FPR232);
 	FPRT32 = trunc(temp);
 } 
-:FCNVFX^fpsf^fixeddf FPR264,FPRT64							is opfam=0x0C & fpclass=1 & fpc1sub=2 & fpc1sub2=0 & sfu=0 & FPR264 & FPRT64 & fpsf & fixeddf & fptsgl & freg2sgl {
+:fcnvfx^fpsf^fixeddf FPR264,FPRT64							is opfam=0x0C & fpclass=1 & fpc1sub=2 & fpc1sub2=0 & sfu=0 & FPR264 & FPRT64 & fpsf & fixeddf & fptsgl & freg2sgl {
 # figure out if the value in the fp register is single or double precision
 # the register is always specified as a 64 bit register, so that doesn't tell us the size, we must use the fpsf format
 	temp:8 = 0;
@@ -2016,11 +2016,11 @@ define pcodeop diag;
 	FPRT64 = trunc(temp);
 } 
  
-:FCNVFXT^fpsf^fixeddf FPR232,FPRT32						is opfam=0x0E & fpclass=1 & fpc1sub=3 & fpc1sub2=0 & FPR232 & FPRT32 & fpsf & fixeddf {
+:fcnvfxt^fpsf^fixeddf FPR232,FPRT32						is opfam=0x0E & fpclass=1 & fpc1sub=3 & fpc1sub2=0 & FPR232 & FPRT32 & fpsf & fixeddf {
 	FPRT32 = trunc(FPR232);
 } 
 
-:FCNVFXT^fpsf^fixeddf FPR264,FPRT64						is opfam=0x0C & fpclass=1 & fpc1sub=3 & fpc1sub2=0 & sfu=0 & FPR264 & FPRT64 & fpsf & fixeddf & fpsfraw & fptsgl & freg2sgl {
+:fcnvfxt^fpsf^fixeddf FPR264,FPRT64						is opfam=0x0C & fpclass=1 & fpc1sub=3 & fpc1sub2=0 & sfu=0 & FPR264 & FPRT64 & fpsf & fixeddf & fpsfraw & fptsgl & freg2sgl {
 # figure out if the value in the fp register is single or double precision
 # the register is always specified as a 64 bit register, so that doesn't tell us the size, we must use the fpsf (fp source format) format
 # The source will either be the full 64 bits (double precision) or the left half of the register (single precision)
@@ -2036,11 +2036,11 @@ define pcodeop diag;
 } 
 
  # Floating Point Functions
-:FCPY^fpfmt FPR232,FPRT32								is opfam=0x0E & fpclass=0 & fpsub=2 & freg1=0 & FPR232 & FPRT32 & fpfmt {
+:fcpy^fpfmt FPR232,FPRT32								is opfam=0x0E & fpclass=0 & fpsub=2 & freg1=0 & FPR232 & FPRT32 & fpfmt {
 	FPRT32 = FPR232;
 } 
 
-:FCPY^fpfmt FPR264,FPRT64								is opfam=0x0C & fpclass=0 & fpsub=2 & freg1=0 & FPR264 & FPRT64 & fpfmt & fptsgl & freg2sgl {
+:fcpy^fpfmt FPR264,FPRT64								is opfam=0x0C & fpclass=0 & fpsub=2 & freg1=0 & FPR264 & FPRT64 & fpfmt & fptsgl & freg2sgl {
 	if (fpfmt==0:1) goto <SGL>;
 	FPRT64 = FPR264;
 	goto <DONE>;
@@ -2049,34 +2049,34 @@ define pcodeop diag;
 	<DONE>
 }
 
-:FABS^fpfmt FPR232,FPRT32								is opfam=0x0E & fpclass=0 & fpsub=3 & freg1=0 & bit5=0 & bit8=0 & FPR232 & FPRT32 & fpfmt {
+:fabs^fpfmt FPR232,FPRT32								is opfam=0x0E & fpclass=0 & fpsub=3 & freg1=0 & bit5=0 & bit8=0 & FPR232 & FPRT32 & fpfmt {
 	FPRT32 = abs(FPR232);
 } 
 
-:FABS^fpfmt FPR264,FPRT64								is opfam=0x0C & fpclass=0 & fpsub=3 & freg1=0 & bits59=0 & bit10=0 & FPR264 & FPRT64 & fpfmt {
+:fabs^fpfmt FPR264,FPRT64								is opfam=0x0C & fpclass=0 & fpsub=3 & freg1=0 & bits59=0 & bit10=0 & FPR264 & FPRT64 & fpfmt {
 	FPRT64 = abs(FPR264);
 }
 
-:FSQRT^fpfmt FPR232,FPRT32								is opfam=0x0E & fpclass=0 & fpsub=4 & freg1=0 & FPR232 & FPRT32 & fpfmt {
+:fsqrt^fpfmt FPR232,FPRT32								is opfam=0x0E & fpclass=0 & fpsub=4 & freg1=0 & FPR232 & FPRT32 & fpfmt {
 	FPRT32 = sqrt(FPR232);
 } 
-:FSQRT^fpfmt FPR264,FPRT64								is opfam=0x0C & fpclass=0 & fpsub=4 & freg1=0 & FPR264 & FPRT64 & fpfmt {
+:fsqrt^fpfmt FPR264,FPRT64								is opfam=0x0C & fpclass=0 & fpsub=4 & freg1=0 & FPR264 & FPRT64 & fpfmt {
 	FPRT64 = sqrt(FPR264);
 }
 
-:FRND^fpfmt FPR232,FPRT32								is opfam=0x0E & fpclass=0 & fpsub=5 & FPR232 & FPRT32 & fpfmt {
+:frnd^fpfmt FPR232,FPRT32								is opfam=0x0E & fpclass=0 & fpsub=5 & FPR232 & FPRT32 & fpfmt {
 	FPRT32 = round(FPR232);
  } 
 
-:FRND^fpfmt FPR264,FPRT64								is opfam=0x0C & fpclass=0 & fpsub=5 & FPR264 & FPRT64 & fpfmt {
+:frnd^fpfmt FPR264,FPRT64								is opfam=0x0C & fpclass=0 & fpsub=5 & FPR264 & FPRT64 & fpfmt {
 	FPRT64 = round(FPR264);
 }
 
-:FADD^fpfmt FPR232,FPR132,FPRT32							is opfam=0x0E & fpclass=3 & fpsub=0 & FPR232 & FPR132 & FPRT32 & fpfmt {
+:fadd^fpfmt FPR232,FPR132,FPRT32							is opfam=0x0E & fpclass=3 & fpsub=0 & FPR232 & FPR132 & FPRT32 & fpfmt {
 	FPRT32 = FPR132 f+ FPR232;
 } 
 
-:FADD^fpfmt FPR264,FPR164,FPRT64							is opfam=0x0C & fpclass=3 & fpsub=0 & FPR264 & FPRT64 & FPR164 & fpfmt & freg1sgl & freg2sgl & fptsgl {
+:fadd^fpfmt FPR264,FPR164,FPRT64							is opfam=0x0C & fpclass=3 & fpsub=0 & FPR264 & FPRT64 & FPR164 & fpfmt & freg1sgl & freg2sgl & fptsgl {
 	if (fpfmt==0:1) goto <SGL>;
 	FPRT64 = FPR164 f+ FPR264;
 	goto <DONE>;
@@ -2085,11 +2085,11 @@ define pcodeop diag;
 	<DONE>
 }
 
-:FSUB^fpfmt FPR232,FPR132,FPRT32							is opfam=0x0E & fpclass=3 & fpsub=1 & FPR232 & FPR132 & FPRT32 & fpfmt {
+:fsub^fpfmt FPR232,FPR132,FPRT32							is opfam=0x0E & fpclass=3 & fpsub=1 & FPR232 & FPR132 & FPRT32 & fpfmt {
 	FPRT32 = FPR232 f- FPR132;
 } 
 
-:FSUB^fpfmt FPR264,FPR164,FPRT64							is opfam=0x0C & fpclass=3 & fpsub=1 & FPR264 & FPRT64 & FPR164 & fpfmt & fptsgl & freg1sgl & freg2sgl {
+:fsub^fpfmt FPR264,FPR164,FPRT64							is opfam=0x0C & fpclass=3 & fpsub=1 & FPR264 & FPRT64 & FPR164 & fpfmt & fptsgl & freg1sgl & freg2sgl {
 	if (fpfmt==0:1) goto <SGL>;
 	FPRT64 = FPR264 f- FPR164;
 	goto <DONE>;
@@ -2098,11 +2098,11 @@ define pcodeop diag;
 	<DONE>
 }
 
-:FMPY^fpfmt FPR232,FPR132,FPRT32							is opfam=0x0E & fpclass=3 & fpsub=2 & bit8=0 & FPR232 & FPR132 & FPRT32 & fpfmt {
+:fmpy^fpfmt FPR232,FPR132,FPRT32							is opfam=0x0E & fpclass=3 & fpsub=2 & bit8=0 & FPR232 & FPR132 & FPRT32 & fpfmt {
 	FPRT32 = FPR132 f* FPR232;
 } 
 
-:FMPY^fpfmt FPR264,FPR164,FPRT64							is opfam=0x0C & fpclass=3 & fpsub=2 & bit8=0 & FPR264 & FPRT64 & FPR164 & fpfmt & fptsgl & freg1sgl & freg2sgl {
+:fmpy^fpfmt FPR264,FPR164,FPRT64							is opfam=0x0C & fpclass=3 & fpsub=2 & bit8=0 & FPR264 & FPRT64 & FPR164 & fpfmt & fptsgl & freg1sgl & freg2sgl {
 	if (fpfmt==0:1) goto <SGL>;
 	FPRT64 = FPR164 f* FPR264;
 	goto <DONE>;
@@ -2111,11 +2111,11 @@ define pcodeop diag;
 	<DONE>
 }
 
-:FDIV^fpfmt FPR232,FPR132,FPRT32							is opfam=0x0E & fpclass=3 & fpsub=3 & FPR232 & FPR132 & FPRT32 & fpfmt {
+:fdiv^fpfmt FPR232,FPR132,FPRT32							is opfam=0x0E & fpclass=3 & fpsub=3 & FPR232 & FPR132 & FPRT32 & fpfmt {
 	FPRT32 = FPR232 f/ FPR132;
 } 
 
-:FDIV^fpfmt FPR264,FPR164,FPRT64							is opfam=0x0C & fpclass=3 & fpsub=3 & FPR264 & FPRT64 & FPR164 & fpfmt & fptsgl & freg1sgl & freg2sgl {
+:fdiv^fpfmt FPR264,FPR164,FPRT64							is opfam=0x0C & fpclass=3 & fpsub=3 & FPR264 & FPRT64 & FPR164 & fpfmt & fptsgl & freg1sgl & freg2sgl {
 	if (fpfmt==0:1) goto <SGL>;
 	FPRT64 = FPR264 f/ FPR164;
 	goto <DONE>;
@@ -2125,30 +2125,30 @@ define pcodeop diag;
 }
 
 # 64 bit version
-:FMPYADD^fusedfmt FPR264,FPR164,FPRT64,fpra,fpta				is opfam=0x06 & FPR264 & FPR164 & FPRT64 & fusedfmt & fpra & fpta & bit5=0 {
+:fmpyadd^fusedfmt FPR264,FPR164,FPRT64,fpra,fpta				is opfam=0x06 & FPR264 & FPR164 & FPRT64 & fusedfmt & fpra & fpta & bit5=0 {
 	FPRT64 = FPR164 f* FPR264;
 	fpta = fpta f+ fpra;
 }
 
 # 32 bit version -- this uses a special encoding of the 32 bit registers and can only use 16-31{LR}, not the lower registers
-:FMPYADD^fusedfmt FUSEDR2,FUSEDR1,FUSEDRT,FUSEDRA,FUSEDTA				is opfam=0x06 & FUSEDR2 & FUSEDR1 & FUSEDRT & fusedfmt & FUSEDRA & FUSEDTA & bit5=1 {
+:fmpyadd^fusedfmt FUSEDR2,FUSEDR1,FUSEDRT,FUSEDRA,FUSEDTA				is opfam=0x06 & FUSEDR2 & FUSEDR1 & FUSEDRT & fusedfmt & FUSEDRA & FUSEDTA & bit5=1 {
 	FUSEDRT = FUSEDR1 f* FUSEDR2;
 	FUSEDTA = FUSEDTA f+ FUSEDRA;
 
 }
 
-:FMPYSUB^fusedfmt FPR264,FPR164,FPRT64,fpra,fpta				is opfam=0x26 & FPR264 & FPR164 & FPRT64 & fusedfmt & fpra & fpta & bit5=0 {
+:fmpysub^fusedfmt FPR264,FPR164,FPRT64,fpra,fpta				is opfam=0x26 & FPR264 & FPR164 & FPRT64 & fusedfmt & fpra & fpta & bit5=0 {
 	FPRT64 = FPR164 f* FPR264;
 	fpta = fpta f- fpra;
 }
 
-:FMPYSUB^fusedfmt FUSEDR2,FUSEDR1,FUSEDRT,FUSEDRA,FUSEDTA				is opfam=0x26 & FUSEDR2 & FUSEDR1 & FUSEDRT & fusedfmt & FUSEDRA & FUSEDTA & bit5=1 {
+:fmpysub^fusedfmt FUSEDR2,FUSEDR1,FUSEDRT,FUSEDRA,FUSEDTA				is opfam=0x26 & FUSEDR2 & FUSEDR1 & FUSEDRT & fusedfmt & FUSEDRA & FUSEDTA & bit5=1 {
 	FUSEDRT = FUSEDR1 f* FUSEDR2;
 	FUSEDTA = FUSEDTA f- FUSEDRA;
 }
 
 # Fixed Point / Integer Multiply
-:XMPYU^fpfmt FPR232,FPR132,FPRT64								is opfam=0x0E & fpclass=3 & fpsub=2 & bit8=1 & FPR232 & FPR132 & FPRT64 & fpfmt & fptsgl {
+:xmpyu^fpfmt FPR232,FPR132,FPRT64								is opfam=0x0E & fpclass=3 & fpsub=2 & bit8=1 & FPR232 & FPR132 & FPRT64 & fpfmt & fptsgl {
 	arg1:8 = zext(FPR232);
 	arg2:8 = zext(FPR132);
 	prod:8 = arg1 * arg2;
@@ -2157,7 +2157,7 @@ define pcodeop diag;
 
 # Floating Point Compare
 # 32 bit register comparison
-:FCMP^fpfmt1bit^fpcmp FPR232,FPR132						is opfam=0x0E & fpclass=2 & fpsub=0 & FPR232 & FPR132 & fpfmt1bit & fpcmp & fpcmp64 {
+:fcmp^fpfmt1bit^fpcmp FPR232,FPR132						is opfam=0x0E & fpclass=2 & fpsub=0 & FPR232 & FPR132 & fpfmt1bit & fpcmp & fpcmp64 {
 	result:1 = 0:1;
 	# shift the previous compareBit onto the compareQueue
 	compareQueue = (compareQueue << 1);
@@ -2175,7 +2175,7 @@ define pcodeop diag;
 }
 
 # 64 bit register comparison 
-:FCMP^fpfmt^fpcmp64 FPR264,FPR164						is opfam=0x0C & fpclass=2 & fpsub=0 & FPR264 & FPR164 & fpfmt & fpcmp & fpcmp64 {
+:fcmp^fpfmt^fpcmp64 FPR264,FPR164						is opfam=0x0C & fpclass=2 & fpsub=0 & FPR264 & FPR164 & fpfmt & fpcmp & fpcmp64 {
 	result:1 = 0:1;
 	# shift the previous compareBit onto the compareQueue
 	compareQueue = (compareQueue << 1);
@@ -2192,7 +2192,7 @@ define pcodeop diag;
 	compareBit = result;
 }
 
-:FTEST^fptest										is opfam=0x0C & fpclass=2 & fpsub=1 & fptest & $(COMMON)
+:ftest^fptest										is opfam=0x0C & fpclass=2 & fpsub=1 & fptest & $(COMMON)
 	[
 	  nullifyEnable = 1;
 	  globalset(inst_next, nullifyEnable);
@@ -2202,12 +2202,12 @@ define pcodeop diag;
 }
 
 # Misc Floating Point Functions
-:COPR.0.0											is opfam=0x0C & im26=0x0 { }
+:copr.0.0											is opfam=0x0C & im26=0x0 { }
 
 ###############################################################
 # Performance Montioring Unit Instructions
 ###############################################################
-:PMENB												is opfam=0x0C & bit5=0  & sfu=0x2 & pmuop=0x3 { }
-:PMDIS												is opfam=0x0C & bit5=0  & sfu=0x2 & pmuop=0x1 { }
+:pmenb												is opfam=0x0C & bit5=0  & sfu=0x2 & pmuop=0x3 { }
+:pmdis												is opfam=0x0C & bit5=0  & sfu=0x2 & pmuop=0x1 { }
 
 } # end with : phase=1
