@@ -1738,8 +1738,8 @@ define pcodeop insertTLBEntry;
 :iitlba R1,(SR3bit,RB)					is opfam=0x1 & sysopshiftedshort=0x01 & m=0 & SR3bit & RB & R1 & im5=0 { insertTLBEntry(SR3bit, RB, R1); }
 :idtlbp R1,SRRB							is opfam=0x1 & sysopshifted=0x40 & m=0 & SRRB & R1 & SPCBASE & im5=0 { insertTLBEntry(SPCBASE, R1); }
 :iitlbp R1,(SR3bit,RB)					is opfam=0x1 & sysopshiftedshort=0x00 & m=0 & im5=0 & SR3bit & RB & R1 { insertTLBEntry(SR3bit, RB, R1); }
-:iitlbt R1, R2							is opfam=0x1 & sysopshiftedshort=0x20 & m=0 & im5=0 & fpsub=0 & R2 & R1 { insertTLBEntry(R1, R2); }
-
+:iitlbt R1,R2							is opfam=0x1 & sysopshiftedshort=0x20 & m=0 & im5=0 & fpsub=0 & R2 & R1 { insertTLBEntry(R1,R2); }
+:idtlbt R1,R2							is opfam=0x1 & sysopshiftedshort=0x60 & m=0 & im5=0 & fpsub=0 & R2 & R1 { insertTLBEntry(R1,R2); }
 define pcodeop purgeCache;
 :pdc^indexedWordAccessCmplt RX^SRRB			is opfam=0x1 & sysopshifted=0x4E & indexedWordAccessCmplt & RX & SRRB & SPCBASE & im5=0 & m=0 { purgeCache(SPCBASE, RX); }
 :pdc^indexedWordAccessCmplt RX^SRRB			is opfam=0x1 & sysopshifted=0x4E & indexedWordAccessCmplt & RX & SRRB & SPCBASE & RB & im5=0 & m=1 { purgeCache(SPCBASE, RX); RB = RB + RX; }

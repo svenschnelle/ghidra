@@ -364,11 +364,11 @@ attach names [ BBCondSym ] [
 ];
 
 attach names [ SEDCondSym ] [
-	"" ",=" ",&lt;" ",OD" ",TR" ",&lt;&gt;" ",&gt;=" ",ev"
+	"" ",=" ",&lt;" ",od" ",tr" ",&lt;&gt;" ",&gt;=" ",ev"
 ];
 
 attach names [ SEDCondSymW ] [
-	"" ",*=" ",*&lt;" ",*OD" ",*TR" ",*&lt;&gt;" ",*&gt;=" ",*ev"
+	"" ",*=" ",*&lt;" ",*od" ",*tr" ",*&lt;&gt;" ",*&gt;=" ",*ev"
 ];
 
 attach names [ RegUnitCondSym ] [
@@ -1323,12 +1323,12 @@ SPCBASE:		is SRVAL & RB {
 # encodings for branches
 ###############################################
 # 12 bit displacement encoded using assemble_12
-displacement2W: target				is w & w2 [ target = (1-(w*2)) *  ( ((w2 & 0x1) << 10) | ((w2>>1) & 0x3FF) ); ] { temp:$(ADDRSIZE) = target; export temp; }
-#branchTarget2W: target				is w & w2 [ target = inst_start + 8 + 4 * ( (w * 0xFFFFFFFFFFFFF800) | ((w2 & 0x1) << 10) | ((w2>>1) & 0x3FF) ); ] { temp:$(ADDRSIZE) = target; export temp; }
-# this has the space register added
-#branchTarget2W: target		is w & w2 [ target = inst_start + 8 + 4 * ( (w * 0xFFFFFFFFFFFFF800) | ((w2 & 0x1) << 10) | ((w2>>1) & 0x3FF) ); ] { temp:$(ADDRSIZE) = target; temp = temp + (iasq_front<<32); export *:$(ADDRSIZE) temp; }
-##### good before caret branchTarget2W: target		is w & w2 [ target = inst_start + 8 + 4 * ( (w * 0xFFFFFFFFFFFFF800) | ((w2 & 0x1) << 10) | ((w2>>1) & 0x3FF) ); ] { export *:$(ADDRSIZE) target;  }
-#branchTarget2W: target	is w & w2 [
+displacement2W: target is w & w2
+	[
+		target = (1-(w*2)) *  ( ((w2 & 0x1) << 10) | ((w2>>1) & 0x3FF) );
+	]
+	{ temp:$(ADDRSIZE) = target; export temp; }
+
 branchTarget2W: target is w & w2less2 & w2_2
 	[ 
 #		target = inst_start + 8 + 4 * ( (w * 0xFFFFFFFFFFFFF800) | ((w2 & 0x1) << 10) | ((w2>>1) & 0x3FF) );
@@ -1350,20 +1350,15 @@ branchTarget2W: target is w & w2less2 & w2_2
 
 
 # 17 bit displacement encoded using assemble_17
-#displacement3W: target				is w & w1 & w2 [ target = 4 * ( (w * 0xFFFFFFFFFFFF0000) | (w1 << 11) | ((w2 & 0x1) << 10) | ((w2>>1) & 0x3FF) ); ] { temp:$(ADDRSIZE) = target; export temp; }
-displacement3W: target				is w & w1 & w2less2 & w2_2 [ target = 4 * (
+displacement3W: target is w & w1 & w2less2 & w2_2 [ target = 4 * (
 	((-1 * w) << 16) |
 	(w1 << 11) |
 	(w2_2 << 10) |
 	w2less2
 );] { temp:$(ADDRSIZE) = target; export temp; }
-#branchTarget3W: target				is w & w1 & w2 [ target = inst_start + 8 + 4 * ( (w * 0xFFFFFFFFFFFF0000) | (w1 << 11) | ((w2 & 0x1) << 10) | ((w2>>1) & 0x3FF) ); ] { temp:$(ADDRSIZE) = target; export temp; }
-#branchTarget3W: target				is w & w1 & w2 [ target = inst_start + 8 + 4 * ( (w * 0xFFFFFFFFFFFF0000) | (w1 << 11) | ((w2 & 0x1) << 10) | ((w2>>1) & 0x3FF) ); ] { temp:$(ADDRSIZE) = target; target = target + (iasq_front << 32); export temp; }
-#####good before caret  branchTarget3W: target				is w & w1 & w2 [ target = inst_start + 8 + 4 * ( (w * 0xFFFFFFFFFFFF0000) | (w1 << 11) | ((w2 & 0x1) << 10) | ((w2>>1) & 0x3FF) ); ] { export *:$(ADDRSIZE) target; }
-#branchTarget3W: target	is w & w1 & w2
-branchTarget3W: target				is w & w1 & w2less2 & w2_2
+
+branchTarget3W: target is w & w1 & w2less2 & w2_2
 	[
-#		target = inst_start + 8 + 4 * ( (w * 0xFFFFFFFFFFFF0000) | (w1 << 11) | ((w2 & 0x1) << 10) | ((w2>>1) & 0x3FF) );
 		target = inst_start + 8 + 4 * (
 			((-1 * w) << 16) |
 			(w1 << 11) |
@@ -1388,8 +1383,8 @@ branchTarget4W: target is w & w1 & w2less2 & w2_2 & w3
 			(w1 << 11) |
 			(w2_2 << 10) |
 			w2less2 |
-			(w3 << 16)
-		);
+			(w3 << 16));
+
 		temp32H = branchImmDestH;
 		temp32L = branchImmDestL;
 		branchImmDestL = target & 0xffffffff;
@@ -1404,7 +1399,7 @@ branchTarget4W: target is w & w1 & w2less2 & w2_2 & w3
 
 
 # simple IP relative branch
-IPRelativeIndexedTarget: 						is RX
+IPRelativeIndexedTarget: is RX
 {
 	target:$(ADDRSIZE) = inst_start + (RX<<3) + 8;
 	branchIndDest = target;
@@ -1412,7 +1407,7 @@ IPRelativeIndexedTarget: 						is RX
 }
 
 # vectored (base register plus index register) branch
-IndexedTarget:									is RX & RB
+IndexedTarget: is RX & RB
 	{
 		target:$(ADDRSIZE) = (RX<<3) + RB;
 		branchIndDest = target;
@@ -1420,7 +1415,7 @@ IndexedTarget:									is RX & RB
 	}
 
 # vectored (base register plus index register -- but index register is r0 so skip it since this is a return) branch
-ReturnTarget:									is RB
+ReturnTarget: is RB
 	{
 		branchIndDest = RB;
 		export RB;
@@ -1467,15 +1462,8 @@ lse21: off				is im21less0 & bit0 & im21_1_12 & im21_12_14 & im21_14_16 & im21_1
 	) << 11;
 ] { temp:$(REGSIZE) = off; export temp; }
 
-# Note for the im11 11-bit immediate, the sign is in bit 0, and the rest of the value is in bit 1 to 10.
-# Negative numbers are stored 2s complement, with bit0 set to 1.
-#
-# Need to set temp32 to lse11 since the value of lse11 does not propogate so well to uplevel tables, maybe a compiler bug
-#
-#lse11: immed				is im11 & bit0
 lse11: immed				is im11less0 & bit0
 	[ immed	= ((-1*bit0) << 10) | im11less0; temp32L = immed; ]
-#	[ immed = (bit0 * 0xFFFFFFFFFFFFFC00) | ( (im11 >> 1) & 0x3FF ); temp32L = immed; ]
 	{ temp:$(ADDRSIZE) = immed; export temp; }
 
 lse10a: immed				is im10a & bit0
@@ -1537,7 +1525,6 @@ ExtrCondNullify:	is ExtrCond [ nullifyEnable = 1; globalset(inst_next, nullifyEn
 	nullifyNextCond = ExtrCond;
 }
 
-
 # a subset of the SED conditions used for bit tests
 BVBCond:				is c=2 & R1 { tmp:1 = ((R1 >> (31-sar)) & 0x1) == 1 ; export tmp; } # target bit is one
 BVBCond:				is c=6 & R1 { tmp:1 = ((R1 >> (31-sar)) & 0x1) == 0 ; export tmp; } # target bit is zero
@@ -1548,7 +1535,6 @@ BBCond:					is c=2 & R1 & bboffset { tmp:1 = ((R1 >> (31-bboffset)) & 0x1) == 1 
 BBCond:					is c=6 & R1 & bboffset { tmp:1 = ((R1 >> (31-bboffset)) & 0x1) == 0 ; export tmp; } # target bit is zero
 BBCond:					is c=3 & R1 & bboffset { tmp:1 = ((R1 >> (63-bboffset)) & 0x1) == 1 ; export tmp; } # target bit is one
 BBCond:					is c=7 & R1 & bboffset { tmp:1 = ((R1 >> (63-bboffset)) & 0x1) == 0 ; export tmp; } # target bit is zero
-
 
 #
 # unit conditions for checking byte ranges within a word
