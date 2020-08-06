@@ -490,7 +490,7 @@ with : phase=1 {
 }
 
 # 64 bit versions
-:cmpib^RegCSCondSymW^nullifyForBranch highlse5,R2,branchTarget2W	is opfam=0x3b & highlse5 & R2 & nullifyForBranch & branchTarget2W & RegCSCondSymW & RegCSCondIW & n=0 & $(COMMON)
+:cmpib^CMPIBCondSym^nullifyForBranch highlse5,R2,branchTarget2W	is opfam=0x3b & highlse5 & R2 & nullifyForBranch & branchTarget2W & CMPIBCondSym & CMPIBCond & n=0 & $(COMMON)
  	[ branchEnable = 1;
 	  globalset(inst_next, branchEnable);
 	  branchType = 2; # conditional imm branch
@@ -499,11 +499,11 @@ with : phase=1 {
 	  globalset(inst_next, branchCouldBeNullified);
 	]
 {
-	branchCond = RegCSCondIW;
+	branchCond = CMPIBCond;
 	branchExecuted = 1;
 }
 
-:cmpib^RegCSCondSymW^nullifyForBranch highlse5,R2,branchTarget2W	is opfam=0x3b & highlse5 & R2 & nullifyForBranch & branchTarget2W & displacement2W & RegCSCondSymW & RegCSCondIW & n=1 & $(COMMON)
+:cmpib^CMPIBCondSym^nullifyForBranch highlse5,R2,branchTarget2W	is opfam=0x3b & highlse5 & R2 & nullifyForBranch & branchTarget2W & displacement2W & CMPIBCondSym & CMPIBCond & n=1 & $(COMMON)
  	[ branchEnable = 1;
 	  globalset(inst_next, branchEnable);
 	  branchType = 2; # conditional imm branch
@@ -512,7 +512,7 @@ with : phase=1 {
 	  globalset(inst_next, branchCouldBeNullified);
 	]
 {
-	branchCond = RegCSCondIW;
+	branchCond = CMPIBCond;
 	branchExecuted = 1;
 	nullifyNextCond = ( ! branchCond && (displacement2W s< 0)) || ( branchCond && (displacement2W s>= 0) );
 }
@@ -586,6 +586,51 @@ with : phase=1 {
 	return [branchIndDest];
 }
 
+# vectored (offset register plus index register) unconditional indirect branch
+:bve^nullifySymForBranch (RB)								is opfam=0x3A & c=0x6 & bit12=1 & RB & nullifySymForBranch & RX & bit0=0 & n=1 & $(COMMON)
+{
+	goto [branchIndDest];
+}
+
+
+# vectored (offset register plus index register) unconditional indirect branch
+:bve^nullifyForBranch (RB)									is opfam=0x3A & c=0x6 & bit12=1 & RB & nullifyForBranch & RX & bit0=0 & n=0 & $(COMMON)
+	[
+	  branchEnable = 1;
+	  globalset(inst_next, branchEnable);
+	  branchType = 4; # unconditional indirect branch
+	  globalset(inst_next, branchType);
+	  branchCouldBeNullified = nullifyEnable;
+	  globalset(inst_next, branchCouldBeNullified);
+	]
+{
+	branchExecuted = 1;
+}
+
+# vectored (offset register plus index register) unconditional indirect branch
+:bve^",l"^nullifySymForBranch (RB)								is opfam=0x3A & c=0x7 & bit12=1 & RB & nullifySymForBranch & RX & bit0=0 & n=1 & R2dst & $(COMMON)
+{
+	R2dst = inst_start + 8;
+	goto [branchIndDest];
+}
+
+
+# vectored (offset register plus index register) unconditional indirect branch
+:bve^",l"^nullifyForBranch (RB)									is opfam=0x3A & c=0x7 & bit12=1 & RB & nullifyForBranch & RX & bit0=0 & n=0 & R2dst & $(COMMON)
+	[
+	  branchEnable = 1;
+	  globalset(inst_next, branchEnable);
+	  branchType = 4; # unconditional indirect branch
+	  globalset(inst_next, branchType);
+	  branchCouldBeNullified = nullifyEnable;
+	  globalset(inst_next, branchCouldBeNullified);
+	]
+{
+	R2dst = inst_start + 8;
+	branchExecuted = 1;
+}
+
+
 ###########################
 
 #### MOVB
@@ -627,7 +672,7 @@ with : phase=1 {
 
 #### MOVIB
 
-:movib^SEDCondSym^nullifyForBranch im5,R2dst,branchTarget2W		is opfam=0x33 & R2dst & im5 & nullifyForBranch & branchTarget2W & DepCond & SEDCondSym & n=0 & $(COMMON)
+:movib^SEDCondSym^nullifyForBranch highlse5,R2dst,branchTarget2W		is opfam=0x33 & R2dst & highlse5 & nullifyForBranch & branchTarget2W & DepCond & SEDCondSym & n=0 & $(COMMON)
  	[ branchEnable = 1;
 	  globalset(inst_next, branchEnable);
 	  branchType = 2; # conditional imm branch
@@ -636,14 +681,14 @@ with : phase=1 {
 	  globalset(inst_next, branchCouldBeNullified);
 	]
 {
-	R2dst = sext(im5:1);
-	nullifyCondResult = sext(im5:1);
+	R2dst = sext(highlse5:1);
+	nullifyCondResult = sext(highlse5:1);
 	build DepCond; # force the condition evaluation after the move
 	branchExecuted = 1;
 	branchCond = DepCond;
 }
 
-:movib^SEDCondSym^nullifyForBranch im5,R2dst,branchTarget2W		is opfam=0x33 & R2dst & im5 & nullifyForBranch & branchTarget2W & displacement2W & DepCond & SEDCondSym & n=1 & $(COMMON)
+:movib^SEDCondSym^nullifyForBranch highlse5,R2dst,branchTarget2W		is opfam=0x33 & R2dst & highlse5 & nullifyForBranch & branchTarget2W & displacement2W & DepCond & SEDCondSym & n=1 & $(COMMON)
  	[ branchEnable = 1;
 	  globalset(inst_next, branchEnable);
 	  branchType = 2; # conditional imm branch
@@ -652,8 +697,8 @@ with : phase=1 {
 	  globalset(inst_next, branchCouldBeNullified);
 	]
 {
-	R2dst = sext(im5:1);
-	nullifyCondResult = sext(im5:1);
+	R2dst = sext(highlse5:1);
+	nullifyCondResult = sext(highlse5:1);
 	build DepCond; # force the condition evaluation after the move
 	branchCond = DepCond;
 	branchExecuted = 1;
@@ -916,7 +961,6 @@ define pcodeop getCurrentSpace;
 	goto [branchTarget3W];
 }
 
-
 #######################################
 #######################################
 # General Arithmetic/Logic Instructions
@@ -974,71 +1018,21 @@ define pcodeop trap;
 	build AddCondNullify;
 }
 
-:sh1add^AddCondSym R1,R2,RT	is opfam=0x02 & op=0x19 & R1 & R2 & RT & AddCond & AddCondSym & AddCondNullify {
-	local shiftedR1 = R1 << 1;
+:shladd^AddCondSym R1,sa,R2,RT	is opfam=0x02 & shlop=6 & R1 & R2 & RT & AddCond & AddCondSym & AddCondNullify & sa {
+	local shiftedR1 = R1 << sa;
 	pswCB = carry(shiftedR1,R2);
 	RT = shiftedR1 + R2;
 	build AddCondNullify;
 }
 
-:sh1addl^AddCondSym R1,R2,RT	is opfam=0x02 & op=0x29 & R1 & R2 & RT & AddCondNullify & AddCondSym {
-	local shiftedR1 = R1 << 1;
+:shladd^",l"^AddCondSym R1,sa,R2,RT	is opfam=0x02 & shlop=0x0a & R1 & R2 & RT & AddCondNullify & AddCondSym & sa {
+	local shiftedR1 = R1 << sa;
 	RT = shiftedR1 + R2;
 	build AddCondNullify;
 }
 
-:sh1addo^SEDCondSym R1,R2,RT	is opfam=0x02 & op=0x39 & R1 & R2 & RT & AddCondNullify & SEDCondSym {
-	local shiftedR1 = R1 << 1;
-	if (scarry(shiftedR1, R2)) goto <TRAP>;
-	pswCB = carry(shiftedR1,R2);
-	RT = shiftedR1 + R2;
-	goto <DONE>;
-	<TRAP>
-	trap();
-	<DONE>
-	build AddCondNullify;
-}
-
-:sh2add^SEDCondSym R1,R2,RT	is opfam=0x02 & op=0x1A & R1 & R2 & RT & AddCondNullify & SEDCondSym {
-	local shiftedR1 = R1 << 2;
-	pswCB = carry(shiftedR1,R2);
-	RT = shiftedR1 + R2;
-	build AddCondNullify;
-}
-
-:sh2addl^AddCondSym R1,R2,RT	is opfam=0x02 & op=0x2A & R1 & R2 & RT & AddCondNullify & AddCondSym {
-	local shiftedR1 = R1 << 2;
-	RT = shiftedR1 + R2;
-	build AddCondNullify;
-}
-
-:sh2addo^AddCondSym R1,R2,RT	is opfam=0x02 & op=0x3A & R1 & R2 & RT & AddCondNullify & AddCondSym {
-	local shiftedR1 = R1 << 2;
-	if (scarry(shiftedR1, R2)) goto <TRAP>;
-	pswCB = carry(shiftedR1,R2);
-	RT = shiftedR1 + R2;
-	goto <DONE>;
-	<TRAP>
-	trap();
-	<DONE>
-	build AddCondNullify;
-}
-
-:sh3add^AddCondSym R1,R2,RT	is opfam=0x02 & op=0x1B & R1 & R2 & RT & AddCondNullify & AddCondSym {
-	local shiftedR1 = R1 << 3;
-	pswCB = carry(shiftedR1,R2);
-	RT = shiftedR1 + R2;
-	build AddCondNullify;
-}
-
-:sh3addl^AddCondSym R1,R2,RT	is opfam=0x02 & op=0x2B & R1 & R2 & RT & AddCondNullify & AddCondSym {
-	local shiftedR1 = R1 << 3;
-	RT = shiftedR1 + R2;
-	build AddCondNullify;
-}
-
-:sh3addo^AddCondSym R1,R2,RT	is opfam=0x02 & op=0x3B & R1 & R2 & RT & AddCondNullify & AddCondSym {
-	local shiftedR1 = R1 << 3;
+:shladd^",tsv"^AddCondSym R1,sa,R2,RT	is opfam=0x02 & shlop=0x0e & R1 & R2 & RT & AddCondNullify & AddCondSym & sa {
+	local shiftedR1 = R1 << sa;
 	if (scarry(shiftedR1, R2)) goto <TRAP>;
 	pswCB = carry(shiftedR1,R2);
 	RT = shiftedR1 + R2;
@@ -1148,45 +1142,45 @@ define pcodeop trap;
 
 
 # COPY is a pseudo-op using OR to move values between registers
-:copy R1,RT				is opfam=0x02 & op=0x09 & m=0 & R1 & reg2=0 & RT & c=0 & fv=0 {
+:copy R1,RT				is opfam=0x02 & op=0x09 & R1 & reg2=0 & RT & c=0 & fv=0 {
 	RT = R1;
  }
  
 # nop is a pseudo-op for OR R0,R0, which is one way to make a nop
 :nop					is opfam=0x02 & op=0x09 & m=0 & reg1=0 & reg2=0 & t=0 & c=0 & fv=0 { } # intentionally left blank
 
-:or^LogicCondSym R1,R2,RT	is opfam=0x02 & op=0x09 & m=0 & R1 & R2 & RT & LogicCondSym & LogicCondNullify {
+:or^LogicCondSym R1,R2,RT	is opfam=0x02 & op=0x09 & R1 & R2 & RT & LogicCondSym & LogicCondNullify {
 	RT = R1 | R2;
 	build LogicCondNullify;
 }
 
-:xor^LogicCondSym R1,R2,RT	is opfam=0x02 & op=0x0A & m=0 & R1 & R2 & RT & LogicCondSym & LogicCondNullify {
+:xor^LogicCondSym R1,R2,RT	is opfam=0x02 & op=0x0A & R1 & R2 & RT & LogicCondSym & LogicCondNullify {
 	RT = R1 ^ R2;
 	build LogicCondNullify;
 }
 
-:and^LogicCondSym R1,R2,RT	is opfam=0x02 & op=0x08 & m=0 & R1 & R2 & RT & LogicCondSym & LogicCondNullify {
+:and^LogicCondSym R1,R2,RT	is opfam=0x02 & op=0x08 & R1 & R2 & RT & LogicCondSym & LogicCondNullify {
 	RT = R1 & R2;
 	build LogicCondNullify;
 }
 
-:andcm^LogicCondSym R1,R2,RT	is opfam=0x02 & op=0x00 & m=0 & R1 & R2 & RT & LogicCondSym & LogicCondNullify {
+:andcm^LogicCondSym R1,R2,RT	is opfam=0x02 & op=0x00 & R1 & R2 & RT & LogicCondSym & LogicCondNullify {
 	RT = R1 & ~R2;
 	build LogicCondNullify;
 }
 
-:uxor^UnitCondSym R1,R2,RT		is opfam=0x02 & op=0x0E & m=0 & R1 & R2 & RT & UnitCondSym & UnitCondNullify {
+:uxor^UnitCondSym R1,R2,RT		is opfam=0x02 & op=0x0E & R1 & R2 & RT & UnitCondSym & UnitCondNullify {
 	RT = R1 ^ R2;
 	build UnitCondNullify;
 }
 
-:uaddcm^UnitCondSym R1,R2,RT	is opfam=0x02 & op=0x26 & m=0 & R1 & R2 & RT & UnitCondSym & UnitCondNullify {
+:uaddcm^UnitCondSym R1,R2,RT	is opfam=0x02 & op=0x26 & R1 & R2 & RT & UnitCondSym & UnitCondNullify {
 	RT = R1 + ~R2;
 	build UnitCondNullify;
 	
 }
 
-:uaddcmt^UnitCondSym R1,R2,RT	is opfam=0x02 & op=0x27 & m=0 & R1 & R2 & RT & UnitCond & UnitCondSym {
+:uaddcmt^UnitCondSym R1,R2,RT	is opfam=0x02 & op=0x27 & R1 & R2 & RT & UnitCond & UnitCondSym {
 	if (UnitCond) goto <TRAP>;
 	RT = R1 + ~R2;
 	goto <DONE>;
@@ -1203,7 +1197,7 @@ define pcodeop trap;
 }
 
 # PA1.1 this is ADDIO, PA2.0 is ADDI,TSV (trap on signed overflow)
-:addi^",TSV"^AddCondSym lse11,R2,R1dst	is opfam=0x2D & bit11=1 & lse11 & R2 & R1dst & AddCondSym & AddCondI11Nullify {
+:addi^",tsv"^AddCondSym lse11,R2,R1dst	is opfam=0x2D & bit11=1 & lse11 & R2 & R1dst & AddCondSym & AddCondI11Nullify {
         tmp:$(REGSIZE) = R2; # Don't clobber the original value, when R1 is the same as R2
 	if (scarry(R2, lse11) == 1:1) goto <TRAP>;
 	R1dst = R2 + lse11;
@@ -1216,7 +1210,7 @@ define pcodeop trap;
 }
 
 # PA11 this is ADDIT, PA2.0 this is ADDI,TC
-:addi^",TC"^AddCondSym lse11,R2,R1dst	is opfam=0x2C & bit11=0 & lse11 & R2 & R1dst & AddCondSym & AddCondI11 {
+:addi^",tc"^AddCondSym lse11,R2,R1dst	is opfam=0x2C & bit11=0 & lse11 & R2 & R1dst & AddCondSym & AddCondI11 {
         tmp:$(REGSIZE) = R2; # Don't clobber the original value, when R1 is the same as R2
 	R1dst = R2 + lse11;
 	build AddCondI11;
@@ -1281,7 +1275,7 @@ define pcodeop trap;
 	build ShiftCondNullify; 
 }
 
-:shrpd^SEDCondSym R1,R2,SAR,RT		is opfam=0x34 & subop1012=0 & bits59=16 & R1 & R2 & RT & ShiftCondNullify & SEDCondSym & SAR {
+:shrpd^SEDCondSymW R1,R2,SAR,RT		is opfam=0x34 & subop1012=0 & bits59=16 & R1 & R2 & RT & ShiftCondNullify & SEDCondSymW & SAR {
 	left:16 = zext( (R1 & 0x7FFFFFFFFFFFFFFF) ) << 64;
 	concat:16 = left | zext(R2);
 	concat = concat >> SAR;
@@ -1303,14 +1297,14 @@ define pcodeop trap;
 }
 
 # previously this was shd, now is shrpw form 14
-:shrpd^SEDCondSym R1,R2,shiftCW,RT	is opfam=0x34 & R2 & R1 & bit10=1 & bit12=0 & shiftCW & RT & SEDCondSym & ShiftCondNullify  {
+:shrpd^SEDCondSymW R1,R2,shiftCW,RT	is opfam=0x34 & R2 & R1 & bit10=1 & bit12=0 & shiftCW & RT & SEDCondSymW & ShiftCondNullify  {
 	left:16 = zext( (R1 & 0x7FFFFFFFFFFFFFFF) ) << 64;
 	concat:16 = left | zext(R2);
 	concat = concat >> shiftCW;
 	nullifyCondResult=concat:8;
 	RT = concat:8;
 	
-	build ShiftCondNullify; 
+	build ShiftCondNullify;
 }
 
 # extract unsigned using SAR
@@ -1320,17 +1314,17 @@ define pcodeop trap;
 	nullifyCondResult = value & mask;
 	R1dst = nullifyCondResult;
 	
-	build ExtrCondNullify; 
+	build ExtrCondNullify;
 }
 
 # extract unsigned using SAR (64 bit version)
-:extrd",u"^SEDCondSym R2,SAR,shiftCLenW8,R1dst	is opfam=0x34 & bits57=0 & subop1012=4 & bit9=1 & R2 & shiftCLenW8 & R1dst & SEDCondSym & ExtrCondNullify & SAR {
+:extrd",u"^SEDCondSymW R2,SAR,shiftCLenW8,R1dst	is opfam=0x34 & bits57=0 & subop1012=4 & bit9=1 & R2 & shiftCLenW8 & R1dst & SEDCondSymW & ExtrCondNullifyW & SAR {
 	local value = R2 >> (63-SAR);
-	mask:$(REGSIZE) = 0xffffffff >> (64 - shiftCLenW8);
+	mask:$(REGSIZE) = 0xffffffffffffffff >> (64 - shiftCLenW8);
 	nullifyCondResult = value & mask;
 	R1dst = nullifyCondResult;
 	
-	build ExtrCondNullify; 
+	build ExtrCondNullifyW;
 }
 
 # extract signed using SAR
@@ -1344,13 +1338,13 @@ define pcodeop trap;
 }
 
 # extract signed using SAR (64 bit version)
-:extrd",s"^SEDCondSym R2,SAR,shiftCLenW8,R1dst	is opfam=0x34 & bits57=0 & subop1012=5 & bit9=1 & R2 & shiftCLenW8 & R1dst & SEDCondSym & ExtrCondNullify & SAR {
+:extrd",s"^SEDCondSymW R2,SAR,shiftCLenW8,R1dst	is opfam=0x34 & bits57=0 & subop1012=5 & bit9=1 & R2 & shiftCLenW8 & R1dst & SEDCondSymW & ExtrCondNullifyW & SAR {
 	local value = R2 s>> (63-SAR);
 	value = value << (64 - shiftCLenW8);
 	value = value s>> (64 - shiftCLenW8);
 	nullifyCondResult = value;
 	R1dst = value;
-	build ExtrCondNullify;
+	build ExtrCondNullifyW;
 }
 
 # extract unsigned using immediate
@@ -1364,13 +1358,13 @@ define pcodeop trap;
 }
 
 # extract unsigned using immediate (64 bit version)
-:extrd^",u"^SEDCondSym R2,cpW,shiftCLenW10,R1dst	is opfam=0x36 & cpW & bit10=0 & R2 & shiftCLenW10 & R1dst & SEDCondSym & ExtrCondNullify & shiftCW {
+:extrd^",u"^SEDCondSymW R2,cpW,shiftCLenW12,R1dst	is opfam=0x36 & cpW & bit10=0 & R2 & shiftCLenW12 & R1dst & SEDCondSymW & ExtrCondNullifyW & shiftCW {
 	local value = R2 >> shiftCW;
-	mask:$(REGSIZE) = 0xffffffffffffffff >> (64-shiftCLenW10);
+	mask:$(REGSIZE) = 0xffffffffffffffff >> (64-shiftCLenW12);
 	nullifyCondResult = value & mask;
 	R1dst = nullifyCondResult;
 
-	build ExtrCondNullify;
+	build ExtrCondNullifyW;
 }
 
 # extract signed using immediate
@@ -1384,13 +1378,13 @@ define pcodeop trap;
 }
 
 # extract signed using immediate (64 bit version)
-:extrd^",s"^SEDCondSym R2,cpW,shiftCLenW10,R1dst	is opfam=0x36 & bit10=1 & cpW & R2 & shiftC & shiftCLenW10 & R1dst & SEDCondSym & ExtrCondNullify & shiftCW {
+:extrd^",s"^SEDCondSym R2,cpW,shiftCLenW12,R1dst	is opfam=0x36 & bit10=1 & cpW & R2 & shiftC & shiftCLenW12 & R1dst & SEDCondSym & ExtrCondNullifyW & shiftCW {
 	local value = R2 s>> shiftCW;
-	value = value << (64 - shiftCLenW10);
-	value = value s>> (64 - shiftCLenW10);
+	value = value << (64 - shiftCLenW12);
+	value = value s>> (64 - shiftCLenW12);
 	nullifyCondResult = value;
 	R1dst = value;
-	build ExtrCondNullify;
+	build ExtrCondNullifyW;
 }
 
 # non-zeroing SAR version (VDEP)
@@ -1408,7 +1402,7 @@ define pcodeop trap;
 }
 
 # non-zeroing SAR version (VDEP) (64 bit)
-:depd^SEDCondSym R1,SAR,shiftCLenW8,R2dst is opfam=0x35 & bits57=0 & bit9=1 & subop1012=1 & R1 & R2 & R2dst & shiftCLenW8 & DepCondNullify & SEDCondSym & SAR {
+:depd^SEDCondSym R1,SAR,shiftCLenW8,R2dst is opfam=0x35 & bits57=0 & bit9=1 & subop1012=1 & R1 & R2 & R2dst & shiftCLenW8 & DepCondNullifyW & SEDCondSym & SAR {
         mask:$(REGSIZE) = 0xffffffff >> (64-shiftCLenW8);
         local value = R1 & mask;
         value = value << (63-SAR);
@@ -1418,7 +1412,7 @@ define pcodeop trap;
         R2dst = result;
         nullifyCondResult = result;
         
-        build DepCondNullify;
+        build DepCondNullifyW;
 }
 
 # non-zeroing constant version (DEP)
@@ -1435,8 +1429,8 @@ define pcodeop trap;
 }
 
 # non-zeroing constant version (DEP) (64 bit)
-:depd^SEDCondSym R1,shiftCW,shiftCLenW10,R2dst is opfam=0x3c & bit8=1 & shiftCW & shiftCLenW10 & R1 & R2 & R2dst & DepCondNullify & SEDCondSym & cpW {
-        mask:$(REGSIZE) = 0xffffffffffffffff >> (64-shiftCLenW10);
+:depd^SEDCondSymW R1,shiftCW,shiftCLenW12,R2dst is opfam=0x3c & bit8=1 & shiftCW & shiftCLenW12 & R1 & R2 & R2dst & DepCondNullifyW & SEDCondSymW & cpW {
+        mask:$(REGSIZE) = 0xffffffffffffffff >> (64-shiftCLenW12);
         local value = R1 & mask;
         value = value << cpW;
         mask = mask << cpW;
@@ -1444,7 +1438,7 @@ define pcodeop trap;
         result = result | value;
         R2dst = result;
         nullifyCondResult = result;
-        build DepCondNullify;
+        build DepCondNullifyW;
 }
 
 # non-zeroing immediate SAR version (VDEPI)
@@ -1463,7 +1457,7 @@ define pcodeop trap;
 }
 
 # non-zeroing immediate SAR version (VDEPI) (64 bit)
-:depdi^SEDCondSym highlse5,SAR,shiftCLenW8,R2dst is opfam=0x35 & bits57=0 & bit9=1 & subop1012=5 & shiftCLenW8 & highlse5 & R2 & R2dst & DepCondNullify & SEDCondSym & SAR {
+:depdi^SEDCondSymW highlse5,SAR,shiftCLenW8,R2dst is opfam=0x35 & bits57=0 & bit9=1 & subop1012=5 & shiftCLenW8 & highlse5 & R2 & R2dst & DepCondNullifyW & SEDCondSymW & SAR {
         mask:$(REGSIZE) = 0xffffffffffffffff >> (64 - shiftCLenW8);
         depbits:$(REGSIZE) = sext(highlse5);
         depbits = sext(depbits); 
@@ -1474,7 +1468,7 @@ define pcodeop trap;
         result = result | value;
         R2dst = result;
         nullifyCondResult = result;
-        build DepCondNullify;
+        build DepCondNullifyW;
 }
 
 # non-zeroing immediate constant version (DEPI)
@@ -1492,8 +1486,8 @@ define pcodeop trap;
 }
 
 # non-zeroing immediate constant version (DEPI) (64 bit)
-:depdi^SEDCondSym highlse5,shiftCW,shiftCLenW10,R2dst  is opfam=0x3d & shiftCW & highlse5 & R2 & R2dst & shiftCLenW10 & DepCondNullify & SEDCondSym & cpW {
-        mask:$(REGSIZE) = 0xffffffffffffffff >> (64-shiftCLenW10);
+:depdi^SEDCondSymW highlse5,shiftCW,shiftCLenW12,R2dst  is opfam=0x3d & shiftCW & bit10=1 & highlse5 & R2 & R2dst & shiftCLenW12 & DepCondNullifyW & SEDCondSymW & cpW {
+        mask:$(REGSIZE) = 0xffffffffffffffff >> (64-shiftCLenW12);
         depbits:$(REGSIZE) = sext(highlse5);
         local value = depbits & mask;
         value = value << cpW;
@@ -1502,7 +1496,7 @@ define pcodeop trap;
         result = result | value;
         R2dst = result;
         nullifyCondResult = result;
-        build DepCondNullify;
+        build DepCondNullifyW;
 }
 
 # DEPW,Z SAR version (ZVDEP)
@@ -1516,13 +1510,13 @@ define pcodeop trap;
 }
 
 # DEPD,Z SAR version (ZVDEP) (64 bit)
-:depd",z"^SEDCondSym R1,SAR,shiftCLenW8,R2dst        is opfam=0x35 & bits57=0 & bit9=1 & subop1012=0 & R1 & shiftCLenW8 & R2 & R2dst & DepCondNullify & SEDCondSym & SAR {
+:depd",z"^SEDCondSym R1,SAR,shiftCLenW8,R2dst        is opfam=0x35 & bits57=0 & bit9=1 & subop1012=0 & R1 & shiftCLenW8 & R2 & R2dst & DepCondNullifyW & SEDCondSym & SAR {
         mask:$(REGSIZE) = 0xffffffff >> (64-shiftCLenW8);
         local value = R1 & mask;
         value = value << (63-SAR);
         R2dst = value;
         nullifyCondResult = value;
-        build DepCondNullify;
+        build DepCondNullifyW;
 }
 
 # DEPW,Z constant version (ZDEP)
@@ -1536,13 +1530,13 @@ define pcodeop trap;
 }
 
 # DEPD,Z constant version (ZDEP) (64 bit)
-:depd^",z"^SEDCondSym R1,shiftCW,shiftCLenW10,R2dst    is opfam=0x3c & bit8=0 & shiftCW & R2 & R2dst & shiftCLenW10 & R1 & DepCondNullify & SEDCondSym & cpW {
-        mask:$(REGSIZE) = 0xffffffffffffffff >> (64-shiftCLenW10);
+:depd^",z"^SEDCondSymW R1,shiftCW,shiftCLenW12,R2dst    is opfam=0x3c & bit8=0 & shiftCW & R2 & R2dst & shiftCLenW12 & R1 & DepCondNullifyW & SEDCondSymW & cpW {
+        mask:$(REGSIZE) = 0xffffffffffffffff >> (64-shiftCLenW12);
         local value = R1 & mask;
         value = value << cpW;
         R2dst = value;
         nullifyCondResult = value;
-        build DepCondNullify;
+        build DepCondNullifyW;
 }
 
 # DEPWI,Z SAR version (ZVDEPI)
@@ -1557,14 +1551,14 @@ define pcodeop trap;
 }
 
 # DEPDI,Z SAR version (ZVDEPI) (64 bit)
-:depdi",z"^SEDCondSym highlse5,SAR,shiftCLenW8,R2dst is opfam=0x35 & SAR & bits57=0 & bit9=1 & subop1012=4 & shiftCLenW8 & highlse5 & R2dst & DepCondNullify & SEDCondSym {
+:depdi",z"^SEDCondSymW highlse5,SAR,shiftCLenW8,R2dst is opfam=0x35 & SAR & bits57=0 & bit9=1 & subop1012=4 & shiftCLenW8 & highlse5 & R2dst & DepCondNullifyW & SEDCondSymW {
         mask:$(REGSIZE) = 0xffffffffffffffff >> (64-shiftCLenW8);
         depbits:$(REGSIZE) = sext(highlse5);
         local value = depbits & mask;
         value = value << (63-SAR);
         R2dst = value;
         nullifyCondResult = value;
-        build DepCondNullify;
+        build DepCondNullifyW;
 }
 
 # DEPWI,Z constant version (ZDEPI)
@@ -1580,15 +1574,15 @@ define pcodeop trap;
 }
 
 # DEPDI,Z constant version (ZDEPI) (64 bit)
-:depdi",z"^SEDCondSym highlse5,shiftCW,shiftCLenW10,R2dst is opfam=0x3d & bit8=0 & shiftCW & highlse5 & R2dst & shiftCLenW10 & DepCondNullify & SEDCondSym & cpW {
-        mask:$(REGSIZE) = 0xffffffffffffffff >> (64-shiftCLenW10);
+:depdi",z"^SEDCondSymW highlse5,shiftCW,shiftCLenW12,R2dst is opfam=0x3d & bit10=0 & shiftCW & highlse5 & R2dst & shiftCLenW12 & DepCondNullifyW & SEDCondSymW & cpW {
+        mask:$(REGSIZE) = 0xffffffffffffffff >> (64-shiftCLenW12);
         depbits:$(REGSIZE) = sext(highlse5);
         local value = depbits & mask;
         value = value << cpW;
         nullifyCondResult = value;
         R2dst = value;
 
-        build DepCondNullify;
+        build DepCondNullifyW;
 }
 
 # BCD instructions
@@ -1746,7 +1740,7 @@ define pcodeop purgeCache;
 
 :fdc^indexedWordAccessCmplt RX^SRRB			is opfam=0x1 & sysopshifted=0x4A & indexedWordAccessCmplt & RX & SRRB & SPCBASE & m=0 { purgeCache(SPCBASE, RX); }
 :fdc^indexedWordAccessCmplt RX^SRRB			is opfam=0x1 & sysopshifted=0x4A & indexedWordAccessCmplt & RX & SRRB & SPCBASE & RB & m=1 { purgeCache(SPCBASE, RX); RB = RB + RX; }
-
+:fdc highlse5^RX^SRRB is opfam=0x1 & sysopshifted=0xCA & highlse5 & m=0 & im5=0 & RX & SRRB & SPCBASE { purgeCache(SPCBASE, RX); }
 :fic^indexedWordAccessCmplt RX(SR3bit,RB)		is opfam=0x1 & sysopshiftedshort=0x0A & indexedWordAccessCmplt & RX & SR3bit & RB & m=0 { purgeCache(SR3bit, RB, RX); }
 :fic^indexedWordAccessCmplt RX(SR3bit,RB)		is opfam=0x1 & sysopshiftedshort=0x0A & indexedWordAccessCmplt & RX & SR3bit & RB & m=1 { purgeCache(SR3bit, RB, RX); RB = RB + RX;}
 

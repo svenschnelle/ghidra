@@ -188,8 +188,12 @@ define token instr(32)
     SEDCondSymW		= (13,15)
     RegUnitCondSym	= (13,15)
     InvUnitCondSym	= (13,15)
+    RegUnitCondSymW	= (13,15)
+    InvUnitCondSymW	= (13,15)
     RegLogicCondSym 	= (13,15)
     InvLogicCondSym 	= (13,15)
+    RegLogicCondSymW	= (13,15)
+    InvLogicCondSymW	= (13,15)
     RegAddCondSym	= (13,15)
     RegAddCondSymW	= (13,15)
     InvAddCondSym	= (13,15)
@@ -198,6 +202,7 @@ define token instr(32)
     RegCSCondSymW = (13,15)
     InvCSCondSym = (13,15)
     InvCSCondSymW = (13,15)
+    CMPIBCondSym = (13,15)
     c           = (13,15)
     fpsub		= (13,15)
     srbit2		= (13,13)
@@ -213,6 +218,7 @@ define token instr(32)
     zero		= (12,12)
     one			= (12,12)
     bit12		= (12,12)
+    cl12		= (12,12) dec
     subop1012		= (10,12)
     im15		= (11,25)
     sopim10		= (11,20) signed
@@ -224,21 +230,21 @@ define token instr(32)
     fpfmt		= (11,12)
     fpfmt1bit		= (11,11)
     bit11		= (11,11)
+    p			= (11,11) dec
     cc			= (10,11)
     ldcc		= (10,11)
     stcc		= (10,11)
     ldcwcc		= (10,11)
     bit10		= (10,10)
-    cl10		= (10,10)
     sopim17		= (9,25)
     pmuop		= (9,13)
     specop		= (9,10)
     fpclass		= (9,10)
     bit9		= (9,9)
-    p			= (9,9)
     bit8		= (8,8)
     fpx			= (8,8)
-    cl8			= (8,8)
+    cl8			= (8,8) dec
+    shlop		= (8,11)
     bits78		= (7,8)
     fpr2x		= (7,7)
     fpra		= (6,10)
@@ -253,10 +259,11 @@ define token instr(32)
     fp0czero		= (6,8)
     fptx		= (6,6)
     bit6		= (6,6)
+    sa			= (6,7)
     sysop		= (5,12)
     i2			= (5,11)
     bits59		= (5,9)
-    cp			= (5,9)
+    cp			= (5,9) dec
     bits57		= (5,7)
     fusedfmt		= (5,5)
     bit5		= (5,5)
@@ -283,7 +290,7 @@ define token instr(32)
     im11		= (0,10) signed
     im11less0		= (1,11)
     sim5		= (0,4) signed
-    im5			= (0,4)
+    im5			= (0,4) dec
     im5less0		= (1,4)
     fpcond		= (0,4)
     fptest		= (0,4)
@@ -368,23 +375,39 @@ attach names [ SEDCondSym ] [
 ];
 
 attach names [ SEDCondSymW ] [
-	"" ",*=" ",*&lt;" ",*od" ",*tr" ",*&lt;&gt;" ",*&gt;=" ",*ev"
+	",*" ",*=" ",*&lt;" ",*od" ",*tr" ",*&lt;&gt;" ",*&gt;=" ",*ev"
 ];
 
 attach names [ RegUnitCondSym ] [
 	"" _ ",sbz" ",shz" ",sdc" _ ",sbc" ",shc"
 ];
 
+attach names [ RegUnitCondSymW ] [
+	",*" _ ",*sbz" ",*shz" ",*sdc" _ ",*sbc" ",*shc"
+];
+
 attach names [ InvUnitCondSym ] [
 	"" _ ",nbz" ",nhz" ",ndc" _ ",nbc" ",nhc"
+];
+
+attach names [ InvUnitCondSymW ] [
+	",*" _ ",*nbz" ",*nhz" ",*ndc" _ ",*nbc" ",*nhc"
 ];
 
 attach names [ RegLogicCondSym ] [
 	"" ",=" ",&lt;" ",&lt;=" _ _ _ ",od"
 ];
 
+attach names [ RegLogicCondSymW ] [
+	",*" ",*=" ",*&lt;" ",*&lt;=" _ _ _ ",*od"
+];
+
 attach names [ InvLogicCondSym ] [
 	"" ",&lt;&gt;" ",&gt;=" ",&gt;" _ _ _ ",ev"
+];
+
+attach names [ InvLogicCondSymW ] [
+	",*" ",*&lt;&gt;" ",*&gt;=" ",*&gt;" _ _ _ ",*ev"
 ];
 
 # Table 5-4
@@ -393,7 +416,7 @@ attach names [ RegAddCondSym ] [
 ];
 
 attach names [ RegAddCondSymW ] [
-	"" ",*=" ",*&lt;" ",*&lt;=" ",*nuv" ",*znv" ",*sv" ",*od"
+	",*" ",*=" ",*&lt;" ",*&lt;=" ",*nuv" ",*znv" ",*sv" ",*od"
 ];
 
 attach names [ InvAddCondSym ] [
@@ -401,7 +424,7 @@ attach names [ InvAddCondSym ] [
 ];
 
 attach names [ InvAddCondSymW ] [
-	"" ",*&lt;&gt;" ",*&gt;=" ",*&gt;" ",*uv" ",*vnz" ",*nsv" ",*ev"
+	",*tr" ",*&lt;&gt;" ",*&gt;=" ",*&gt;" ",*uv" ",*vnz" ",*nsv" ",*ev"
 ];
 
 attach names [ RegCSCondSym ] [
@@ -409,7 +432,7 @@ attach names [ RegCSCondSym ] [
 ];
 
 attach names [ RegCSCondSymW ] [
-	"" ",*=" ",*&lt;" ",*&lt;=" ",*&lt;&lt;" ",*&lt;&lt;=" ",*sv" ",*od"
+	",*" ",*=" ",*&lt;" ",*&lt;=" ",*&lt;&lt;" ",*&lt;&lt;=" ",*sv" ",*od"
 ];
 
 attach names [ InvCSCondSym ] [
@@ -417,7 +440,11 @@ attach names [ InvCSCondSym ] [
 ];
 
 attach names [ InvCSCondSymW ] [
-	"" ",*&lt;&gt;" ",*&gt;=" ",*&gt;" ",*&gt;&gt;=" ",*&gt;&gt;" ",*nsv" ",*ev"
+	",*" ",*&lt;&gt;" ",*&gt;=" ",*&gt;" ",*&gt;&gt;=" ",*&gt;&gt;" ",*nsv" ",*ev"
+];
+
+attach names [ CMPIBCondSym ] [
+	",*&lt;&lt;" ",*=" ",*&lt;" ",*&lt;=" ",*&gt;&gt;=" ",*&lt;&gt;" ",*&gt;=" ",*&gt;"
 ];
 
 # the different tests used by the FTEST instruction
@@ -483,7 +510,7 @@ attach names [ fusedfmt ] [
 # Need to reset branchCond = 0 before build instruction because the insruction does not reset it,
 # and if branchcond is not reset, then it persists to subsequent instructions.
 
-immediateDest: is branchImmDestH & branchImmDestL { tmp:8 = (branchImmDestH << 32) | branchImmDestL; export *:$(ADDRSIZE) tmp; }
+immediateDest: tmp is branchImmDestH & branchImmDestL [ tmp = (branchImmDestH << 32) | branchImmDestL; ] { export *:$(ADDRSIZE) tmp; }
 
 # previous instruction was a branch, but th is instruction was not nullified
 # but branch instruction could have been nullified
@@ -781,9 +808,9 @@ immediateDest: is branchImmDestH & branchImmDestL { tmp:8 = (branchImmDestH << 3
 	local previousBranchCond = branchCond;
         branchCond = 0;
 	if (nullify) goto <skip>;
+	if (previousBranchCond && previousBranchExecuted) goto immediateDest;
 	build instruction;
 	<skip>
-	if (previousBranchCond && previousBranchExecuted) goto immediateDest;
 	nullifyCond=nullifyNextCond;
 }
 
@@ -1438,7 +1465,7 @@ shiftCLen: shift is im5 [ shift=32-im5; ] { amount:4 = shift; export amount; }
 shiftCW: shift is p & cp [ shift = 63 - ((p << 5) | cp); ] { amount:4 = shift; export amount; }
 cpW: shift is p & cp [ shift = (p << 5) | cp; ] { amount:4 = shift; export amount; }
 shiftCLenW8: shift is cl8 & im5 [ shift = (cl8 << 5) | (32 - im5); ] { amount:4 = shift; export amount; }
-shiftCLenW10: shift is cl10 & im5 [ shift = (cl10 << 5) | (32 - im5); ] { amount:4 = shift; export amount; }
+shiftCLenW12: shift is cl12 & im5 [ shift = (32 * cl12) + (32 - im5); ] { amount:4 = shift; export amount; }
 
 #lse14: offset is sim14 & bit0 [ offset = (-1 * bit0) * ( (sim14 >> 1) & 0x1FFF ); ] { temp:4 = offset; export temp; }
 #lse14: offset is sim14 & bit0 [ offset = (-1 * 0x2000 * bit0) | ( (sim14 >> 1) & 0x1FFF ); ] { temp:4 = sext(offset:4); export temp; }
@@ -1495,13 +1522,23 @@ ShiftCondNullify: is ShiftCond [ nullifyEnable = 1; globalset(inst_next, nullify
 
 # deposit conditions. There are no inverted forms of these conditions.
 DepCond: is c=0 { export 0:1; } # never 
-DepCond: is c=1 { tmp:1 = (nullifyCondResult == 0) ; export tmp; } # equal 
-DepCond: is c=2 { tmp:1 = (nullifyCondResult s< 0) ; export tmp; } # leftmost bit is one (< 0)
-DepCond: is c=3 { tmp:1 = ((nullifyCondResult & 0x1) == 1) ; export tmp; } # rightmost bit is 1 (odd)
+DepCond: is c=1 { tmp:1 = (nullifyCondResult:4 == 0) ; export tmp; } # equal 
+DepCond: is c=2 { tmp:1 = (nullifyCondResult:4 s< 0) ; export tmp; } # leftmost bit is one (< 0)
+DepCond: is c=3 { tmp:1 = ((nullifyCondResult:4 & 0x1) == 1) ; export tmp; } # rightmost bit is 1 (odd)
 DepCond: is c=4 { export 1:1; } # always
-DepCond: is c=5 { tmp:1 = (nullifyCondResult != 0) ; export tmp; } # some bits are one
-DepCond: is c=6 { tmp:1 = (nullifyCondResult s>= 0) ; export tmp; } # leftmost bit is zero (>=)
-DepCond: is c=7 { tmp:1 = ((nullifyCondResult & 0x1) == 0) ; export tmp; } # rightmost bit is zero (even)
+DepCond: is c=5 { tmp:1 = (nullifyCondResult:4 != 0) ; export tmp; } # some bits are one
+DepCond: is c=6 { tmp:1 = (nullifyCondResult:4 s>= 0) ; export tmp; } # leftmost bit is zero (>=)
+DepCond: is c=7 { tmp:1 = ((nullifyCondResult:4 & 0x1) == 0) ; export tmp; } # rightmost bit is zero (even)
+
+DepCondW: is c=0 { export 0:1; } # never 
+DepCondW: is c=1 { tmp:1 = (nullifyCondResult == 0) ; export tmp; } # equal 
+DepCondW: is c=2 { tmp:1 = (nullifyCondResult s< 0) ; export tmp; } # leftmost bit is one (< 0)
+DepCondW: is c=3 { tmp:1 = ((nullifyCondResult & 0x1) == 1) ; export tmp; } # rightmost bit is 1 (odd)
+DepCondW: is c=4 { export 1:1; } # always
+DepCondW: is c=5 { tmp:1 = (nullifyCondResult != 0) ; export tmp; } # some bits are one
+DepCondW: is c=6 { tmp:1 = (nullifyCondResult s>= 0) ; export tmp; } # leftmost bit is zero (>=)
+DepCondW: is c=7 { tmp:1 = ((nullifyCondResult & 0x1) == 0) ; export tmp; } # rightmost bit is zero (even)
+
 
 DepCondNullify: is c=0 { }
 DepCondNullify: is DepCond [nullifyEnable = 1; globalset(inst_next, nullifyEnable); ]
@@ -1509,21 +1546,45 @@ DepCondNullify: is DepCond [nullifyEnable = 1; globalset(inst_next, nullifyEnabl
 	nullifyNextCond = DepCond;
 }
 
+DepCondNullifyW: is c=0 { }
+DepCondNullifyW: is DepCondW [nullifyEnable = 1; globalset(inst_next, nullifyEnable); ]
+{
+	nullifyNextCond = DepCondW;
+}
+
+
 # extract conditions. The extract ops target R1, not R2 like deposit does
 ExtrCond: is c=0 { export 0:1; } # never 
-ExtrCond: is c=1 { tmp:1 = (nullifyCondResult == 0) ; export tmp; } # equal 
-ExtrCond: is c=2 { tmp:1 = ((nullifyCondResult & (1:$(REGSIZE) << $(REGSIZE)-1)) != 0) ; export tmp; } # leftmost bit is one
-ExtrCond: is c=3 { tmp:1 = ((nullifyCondResult & 0x1) != 0) ; export tmp; } # rightmost bit is 1 (odd)
+ExtrCond: is c=1 { tmp:1 = (nullifyCondResult:4 == 0) ; export tmp; } # equal 
+ExtrCond: is c=2 { tmp:1 = ((nullifyCondResult:4 & 0x80000000) != 0) ; export tmp; } # leftmost bit is one
+ExtrCond: is c=3 { tmp:1 = ((nullifyCondResult:4 & 0x1) != 0) ; export tmp; } # rightmost bit is 1 (odd)
 ExtrCond: is c=4 { export 1:1; } # always
-ExtrCond: is c=5 { tmp:1 = (nullifyCondResult != 0) ; export tmp; } # some bits are one
-ExtrCond: is c=6 { tmp:1 = ((nullifyCondResult & (1:$(REGSIZE) << $(REGSIZE)-1)) == 0) ; export tmp; } # leftmost bit is zero
-ExtrCond: is c=7 { tmp:1 = ((nullifyCondResult & 0x1) == 0) ; export tmp; } # rightmost bit is zero (even)
+ExtrCond: is c=5 { tmp:1 = (nullifyCondResult:4 != 0) ; export tmp; } # some bits are one
+ExtrCond: is c=6 { tmp:1 = ((nullifyCondResult:4 & 0x80000000) == 0) ; export tmp; } # leftmost bit is zero
+ExtrCond: is c=7 { tmp:1 = ((nullifyCondResult:4 & 0x1) == 0) ; export tmp; } # rightmost bit is zero (even)
+
+ExtrCondW: is c=0 { export 0:1; } # never 
+ExtrCondW: is c=1 { tmp:1 = (nullifyCondResult == 0) ; export tmp; } # equal 
+ExtrCondW: is c=2 { tmp:1 = ((nullifyCondResult & (1 << 63)) != 0) ; export tmp; } # leftmost bit is one
+ExtrCondW: is c=3 { tmp:1 = ((nullifyCondResult & 0x1) != 0) ; export tmp; } # rightmost bit is 1 (odd)
+ExtrCondW: is c=4 { export 1:1; } # always
+ExtrCondW: is c=5 { tmp:1 = (nullifyCondResult != 0) ; export tmp; } # some bits are one
+ExtrCondW: is c=6 { tmp:1 = ((nullifyCondResult & (1 << 63)) == 0) ; export tmp; } # leftmost bit is zero
+ExtrCondW: is c=7 { tmp:1 = ((nullifyCondResult & 0x1) == 0) ; export tmp; } # rightmost bit is zero (even)
+
 
 ExtrCondNullify: is c=0 { }
 ExtrCondNullify: is ExtrCond [ nullifyEnable = 1; globalset(inst_next, nullifyEnable); ]
 {
 	nullifyNextCond = ExtrCond;
 }
+
+ExtrCondNullifyW: is c=0 { }
+ExtrCondNullifyW: is ExtrCondW [ nullifyEnable = 1; globalset(inst_next, nullifyEnable); ]
+{
+	nullifyNextCond = ExtrCondW;
+}
+
 
 # a subset of the SED conditions used for bit tests
 BVBCond: is c=2 & R1 { tmp:1 = ((R1 >> (31-sar)) & 0x1) == 1 ; export tmp; } # target bit is one
@@ -1539,12 +1600,20 @@ BBCond: is c=7 & R1 & bboffset { tmp:1 = ((R1 >> (63-bboffset)) & 0x1) == 0 ; ex
 #
 # unit conditions for checking byte ranges within a word
 #
-RegUnitCond: is c=0 { export 0:1; } # never
-RegUnitCond: is c=2 & RT  { tmp:1 = (RT:1 == 0) || ((RT:2 & 0xFF00) == 0) || ((RT:3 & 0xFF0000) == 0) || ((RT & 0xFF000000) == 0)   ; export tmp; } # some byte zero
-RegUnitCond: is c=3 & RT { tmp:1 = ((RT:2 & 0xFFFF) == 0) || ((RT & 0xFFFF0000) == 0) ; export tmp; } # some halfword zero
-RegUnitCond: is c=4  { export 0:1; } # some digit carry -- TODO FIGURE OUT BCD
-RegUnitCond: is c=6  { export 0:1; } # some byte carry -- TODO BCD
-RegUnitCond: is c=7  { export 0:1; } # some halfword carry -- TODO BCD
+RegUnitCond: is c=0 & m=0 { export 0:1; } # never
+RegUnitCond: is c=2 & m=0 & RT  { tmp:1 = (RT:1 == 0) || ((RT:2 & 0xFF00) == 0) || ((RT:3 & 0xFF0000) == 0) || ((RT & 0xFF000000) == 0)   ; export tmp; } # some byte zero
+RegUnitCond: is c=3 & m=0 & RT { tmp:1 = ((RT:2 & 0xFFFF) == 0) || ((RT & 0xFFFF0000) == 0) ; export tmp; } # some halfword zero
+RegUnitCond: is c=4 & m=0 { export 0:1; } # some digit carry -- TODO FIGURE OUT BCD
+RegUnitCond: is c=6 & m=0 { export 0:1; } # some byte carry -- TODO BCD
+RegUnitCond: is c=7 & m=0 { export 0:1; } # some halfword carry -- TODO BCD
+RegUnitCond: is c=0 & m=1 { export 0:1; } # never
+RegUnitCond: is c=2 & m=1 & RT  { tmp:1 = (RT:1 == 0) || ((RT:2 & 0xFF00) == 0) || ((RT:3 & 0xFF0000) == 0) || ((RT & 0xFF000000) == 0) || ((RT & 0xFF00000000) == 0) || ((RT & 0xFF0000000000) == 0) || ((RT & 0xFF000000000000) == 0) || ((RT & 0xFF00000000000000) == 0)   ; export tmp; } # some byte zero
+RegUnitCond: is c=3 & m=1 & RT { tmp:1 = ((RT:2 & 0xFFFF) == 0) || ((RT & 0xFFFF0000) == 0) ; export tmp; } # some halfword zero
+RegUnitCond: is c=4 & m=1 { export 0:1; } # some digit carry -- TODO FIGURE OUT BCD
+RegUnitCond: is c=6 & m=1 { export 0:1; } # some byte carry -- TODO BCD
+RegUnitCond: is c=7 & m=1 { export 0:1; } # some halfword carry -- TODO BCD
+
+
 
 UnitCond: "" is RegUnitCond & fv=0 { export RegUnitCond; }
 UnitCond: "" is RegUnitCond & fv=1 { tmp:1 = ! RegUnitCond; export tmp; }
@@ -1555,8 +1624,11 @@ UnitCondNullify: is UnitCond [ nullifyEnable = 1; globalset(inst_next, nullifyEn
 	nullifyNextCond = UnitCond;
 }
 
-UnitCondSym: RegUnitCondSym is RegUnitCondSym & fv=0 { }
-UnitCondSym: InvUnitCondSym is InvUnitCondSym & fv=1 { }
+UnitCondSym: RegUnitCondSym is RegUnitCondSym & fv=0 & m=0 { }
+UnitCondSym: InvUnitCondSym is InvUnitCondSym & fv=1 & m=0 { }
+UnitCondSym: RegUnitCondSymW is RegUnitCondSymW & fv=0 & m=1 { }
+UnitCondSym: InvUnitCondSymW is InvUnitCondSymW & fv=1 & m=1 { }
+
 
 #
 ##### The Add Conditions from table 5-4 on page 5-5
@@ -1591,6 +1663,9 @@ AddCondSym: RegAddCondSym is RegAddCondSym & fv=0 & d=0 { }
 AddCondSym: InvAddCondSym is InvAddCondSym & fv=1 & d=0 { }
 AddCondSym: RegAddCondSymW is RegAddCondSymW & fv=0 & d=1 { }
 AddCondSym: InvAddCondSymW is InvAddCondSymW & fv=1 & d=1 { }
+
+AddCondSym32: RegAddCondSym is RegAddCondSym & fv=0 { }
+AddCondSym32: InvAddCondSym is InvAddCondSym & fv=1 { }
 
 RegAddCondI: is c = 0 { export 0:1; } # never
 RegAddCondI: is c = 1 & highlse5 & R2 { val:$(REGSIZE) = sext(highlse5:1); tmp:1 = (val == -R2) ; export tmp; } # equal to negated
@@ -1696,14 +1771,14 @@ RegCSCondI: is  c=5 & R2 & highlse5 { val:4 = sext(highlse5); tmp:1 = (val <= R2
 RegCSCondI: is  c=6 & R2 & highlse5 { val:4 = sext(highlse5); local diff = (val - R2:4); tmp:1 = (val s> 0 && R2 s> 0 && diff s< 0) || (val s< 0 && R2 s< 0 && diff s> 0)  ; export tmp; } # overflow
 RegCSCondI: is  c=7 & R2 & highlse5 { val:4 = sext(highlse5); tmp:1 = ((val - R2:4) & 0x1) == 1 ; export tmp; } # odd
 
-RegCSCondIW: is  c=0 & R2 & highlse5 { export 0:1; }  # never
-RegCSCondIW: is  c=1 & R2 & highlse5 { val:$(REGSIZE) = sext(highlse5); tmp:1 = (val == R2) ; export tmp; } # equal
-RegCSCondIW: is  c=2 & R2 & highlse5 { val:$(REGSIZE) = sext(highlse5); tmp:1 = (val s< R2) ; export tmp; } # signed less than
-RegCSCondIW: is  c=3 & R2 & highlse5 { val:$(REGSIZE) = sext(highlse5); tmp:1 = (val s<= R2) ; export tmp; } # signed less than equal
-RegCSCondIW: is  c=4 & R2 & highlse5 { val:$(REGSIZE) = sext(highlse5); tmp:1 = (val < R2) ; export tmp; } # unsigned less than 
-RegCSCondIW: is  c=5 & R2 & highlse5 { val:$(REGSIZE) = sext(highlse5); tmp:1 = (val <= R2) ; export tmp; } # unsigned less than equal
-RegCSCondIW: is  c=6 & R2 & highlse5 { val:$(REGSIZE) = sext(highlse5); local diff = (val - R2); tmp:1 = (val s> 0 && R2 s> 0 && diff s< 0) || (val s< 0 && R2 s< 0 && diff s> 0)  ; export tmp; } # overflow
-RegCSCondIW: is  c=7 & R2 & highlse5 { val:$(REGSIZE) = sext(highlse5); tmp:1 = ((val - R2) & 0x1) == 1 ; export tmp; } # odd
+CMPIBCond: is  c=0 & R2 & highlse5 { val:$(REGSIZE) = sext(highlse5); tmp:1 = (val < R2) ; export tmp; } # unsigned less than·
+CMPIBCond: is  c=1 & R2 & highlse5 { val:$(REGSIZE) = sext(highlse5); tmp:1 = (val == R2) ; export tmp; } # equal
+CMPIBCond: is  c=2 & R2 & highlse5 { val:$(REGSIZE) = sext(highlse5); tmp:1 = (val s< R2) ; export tmp; } # signed less than
+CMPIBCond: is  c=3 & R2 & highlse5 { val:$(REGSIZE) = sext(highlse5); tmp:1 = (val s<= R2) ; export tmp; } # signed less than equal
+CMPIBCond: is  c=4 & R2 & highlse5 { val:$(REGSIZE) = sext(highlse5); tmp:1 = (val >= R2) ; export tmp; } # unsigned greater than or equal
+CMPIBCond: is  c=5 & R2 & highlse5 { val:$(REGSIZE) = sext(highlse5); tmp:1 = (val != R2) ; export tmp; } # not equal
+CMPIBCond: is  c=6 & R2 & highlse5 { val:$(REGSIZE) = sext(highlse5); tmp:1 = (val s>= R2) ; export tmp; } # signed greater than or equal
+CMPIBCond: is  c=7 & R2 & highlse5 { val:$(REGSIZE) = sext(highlse5); tmp:1 = (val s> R2) ; export tmp; } # signed greater than
 
 # The Compare or Subtract conditions compared with 11 bit immediates. These are used with the SUBI[O] and COMICLR instructions. Both regular and inverted forms are used.
 RegCSCondI11: is  c=0 & R2 & lse11 { export 0:1; }  # never
@@ -1727,17 +1802,25 @@ CSCondI11Nullify: is CSCondI11 [ nullifyEnable = 1; globalset(inst_next, nullify
 #
 #### Logical Conditions
 #
-RegLogicCond: is c=0 { export 0:1; } # never
-RegLogicCond: is c=1 & RT { tmp:1 = (RT == 0) ; export tmp; } # equal, all zeros
-RegLogicCond: is c=2 & RT { tmp:1 = (RT & 0x80000000) != 0 ; export tmp; } # <, leftmost bit is 1
-RegLogicCond: is c=3 & RT { tmp:1 = ((RT & 0x80000000) != 0) || RT == 0 ; export tmp; } # <=, leftmost bit is 1 or all bits are zero
-RegLogicCond: is c=7 & RT { tmp:1 = (RT & 0x1) == 0x1; export tmp; } # odd, rightmost bit is 1
+RegLogicCond: is c=0 & m=0 { export 0:1; } # never
+RegLogicCond: is c=1 & m=0 & RT { tmp:1 = (RT:4 == 0) ; export tmp; } # equal, all zeros
+RegLogicCond: is c=2 & m=0 & RT { tmp:1 = (RT & 0x80000000) != 0 ; export tmp; } # <, leftmost bit is 1
+RegLogicCond: is c=3 & m=0 & RT { tmp:1 = ((RT & 0x80000000) != 0) || RT:4 == 0 ; export tmp; } # <=, leftmost bit is 1 or all bits are zero
+RegLogicCond: is c=7 & m=0 & RT { tmp:1 = (RT & 0x1) == 0x1; export tmp; } # odd, rightmost bit is 1
+RegLogicCond: is c=0 & m=1 { export 0:1; } # never
+RegLogicCond: is c=1 & m=1 & RT { tmp:1 = (RT == 0) ; export tmp; } # equal, all zeros
+RegLogicCond: is c=2 & m=1 & RT { tmp:1 = (RT & 0x8000000000000000) != 0 ; export tmp; } # <, leftmost bit is 1
+RegLogicCond: is c=3 & m=1 & RT { tmp:1 = ((RT & 0x8000000000000000) != 0) || RT == 0 ; export tmp; } # <=, leftmost bit is 1 or all bits are zero
+RegLogicCond: is c=7 & m=1 & RT { tmp:1 = (RT & 0x1) == 0x1; export tmp; } # odd, rightmost bit is 1
 
 LogicCond: is fv=0 & RegLogicCond { tmp:1 = RegLogicCond; export tmp; }   # non-inverted cases
 LogicCond: is fv=1 & RegLogicCond { tmp:1 = ! RegLogicCond; export tmp; } # inverted cases
 
-LogicCondSym: RegLogicCondSym is RegLogicCondSym & fv=0 { }
-LogicCondSym: InvLogicCondSym is InvLogicCondSym & fv=1 { }
+LogicCondSym: RegLogicCondSym is RegLogicCondSym & fv=0 & m=0 { }
+LogicCondSym: InvLogicCondSym is InvLogicCondSym & fv=1 & m=0 { }
+LogicCondSym: RegLogicCondSymW is RegLogicCondSymW & fv=0 & m=1 { }
+LogicCondSym: InvLogicCondSymW is InvLogicCondSymW & fv=1 & m=1 { }
+
 
 LogicCondNullify: is c=0 & fv=0 { }
 LogicCondNullify: is LogicCond [ nullifyEnable = 1; globalset(inst_next, nullifyEnable); ]
