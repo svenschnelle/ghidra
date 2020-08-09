@@ -1441,6 +1441,15 @@ IndexedTarget: is RX & RB
 		export target;
 	}
 
+# vectored (base register) branch
+BaseTarget: is RB
+{
+		target:$(ADDRSIZE) = RB;
+		branchIndDest = target;
+		export target;
+}
+
+
 # vectored (base register plus index register -- but index register is r0 so skip it since this is a return) branch
 ReturnTarget: is RB
 	{
@@ -1757,6 +1766,17 @@ CSCondNullify: is CSCond [ nullifyEnable = 1; globalset(inst_next, nullifyEnable
 
 CSCondSym: RegCSCondSym is RegCSCondSym & fv=0 { }
 CSCondSym: InvCSCondSym is InvCSCondSym & fv=1 { }
+
+CSCondW: is fv=0 & RegCSCondW { export RegCSCondW; }
+CSCondW: is fv=1 & RegCSCondW { tmp:1 = ! RegCSCondW; export tmp; }
+
+CSCondNullifyW: is c=0 & fv=0 { }
+CSCondNullifyW: is CSCondW [ nullifyEnable = 1; globalset(inst_next, nullifyEnable); ]
+{
+	nullifyNextCond = CSCondW;
+}
+
+
 CSCondSymW: RegCSCondSymW is RegCSCondSymW & fv=0 { }
 CSCondSymW: InvCSCondSymW is InvCSCondSymW & fv=1 { }
 

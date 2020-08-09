@@ -587,14 +587,14 @@ with : phase=1 {
 }
 
 # vectored (offset register plus index register) unconditional indirect branch
-:bve^nullifySymForBranch (RB)								is opfam=0x3A & c=0x6 & bit12=1 & RB & nullifySymForBranch & RX & bit0=0 & n=1 & $(COMMON)
+:bve^nullifySymForBranch (RB)								is opfam=0x3A & c=0x6 & bit12=1 & RB & BaseTarget & nullifySymForBranch & bit0=0 & n=1 & $(COMMON)
 {
 	goto [branchIndDest];
 }
 
 
 # vectored (offset register plus index register) unconditional indirect branch
-:bve^nullifyForBranch (RB)									is opfam=0x3A & c=0x6 & bit12=1 & RB & nullifyForBranch & RX & bit0=0 & n=0 & $(COMMON)
+:bve^nullifyForBranch (RB)									is opfam=0x3A & c=0x6 & bit12=1 & RB & BaseTarget & nullifyForBranch & bit0=0 & n=0 & $(COMMON)
 	[
 	  branchEnable = 1;
 	  globalset(inst_next, branchEnable);
@@ -608,7 +608,7 @@ with : phase=1 {
 }
 
 # vectored (offset register plus index register) unconditional indirect branch
-:bve^",l"^nullifySymForBranch (RB)								is opfam=0x3A & c=0x7 & bit12=1 & RB & nullifySymForBranch & RX & bit0=0 & n=1 & R2dst & $(COMMON)
+:bve^",l"^nullifySymForBranch (RB)								is opfam=0x3A & c=0x7 & bit12=1 & RB & BaseTarget & nullifySymForBranch & bit0=0 & n=1 & R2dst & $(COMMON)
 {
 	R2dst = inst_start + 8;
 	goto [branchIndDest];
@@ -616,7 +616,7 @@ with : phase=1 {
 
 
 # vectored (offset register plus index register) unconditional indirect branch
-:bve^",l"^nullifyForBranch (RB)									is opfam=0x3A & c=0x7 & bit12=1 & RB & nullifyForBranch & RX & bit0=0 & n=0 & R2dst & $(COMMON)
+:bve^",l"^nullifyForBranch (RB)									is opfam=0x3A & c=0x7 & bit12=1 & RB & BaseTarget & nullifyForBranch & bit0=0 & n=0 & R2dst & $(COMMON)
 	[
 	  branchEnable = 1;
 	  globalset(inst_next, branchEnable);
@@ -1049,6 +1049,12 @@ define pcodeop trap;
 	build CSCondNullify;
 }
 
+:sub^CSCondSymW R1,R2,RT	is opfam=0x02 & op=0x10 & m=1 & R1 & R2 & RT & CSCondSymW & CSCondNullifyW {
+	pswCB = ! (R1 < R2);
+	RT = R1 - R2;
+	build CSCondNullifyW;
+}
+
 :sub",o"^CSCondSym R1,R2,RT	is opfam=0x02 & op=0x30 & m=0 & R1 & R2 & RT & CSCondSym & CSCondNullify {
 	if (sborrow(R1,R2)) goto <TRAP>;
 	pswCB = ! (R1 < R2);
@@ -1060,12 +1066,32 @@ define pcodeop trap;
 	<DONE>
 }
 
+:sub",o"^CSCondSymW R1,R2,RT	is opfam=0x02 & op=0x30 & m=1 & R1 & R2 & RT & CSCondSymW & CSCondNullifyW {
+	if (sborrow(R1,R2)) goto <TRAP>;
+	pswCB = ! (R1 < R2);
+	RT = R1 - R2;
+	build CSCondNullifyW;
+	goto <DONE>;
+	<TRAP>
+	trap();
+	<DONE>
+}
+
+
 :sub",b"^CSCondSym R1,R2,RT	is opfam=0x02 & op=0x14 & m=0 & R1 & R2 & RT & CSCondSym & CSCondNullify {
 	right:$(REGSIZE) = ~R2 + zext(pswCB);
 	pswCB =  ! (R1 < right); #! carry(R1, right);
 	RT = R1 + right;
 	build CSCondNullify;
 }
+
+:sub",b"^CSCondSymW R1,R2,RT	is opfam=0x02 & op=0x14 & m=1 & R1 & R2 & RT & CSCondSymW & CSCondNullifyW {
+	right:$(REGSIZE) = ~R2 + zext(pswCB);
+	pswCB =  ! (R1 < right); #! carry(R1, right);
+	RT = R1 + right;
+	build CSCondNullifyW;
+}
+
 
 :sub",bo"^CSCondSym R1,R2,RT	is opfam=0x02 & op=0x34 & m=0 & R1 & R2 & RT & CSCondSym & CSCondNullify {
 	right:$(REGSIZE) = ~R2 + zext(pswCB);
@@ -1079,6 +1105,19 @@ define pcodeop trap;
 	<DONE>
 }
 
+:sub",bo"^CSCondSymW R1,R2,RT	is opfam=0x02 & op=0x34 & m=1 & R1 & R2 & RT & CSCondSymW & CSCondNullifyW {
+	right:$(REGSIZE) = ~R2 + zext(pswCB);
+	if (sborrow(R1,right)) goto <TRAP>;
+	pswCB =  ! (R1 < right);
+	RT = R1 + right;
+	build CSCondNullifyW;
+	goto <DONE>;
+	<TRAP>
+	trap();
+	<DONE>
+}
+
+
 # subtract and trap on condition
 # this instruction does not have a nullify form
 :sub",t"^CSCondSym R1,R2,RT	is opfam=0x02 & op=0x13 & m=0 & R1 & R2 & RT & CSCondSym & CSCond {
@@ -1086,6 +1125,19 @@ define pcodeop trap;
 	RT = R1 - R2;
 	build CSCond;
 	if (CSCond) goto <TRAP>;
+	goto <DONE>;
+	<TRAP>
+	trap();
+	<DONE>
+}
+
+# subtract and trap on condition
+# this instruction does not have a nullify form
+:sub",t"^CSCondSymW R1,R2,RT	is opfam=0x02 & op=0x13 & m=1 & R1 & R2 & RT & CSCondSymW & CSCondW {
+	pswCB = ! (R1 < R2);
+	RT = R1 - R2;
+	build CSCondW;
+	if (CSCondW) goto <TRAP>;
 	goto <DONE>;
 	<TRAP>
 	trap();
@@ -1103,6 +1155,19 @@ define pcodeop trap;
 	trap();
 	<DONE>
 }
+
+:sub",to"^CSCondSymW R1,R2,RT	is opfam=0x02 & op=0x33 & m=1 & R1 & R2 & RT & CSCondSymW & CSCondW {
+	if (sborrow(R1,R2)) goto <TRAP>;
+	pswCB = ! (R1<R2);
+	RT = R1 - R2;
+	build CSCondW;
+	if (CSCondW) goto <TRAP>;
+	goto <DONE>;
+	<TRAP>
+	trap();
+	<DONE>
+}
+
 
 # R1 is partial remainder, R2 is denominator, RT is updated partial remainder
 :ds^CSCondSym R1,R2,RT	is opfam=0x02 & op=0x11 & m=0 & R1 & R2 & RT & CSCondSym & CSCondNullify {
